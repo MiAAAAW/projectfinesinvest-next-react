@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // GALLERY SECTION COMPONENT
 // Galería de fotos con Dialog de shadcn para lightbox
+// CONECTADO A BASE DE DATOS via /api/gallery
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { cn } from "@/lib/utils";
@@ -18,8 +19,21 @@ import type { GalleryConfig } from "@/types/landing.types";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DynamicIcon } from "@/lib/icons";
+
+// Tipo para imágenes de la BD
+interface DBGalleryItem {
+  id: string;
+  src: string;
+  alt: string;
+  caption?: string | null;
+  event?: string | null;
+  category?: string | null;
+  date?: string | null;
+  published: boolean;
+  order: number;
+}
 
 interface GalleryProps {
   config: GalleryConfig;
@@ -37,8 +51,41 @@ function formatDate(dateStr?: string): string {
 }
 
 export default function Gallery({ config, className }: GalleryProps) {
-  const { badge, title, subtitle, items, columns = 3 } = config;
+  const { badge, title, subtitle, columns = 3 } = config;
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+
+  // Estado para imágenes de la BD
+  const [dbItems, setDbItems] = useState<DBGalleryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch imágenes de la API al montar
+  useEffect(() => {
+    async function fetchGallery() {
+      try {
+        const res = await fetch("/api/gallery?status=published&limit=12");
+        if (res.ok) {
+          const json = await res.json();
+          setDbItems(json.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching gallery:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchGallery();
+  }, []);
+
+  // SOLO usar datos de la BD - NO fallback a hardcoded
+  const items = dbItems.map(item => ({
+    id: item.id,
+    src: item.src,
+    alt: item.alt,
+    caption: item.caption || undefined,
+    event: item.event || undefined,
+    category: item.category || undefined,
+    date: item.date || undefined,
+  }));
 
   const gridCols = {
     2: "md:grid-cols-2",
@@ -57,6 +104,30 @@ export default function Gallery({ config, className }: GalleryProps) {
   };
 
   const currentItem = selectedImage !== null ? items[selectedImage] : null;
+
+  // Si está cargando, mostrar skeleton
+  if (isLoading) {
+    return (
+      <section id="gallery" className={cn("relative py-24 md:py-32", className)}>
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center text-center space-y-4 mb-16">
+            <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+            <div className="h-12 w-64 bg-muted animate-pulse rounded" />
+          </div>
+          <div className={cn("grid gap-4 max-w-6xl mx-auto", gridCols[columns])}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="aspect-[4/3] bg-muted animate-pulse rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Si no hay imágenes, no mostrar sección
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <section

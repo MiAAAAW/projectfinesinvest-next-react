@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // RESEARCH SECTION COMPONENT
 // Líneas de Investigación de la facultad
+// CONECTADO A BASE DE DATOS via /api/research
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { cn } from "@/lib/utils";
@@ -13,6 +14,20 @@ import type { ResearchConfig } from "@/types/landing.types";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
+import { useEffect, useState } from "react";
+
+// Tipo para líneas de investigación de la BD
+interface DBResearchLine {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  coordinator: string | null;
+  members: number | null;
+  href: string | null;
+  published: boolean;
+  order: number;
+}
 
 interface ResearchProps {
   config: ResearchConfig;
@@ -20,7 +35,64 @@ interface ResearchProps {
 }
 
 export default function Research({ config, className }: ResearchProps) {
-  const { badge, title, subtitle, items, columns = 3 } = config;
+  const { badge, title, subtitle, columns = 3 } = config;
+
+  // Estado para líneas de investigación de la BD
+  const [dbItems, setDbItems] = useState<DBResearchLine[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch líneas de investigación de la API al montar
+  useEffect(() => {
+    async function fetchResearchLines() {
+      try {
+        const res = await fetch("/api/research?status=published&limit=20");
+        if (res.ok) {
+          const json = await res.json();
+          setDbItems(json.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching research lines:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchResearchLines();
+  }, []);
+
+  // Usar datos de la BD
+  const items = dbItems.map(item => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    icon: item.icon,
+    coordinator: item.coordinator || undefined,
+    members: item.members || undefined,
+    href: item.href || undefined,
+  }));
+
+  // Si está cargando, mostrar skeleton
+  if (isLoading) {
+    return (
+      <section id="research" className={cn("relative py-24 md:py-32", className)}>
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center text-center space-y-4 mb-16">
+            <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+            <div className="h-12 w-96 bg-muted animate-pulse rounded" />
+          </div>
+          <div className="grid gap-6 max-w-6xl mx-auto md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-64 bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Si no hay líneas, no mostrar la sección
+  if (items.length === 0) {
+    return null;
+  }
 
   const gridCols = {
     2: "md:grid-cols-2",

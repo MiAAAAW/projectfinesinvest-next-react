@@ -21,6 +21,7 @@ import {
   ChevronRight,
   ChevronLeft,
   ArrowRight,
+  ArrowLeft,
   ExternalLink,
   Mail,
   Phone,
@@ -76,6 +77,7 @@ import {
   FileArchive,
   Presentation,
   File,
+  Eye,
   type LucideIcon,
 } from "lucide-react";
 
@@ -98,6 +100,7 @@ const iconMap: Record<string, LucideIcon> = {
   ChevronRight,
   ChevronLeft,
   ArrowRight,
+  ArrowLeft,
   ExternalLink,
   Mail,
   Phone,
@@ -153,6 +156,7 @@ const iconMap: Record<string, LucideIcon> = {
   FileArchive,
   Presentation,
   File,
+  Eye,
 };
 
 interface DynamicIconProps {
@@ -210,6 +214,7 @@ export {
   ChevronRight,
   ChevronLeft,
   ArrowRight,
+  ArrowLeft,
   ExternalLink,
   Mail,
   Phone,
@@ -258,5 +263,6 @@ export {
   FileArchive,
   Presentation,
   File,
+  Eye,
   type LucideIcon,
 };

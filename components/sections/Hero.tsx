@@ -160,12 +160,12 @@ export default function Hero({ config, className }: HeroProps) {
                 {title.main}{" "}
                 {title.highlight && (
                   <span className="relative">
-                    <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
+                    <span className="bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-gradient drop-shadow-[0_0_2px_rgba(255,255,255,0.8)]">
                       {title.highlight}
                     </span>
                     {/* Underline effect */}
                     <motion.span
-                      className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-full"
+                      className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-400 rounded-full"
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.8, delay: 0.8 }}

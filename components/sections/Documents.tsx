@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // DOCUMENTS SECTION COMPONENT
 // Sección de documentos y formatos descargables
+// CONECTADO A BASE DE DATOS via /api/documents
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { cn } from "@/lib/utils";
@@ -10,14 +11,35 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { DynamicIcon } from "@/lib/icons";
 import type { DocumentsConfig, DocumentType, DocumentCategory } from "@/types/landing.types";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+
+// Tipo para documentos de la BD
+interface DBDocumentItem {
+  id: string;
+  title: string;
+  description?: string | null;
+  fileUrl: string;
+  fileType: string;
+  fileSize?: string | null;
+  category: string;
+  downloads: number;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface DocumentsProps {
   config: DocumentsConfig;
@@ -55,9 +77,56 @@ function formatDate(dateStr?: string): string {
 }
 
 export default function Documents({ config, className }: DocumentsProps) {
-  const { badge, title, subtitle, items, categories, showSearch } = config;
+  const { badge, title, subtitle, categories, showSearch } = config;
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<DocumentCategory | "all">("all");
+
+  // Estado para documentos de la BD
+  const [dbItems, setDbItems] = useState<DBDocumentItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Estado para preview modal
+  const [previewDoc, setPreviewDoc] = useState<{
+    id: string;
+    title: string;
+    fileType: string;
+  } | null>(null);
+
+  // Tipos de archivo que se pueden previsualizar en iframe
+  const canPreviewFile = (fileType: string) => {
+    const type = fileType?.toLowerCase();
+    return type === "pdf" || type === "application/pdf";
+  };
+
+  // Fetch documentos de la API al montar
+  useEffect(() => {
+    async function fetchDocuments() {
+      try {
+        const res = await fetch("/api/documents?status=published&limit=50");
+        if (res.ok) {
+          const json = await res.json();
+          setDbItems(json.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchDocuments();
+  }, []);
+
+  // SOLO usar datos de la BD - NO fallback a hardcoded
+  const items = dbItems.map(item => ({
+    id: item.id,
+    title: item.title,
+    description: item.description || undefined,
+    fileUrl: item.fileUrl,
+    fileType: item.fileType as DocumentType,
+    fileSize: item.fileSize || undefined,
+    category: item.category as DocumentCategory,
+    updatedAt: item.updatedAt,
+  }));
 
   // Filtrar documentos
   const filteredItems = useMemo(() => {
@@ -74,6 +143,30 @@ export default function Documents({ config, className }: DocumentsProps) {
 
   // Categorías disponibles
   const availableCategories = categories || Array.from(new Set(items.map(item => item.category)));
+
+  // Si está cargando, mostrar skeleton
+  if (isLoading) {
+    return (
+      <section id="documents" className={cn("relative py-24 md:py-32", className)}>
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center text-center space-y-4 mb-12">
+            <div className="h-8 w-32 bg-muted animate-pulse rounded" />
+            <div className="h-12 w-80 bg-muted animate-pulse rounded" />
+          </div>
+          <div className="grid gap-4 max-w-4xl mx-auto">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Si no hay documentos, no mostrar sección
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <section
@@ -157,89 +250,80 @@ export default function Documents({ config, className }: DocumentsProps) {
         </MotionWrapper>
 
         {/* Documents Grid */}
-        <StaggerContainer className="grid gap-4 max-w-4xl mx-auto" staggerDelay={0.05}>
+        {/* Key cambia con filtro para re-animar items */}
+        <StaggerContainer
+          key={`docs-${activeCategory}-${searchQuery}`}
+          className="grid gap-4 max-w-4xl mx-auto"
+          staggerDelay={0.05}
+        >
           {filteredItems.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               No se encontraron documentos
             </div>
           ) : (
             filteredItems.map((doc) => {
-              const fileStyle = fileTypeIcons[doc.fileType];
+              const fileStyle = fileTypeIcons[doc.fileType] || fileTypeIcons.other;
+              const canPreview = canPreviewFile(doc.fileType);
 
               return (
                 <StaggerItem key={doc.id}>
                   <motion.div
-                    whileHover={{ x: 4 }}
-                    transition={{ duration: 0.2 }}
+                    whileHover={{ x: 2 }}
+                    transition={{ duration: 0.15 }}
                   >
-                    <Card className="group hover:border-primary/20 hover:shadow-md transition-all">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
-                          {/* File Icon */}
-                          <div className={cn(
-                            "flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted",
-                            "group-hover:bg-primary/10 transition-colors"
-                          )}>
-                            <DynamicIcon
-                              name={fileStyle.icon}
-                              size={24}
-                              className={fileStyle.color}
-                            />
-                          </div>
+                    {/* Diseño minimalista - una sola línea */}
+                    <div className="group flex items-center gap-3 px-4 py-3 rounded-lg border border-transparent hover:border-border hover:bg-muted/30 transition-all">
+                      {/* Icono pequeño */}
+                      <DynamicIcon
+                        name={fileStyle.icon}
+                        size={18}
+                        className={cn(fileStyle.color, "shrink-0")}
+                      />
 
-                          {/* Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <h3 className="font-medium group-hover:text-primary transition-colors">
-                                  {doc.title}
-                                </h3>
-                                {doc.description && (
-                                  <p className="text-sm text-muted-foreground mt-0.5">
-                                    {doc.description}
-                                  </p>
-                                )}
-                              </div>
+                      {/* Título + metadata inline */}
+                      <div className="flex-1 min-w-0 flex items-center gap-3">
+                        <span className="font-medium truncate group-hover:text-primary transition-colors">
+                          {doc.title}
+                        </span>
+                        <span className="text-xs text-muted-foreground hidden sm:inline">
+                          {doc.fileSize}
+                        </span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 hidden md:inline-flex">
+                          {categoryLabels[doc.category]}
+                        </Badge>
+                      </div>
 
-                              {/* Download Button with Tooltip */}
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      asChild
-                                      variant="ghost"
-                                      size="sm"
-                                      className="shrink-0"
-                                    >
-                                      <Link href={doc.fileUrl} target="_blank" download>
-                                        <DynamicIcon name="Download" size={18} />
-                                        <span className="ml-2 hidden sm:inline">Descargar</span>
-                                      </Link>
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Descargar {doc.fileType.toUpperCase()} {doc.fileSize && `(${doc.fileSize})`}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
+                      {/* Botones */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        {/* Preview - Solo para PDFs */}
+                        {canPreview && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                            onClick={() => setPreviewDoc({
+                              id: doc.id,
+                              title: doc.title,
+                              fileType: doc.fileType,
+                            })}
+                          >
+                            <DynamicIcon name="Eye" size={16} />
+                          </Button>
+                        )}
 
-                            {/* Meta info */}
-                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                              <Badge variant="outline" className="text-xs">
-                                {categoryLabels[doc.category]}
-                              </Badge>
-                              {doc.fileSize && (
-                                <span>{doc.fileSize}</span>
-                              )}
-                              {doc.updatedAt && (
-                                <span>Actualizado: {formatDate(doc.updatedAt)}</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                        {/* Download */}
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                        >
+                          <Link href={`/api/download/${doc.id}?download=true`}>
+                            <DynamicIcon name="Download" size={16} />
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
                   </motion.div>
                 </StaggerItem>
               );
@@ -247,6 +331,27 @@ export default function Documents({ config, className }: DocumentsProps) {
           )}
         </StaggerContainer>
       </div>
+
+      {/* Preview Modal - Tamaño grande para ver PDF */}
+      <Dialog open={!!previewDoc} onOpenChange={(open) => !open && setPreviewDoc(null)}>
+        <DialogContent className="!max-w-6xl !w-[95vw] !h-[90vh] p-0 overflow-hidden flex flex-col">
+          <DialogHeader className="px-4 py-3 border-b shrink-0">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <DynamicIcon name="Eye" size={18} className="text-primary" />
+              {previewDoc?.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0">
+            {previewDoc && (
+              <iframe
+                src={`/api/download/${previewDoc.id}`}
+                className="w-full h-full border-0"
+                title={`Preview: ${previewDoc.title}`}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

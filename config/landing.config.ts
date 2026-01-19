@@ -129,7 +129,7 @@ export const landingConfig: LandingConfig = {
     enable3D: false,
     image: {
       light: "/images/gallery/facultadfoto.png",
-      dark: "/images/gallery/facultadfoto.png",
+      dark: "/images/gallery/facultadfotonoche.png",
       alt: "Facultad de Ingeniería Estadística e Informática - FINESI",
     },
   },

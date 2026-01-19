@@ -42,3 +42,12 @@ next-env.d.ts
 
 # Documentación interna
 *.md
+/lib/generated/prisma
+
+# Uploads (archivos subidos por usuarios)
+/public/uploads/**/*
+!/public/uploads/**/.gitkeep
+
+# Private storage (archivos seguros - descarga via API)
+/storage/**/*
+!/storage/**/.gitkeep

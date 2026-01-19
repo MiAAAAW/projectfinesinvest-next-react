@@ -1,0 +1,494 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// PRISMA SCHEMA - FINESI
+// Base de datos PostgreSQL en Coolify
+// Diseñado para MÁXIMA ESCALABILIDAD
+// - Usuarios con múltiples roles
+// - Permisos granulares por módulo
+// - Contexto en roles (facultad, escuela, proyecto)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// USUARIOS
+// Datos base de la persona (sin roles aquí, van en tabla separada)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  name         String
+  dni          String?   @unique // Documento de identidad
+  phone        String?
+  avatarUrl    String?   @map("avatar_url")
+  active       Boolean   @default(true)  // Suspender temporalmente
+  verified     Boolean   @default(false) // Email verificado
+  deletedAt    DateTime? @map("deleted_at") // Soft delete - nunca eliminar realmente
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones
+  roles           UserRole[]    // Un usuario puede tener MÚLTIPLES roles
+  sessionLogs     SessionLog[]  // Historial de sesiones
+  userChanges     UserLog[]     @relation("UserChanges")  // Cambios en este usuario
+  changesBy       UserLog[]     @relation("UserChangedBy") // Cambios hechos por este usuario
+
+  @@index([deletedAt]) // Para filtrar usuarios no eliminados
+  @@map("users")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROLES
+// Roles dinámicos (no enum) - se pueden crear desde admin
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Role {
+  id          String    @id @default(cuid())
+  code        String    @unique // "super_admin", "admin", "staff", "docente", "estudiante"
+  name        String            // "Super Administrador", "Secretaria", etc
+  description String?
+  color       String?           // Para UI: "#3B82F6"
+  icon        String?           // Para UI: "Shield", "User", etc
+  isSystem    Boolean  @default(false) @map("is_system") // Roles del sistema no se pueden eliminar
+  active      Boolean  @default(true)
+  deletedAt   DateTime? @map("deleted_at") // Soft delete
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relaciones
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@index([deletedAt])
+  @@map("roles")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// USUARIO-ROL (Muchos a Muchos con contexto)
+// Una persona puede ser DOCENTE en Ingeniería y ESTUDIANTE en Maestría
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model UserRole {
+  id         String    @id @default(cuid())
+  userId     String    @map("user_id")
+  roleId     String    @map("role_id")
+  context    String?   // "facultad:ingenieria", "escuela:sistemas", "proyecto:123"
+  active     Boolean   @default(true)      // Rol activo/inactivo para este usuario
+  validFrom  DateTime? @map("valid_from")  // Rol válido desde
+  validUntil DateTime? @map("valid_until") // Rol válido hasta (null = permanente)
+  grantedBy  String?   @map("granted_by")  // Quién asignó el rol
+  notes      String?   // Notas: "Licencia", "Suspendido temporalmente", etc
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId, context]) // Un usuario no puede tener el mismo rol+contexto duplicado
+  @@map("user_roles")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PERMISOS
+// Permisos granulares: módulo + acción
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Permission {
+  id          String   @id @default(cuid())
+  code        String   @unique // "landing.announcements.create", "requests.approve"
+  module      String           // "landing", "requests", "users", "reports"
+  action      String           // "create", "read", "update", "delete", "approve"
+  name        String           // "Crear anuncios"
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relaciones
+  roles       RolePermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROL-PERMISO (Qué puede hacer cada rol)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model RolePermission {
+  id           String   @id @default(cuid())
+  roleId       String   @map("role_id")
+  permissionId String   @map("permission_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relaciones
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOGS DE SESIÓN (Login/Logout)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum SessionAction {
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  PASSWORD_RESET
+  TOKEN_REFRESH
+}
+
+model SessionLog {
+  id          String        @id @default(cuid())
+  userId      String?       @map("user_id")
+  action      SessionAction
+  ipAddress   String?       @map("ip_address")
+  userAgent   String?       @map("user_agent")
+  location    String?       // Geolocalización aproximada
+  success     Boolean       @default(true)
+  failReason  String?       @map("fail_reason") // "invalid_password", "user_inactive", etc
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("session_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE USUARIOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum DataAction {
+  CREATE
+  UPDATE
+  DELETE
+  ACTIVATE
+  DEACTIVATE
+}
+
+model UserLog {
+  id          String     @id @default(cuid())
+  userId      String     @map("user_id")      // Usuario afectado
+  changedBy   String?    @map("changed_by")   // Quién hizo el cambio
+  action      DataAction
+  fieldName   String?    @map("field_name")   // Campo modificado: "email", "name", "active"
+  oldValue    String?    @map("old_value")
+  newValue    String?    @map("new_value")
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  user        User       @relation("UserChanges", fields: [userId], references: [id], onDelete: Cascade)
+  changedByUser User?    @relation("UserChangedBy", fields: [changedBy], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("user_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE ROLES DE USUARIO
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum RoleAction {
+  ASSIGNED
+  REMOVED
+  ACTIVATED
+  DEACTIVATED
+  CONTEXT_CHANGED
+  VALIDITY_CHANGED
+}
+
+model UserRoleLog {
+  id          String     @id @default(cuid())
+  userRoleId  String     @map("user_role_id")
+  userId      String     @map("user_id")
+  roleId      String     @map("role_id")
+  changedBy   String?    @map("changed_by")
+  action      RoleAction
+  oldContext  String?    @map("old_context")
+  newContext  String?    @map("new_context")
+  oldActive   Boolean?   @map("old_active")
+  newActive   Boolean?   @map("new_active")
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([roleId])
+  @@index([createdAt])
+  @@map("user_role_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE ROLES (Definición de roles)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model RoleLog {
+  id          String     @id @default(cuid())
+  roleId      String     @map("role_id")
+  changedBy   String?    @map("changed_by")
+  action      DataAction
+  fieldName   String?    @map("field_name")
+  oldValue    String?    @map("old_value")
+  newValue    String?    @map("new_value")
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([roleId])
+  @@index([createdAt])
+  @@map("role_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE PERMISOS DE ROL
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum PermissionAction {
+  GRANTED
+  REVOKED
+}
+
+model RolePermissionLog {
+  id            String           @id @default(cuid())
+  roleId        String           @map("role_id")
+  permissionId  String           @map("permission_id")
+  changedBy     String?          @map("changed_by")
+  action        PermissionAction
+  reason        String?
+  ipAddress     String?          @map("ip_address")
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  @@index([roleId])
+  @@index([createdAt])
+  @@map("role_permission_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE ANUNCIOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model AnnouncementLog {
+  id             String     @id @default(cuid())
+  announcementId String     @map("announcement_id")
+  changedBy      String?    @map("changed_by")
+  action         DataAction
+  fieldName      String?    @map("field_name")
+  oldValue       String?    @map("old_value") @db.Text
+  newValue       String?    @map("new_value") @db.Text
+  reason         String?
+  ipAddress      String?    @map("ip_address")
+  createdAt      DateTime   @default(now()) @map("created_at")
+
+  @@index([announcementId])
+  @@index([createdAt])
+  @@map("announcement_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE DOCUMENTOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model DocumentLog {
+  id          String     @id @default(cuid())
+  documentId  String     @map("document_id")
+  changedBy   String?    @map("changed_by")
+  action      DataAction
+  fieldName   String?    @map("field_name")
+  oldValue    String?    @map("old_value") @db.Text
+  newValue    String?    @map("new_value") @db.Text
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([documentId])
+  @@index([createdAt])
+  @@map("document_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE GALERÍA
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model GalleryImageLog {
+  id          String     @id @default(cuid())
+  imageId     String     @map("image_id")
+  changedBy   String?    @map("changed_by")
+  action      DataAction
+  fieldName   String?    @map("field_name")
+  oldValue    String?    @map("old_value")
+  newValue    String?    @map("new_value")
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([imageId])
+  @@index([createdAt])
+  @@map("gallery_image_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE CONTENIDO DEL SITIO
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model SiteContentLog {
+  id          String     @id @default(cuid())
+  contentId   String     @map("content_id")
+  section     String     // hero, footer, etc (para búsqueda rápida)
+  key         String     // título, descripción, etc
+  changedBy   String?    @map("changed_by")
+  action      DataAction
+  oldValue    String?    @map("old_value") @db.Text
+  newValue    String?    @map("new_value") @db.Text
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([contentId])
+  @@index([section])
+  @@index([createdAt])
+  @@map("site_content_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LÍNEAS DE INVESTIGACIÓN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ResearchLine {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @db.Text
+  icon        String    @default("FlaskConical")
+  coordinator String?   // Nombre del coordinador
+  members     Int?      // Número de investigadores
+  href        String?   // Link a más información
+  published   Boolean   @default(true)
+  order       Int       @default(0)
+  deletedAt   DateTime? @map("deleted_at") // Soft delete
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([deletedAt])
+  @@index([order])
+  @@map("research_lines")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE LÍNEAS DE INVESTIGACIÓN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ResearchLineLog {
+  id              String     @id @default(cuid())
+  researchLineId  String     @map("research_line_id")
+  changedBy       String?    @map("changed_by")
+  action          DataAction
+  fieldName       String?    @map("field_name")
+  oldValue        String?    @map("old_value") @db.Text
+  newValue        String?    @map("new_value") @db.Text
+  reason          String?
+  ipAddress       String?    @map("ip_address")
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  @@index([researchLineId])
+  @@index([createdAt])
+  @@map("research_line_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ANUNCIOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Announcement {
+  id        String    @id @default(cuid())
+  title     String
+  content   String    @db.Text
+  excerpt   String?
+  type      String    // noticia, evento, convocatoria, comunicado
+  icon      String    @default("FileText")
+  important Boolean   @default(false)
+  published Boolean   @default(true)
+  date      DateTime  @default(now())
+  href      String?
+  deletedAt DateTime? @map("deleted_at") // Soft delete
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@index([deletedAt])
+  @@map("announcements")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DOCUMENTOS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Document {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  fileUrl     String    @map("file_url")
+  fileType    String    @map("file_type") // pdf, doc, xls
+  fileSize    String?   @map("file_size")
+  category    String    // reglamentos, formatos, manuales, investigacion
+  downloads   Int       @default(0)
+  published   Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at") // Soft delete
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([deletedAt])
+  @@map("documents")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GALERÍA DE IMÁGENES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model GalleryImage {
+  id        String    @id @default(cuid())
+  src       String
+  alt       String
+  caption   String?
+  event     String?
+  category  String?
+  date      DateTime?
+  published Boolean   @default(true)
+  order     Int       @default(0)
+  deletedAt DateTime? @map("deleted_at") // Soft delete
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@index([deletedAt])
+  @@map("gallery_images")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTENIDO DEL SITIO (Hero, Footer, Secciones)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model SiteContent {
+  id        String    @id @default(cuid())
+  section   String    // hero, footer, research, offices, etc.
+  key       String    // title, description, image, etc.
+  value     String    @db.Text
+  type      String    @default("text") // text, image, json
+  deletedAt DateTime? @map("deleted_at") // Soft delete
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@unique([section, key])
+  @@index([deletedAt])
+  @@map("site_content")
+}
