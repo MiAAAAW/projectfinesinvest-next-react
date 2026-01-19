@@ -89,7 +89,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // attachment = forzar descarga
     const disposition = forceDownload ? "attachment" : "inline";
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(fileBuffer as any, {
       status: 200,
       headers: {
         "Content-Type": contentType,
