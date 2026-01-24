@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const subCategory = formData.get("subCategory") as DocumentSubCategory | null;
 
     // Validar categoría
-    const validCategories: UploadCategory[] = ["images", "documents", "gallery"];
+    const validCategories: UploadCategory[] = ["images", "documents", "gallery", "authorities"];
     if (!validCategories.includes(category)) {
       return NextResponse.json(
         { error: "Categoría inválida" },

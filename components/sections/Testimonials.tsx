@@ -28,14 +28,12 @@ function TestimonialCard({
     <div
       className={cn(
         "group relative flex-shrink-0 w-[300px] sm:w-[350px] md:w-[400px] p-4 sm:p-6 mx-2 sm:mx-3",
-        // Glassmorphism effect
-        "bg-background/60 backdrop-blur-xl",
-        "border border-white/10 dark:border-white/5",
-        "rounded-2xl shadow-xl",
+        // Card style consistente
+        "bg-card border border-border/50",
+        "rounded-2xl shadow-professional-card",
         // Hover effects
-        "transition-all duration-500 ease-out",
-        "hover:bg-background/80 hover:border-primary/20",
-        "hover:shadow-2xl hover:shadow-primary/5",
+        "transition-all duration-300",
+        "hover:border-primary/30 hover:shadow-professional-lg",
         "hover:-translate-y-1"
       )}
     >

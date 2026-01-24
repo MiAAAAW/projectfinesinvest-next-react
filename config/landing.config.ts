@@ -91,9 +91,11 @@ export const landingConfig: LandingConfig = {
       { label: "Anuncios", href: "#announcements" },
       { label: "Líneas de Investigación", href: "#research" },
       { label: "Documentos", href: "#documents" },
-      { label: "Oficinas", href: "#offices" },
+      { label: "Calendario", href: "#calendar" },
       { label: "Galería", href: "#gallery" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Autoridades", href: "#authorities" },
+      { label: "Oficinas", href: "#offices" },
+      // { label: "FAQ", href: "#faq" }, // COMENTADO: FAQ desactivado
     ],
     cta: {
       text: "Contactar",
@@ -110,12 +112,12 @@ export const landingConfig: LandingConfig = {
       variant: "outline",
     },
     title: {
-      main: "Facultad de Ingeniería",
-      highlight: "Estadística e Informática",
+      main: "Portal de Investigación",
+      highlight: "FINESI",
       suffix: "",
     },
     description:
-      "Impulsamos la investigación científica y tecnológica en las áreas de Estadística e Informática, formando profesionales investigadores comprometidos con el desarrollo regional y nacional.",
+      "Sistema integral de seguimiento de proyectos de investigación científica y tecnológica de la Facultad de Ingeniería Estadística e Informática - UNA Puno.",
     cta: {
       primary: {
         text: "Ver Convocatorias",
@@ -437,59 +439,19 @@ export const landingConfig: LandingConfig = {
 
   // ─────────────────────────────────────────────────────────────────────────────
   // CALENDAR (Calendario de Eventos)
+  // Datos vienen de la API/Base de datos - items vacío como fallback
   // ─────────────────────────────────────────────────────────────────────────────
   calendar: {
     badge: "Calendario",
     title: "Próximos Eventos",
     subtitle: "Fechas importantes del semestre académico",
     groupByMonth: true,
-    items: [
-      {
-        id: "1",
-        title: "Inicio de Convocatoria FEDU 2026",
-        date: "2026-01-15",
-        type: "deadline",
-        description: "Apertura de convocatoria para proyectos de investigación",
-        important: true,
-      },
-      {
-        id: "2",
-        title: "Taller de Redacción Científica",
-        date: "2026-01-20",
-        endDate: "2026-01-24",
-        type: "academico",
-        description: "Taller intensivo de redacción de artículos científicos",
-        location: "Auditorio FINESI",
-      },
-      {
-        id: "3",
-        title: "Cierre de Convocatoria FEDU",
-        date: "2026-02-28",
-        type: "deadline",
-        description: "Fecha límite para presentar proyectos",
-        important: true,
-      },
-      {
-        id: "4",
-        title: "Seminario de Investigación",
-        date: "2026-03-15",
-        type: "investigacion",
-        description: "Presentación de avances de proyectos de investigación",
-        location: "Sala de Conferencias",
-      },
-      {
-        id: "5",
-        title: "Día del Investigador UNA",
-        date: "2026-04-22",
-        type: "social",
-        description: "Celebración institucional del día del investigador",
-        location: "Campus Universitario",
-      },
-    ],
+    items: [], // Datos desde API - ver /admin/calendar para gestionar
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
   // GALLERY (Galería de Fotos)
+  // Datos vienen de la API/Base de datos - items vacío como fallback
   // ─────────────────────────────────────────────────────────────────────────────
   gallery: {
     badge: "Galería",
@@ -497,60 +459,7 @@ export const landingConfig: LandingConfig = {
     subtitle: "Momentos destacados de nuestra comunidad investigadora",
     columns: 3,
     showLightbox: true,
-    items: [
-      {
-        id: "1",
-        src: "/gallery/seminario-2025.jpg",
-        alt: "Seminario de Investigación 2025",
-        caption: "Seminario Anual de Investigación FINESI",
-        date: "2025-11-15",
-        event: "Seminario de Investigación",
-        category: "eventos",
-      },
-      {
-        id: "2",
-        src: "/gallery/taller-ia.jpg",
-        alt: "Taller de Inteligencia Artificial",
-        caption: "Taller práctico de Machine Learning",
-        date: "2025-10-20",
-        event: "Taller de IA",
-        category: "talleres",
-      },
-      {
-        id: "3",
-        src: "/gallery/congreso-2025.jpg",
-        alt: "Congreso Internacional de Estadística",
-        caption: "Participación en Congreso Internacional",
-        date: "2025-09-10",
-        event: "Congreso Internacional",
-        category: "congresos",
-      },
-      {
-        id: "4",
-        src: "/gallery/laboratorio.jpg",
-        alt: "Laboratorio de Investigación",
-        caption: "Estudiantes en el Laboratorio de Investigación",
-        date: "2025-08-05",
-        category: "infraestructura",
-      },
-      {
-        id: "5",
-        src: "/gallery/premiacion.jpg",
-        alt: "Premiación de Investigadores",
-        caption: "Reconocimiento a investigadores destacados",
-        date: "2025-12-20",
-        event: "Ceremonia de Reconocimiento",
-        category: "eventos",
-      },
-      {
-        id: "6",
-        src: "/gallery/equipo.jpg",
-        alt: "Equipo de Investigación",
-        caption: "Equipo de la Dirección de Investigación",
-        date: "2025-07-01",
-        category: "equipo",
-      },
-    ],
+    items: [], // Datos desde API - ver /admin/gallery para gestionar
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -614,41 +523,39 @@ export const landingConfig: LandingConfig = {
         links: [
           { text: "Inicio", href: "#" },
           { text: "Anuncios", href: "#announcements" },
-          { text: "Líneas de Investigación", href: "#research" },
+          { text: "Investigación", href: "#research" },
           { text: "Documentos", href: "#documents" },
         ],
       },
       {
         title: "Recursos",
         links: [
-          { text: "Reglamentos", href: "#documents" },
-          { text: "Formatos", href: "#documents" },
           { text: "Calendario", href: "#calendar" },
-          { text: "FAQ", href: "#faq" },
+          { text: "Galería", href: "#gallery" },
+          { text: "Autoridades", href: "#authorities" },
+          { text: "Oficinas", href: "#offices" },
         ],
       },
       {
         title: "Contacto",
         links: [
-          { text: "Oficinas", href: "#offices" },
-          { text: "investigacion.finesi@unap.edu.pe", href: "mailto:investigacion.finesi@unap.edu.pe" },
-          { text: "(051) 123-4567", href: "tel:+51511234567" },
+          { text: "Email", href: "#" }, // TODO: Reemplazar con email real
+          { text: "Teléfono", href: "#" }, // TODO: Reemplazar con teléfono real
         ],
       },
       {
         title: "Universidad",
         links: [
-          { text: "UNA Puno", href: "https://www.unap.edu.pe", external: true },
-          { text: "FINESI", href: "https://finesi.unap.edu.pe", external: true },
-          { text: "VRIP", href: "https://vrip.unap.edu.pe", external: true },
-          { text: "Biblioteca", href: "https://biblioteca.unap.edu.pe", external: true },
+          { text: "UNA Puno", href: "#", external: true }, // TODO: URL oficial
+          { text: "FINESI", href: "#", external: true }, // TODO: URL oficial
+          { text: "VRIP", href: "#", external: true }, // TODO: URL oficial
         ],
       },
     ],
     copyright: "© 2026 FINESI - Universidad Nacional del Altiplano. Todos los derechos reservados.",
     bottomLinks: [
-      { text: "Portal UNA", href: "https://www.unap.edu.pe", external: true },
-      { text: "VRIP", href: "https://vrip.unap.edu.pe", external: true },
+      { text: "Portal UNA", href: "#", external: true }, // TODO: URL oficial
+      { text: "VRIP", href: "#", external: true }, // TODO: URL oficial
     ],
   },
 

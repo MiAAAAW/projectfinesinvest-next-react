@@ -36,25 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileUpload } from "@/components/admin/FileUpload";
-
-// Mock data
-const mockImage = {
-  id: "1",
-  src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop",
-  alt: "Ceremonia de graduación",
-  caption: "Ceremonia de graduación 2025",
-  event: "Graduación",
-  category: "eventos",
-  published: true,
-  order: 1,
-};
-
-const imageCategories = [
-  { value: "eventos", label: "Eventos" },
-  { value: "instalaciones", label: "Instalaciones" },
-  { value: "academico", label: "Académico" },
-  { value: "investigacion", label: "Investigación" },
-];
+import { IMAGE_CATEGORIES } from "@/lib/admin-constants";
 
 export default function EditGalleryImagePage() {
   const router = useRouter();
@@ -77,39 +59,116 @@ export default function EditGalleryImagePage() {
     return URL.createObjectURL(file);
   }, [file]);
 
-  // Simular fetch de datos
+  // Fetch datos de la imagen desde API
   useEffect(() => {
-    // TODO: Fetch desde Supabase usando params.id
-    setTimeout(() => {
-      setFormData({
-        alt: mockImage.alt,
-        caption: mockImage.caption,
-        event: mockImage.event || "",
-        category: mockImage.category,
-        published: mockImage.published,
-      });
-      setCurrentImage(mockImage.src);
-      setIsFetching(false);
-    }, 500);
-  }, [params.id]);
+    const fetchImage = async () => {
+      try {
+        const res = await fetch(`/api/gallery/${params.id}`);
+        const json = await res.json();
+
+        if (!res.ok) {
+          throw new Error(json.error || "Error al cargar imagen");
+        }
+
+        const image = json.data;
+        setFormData({
+          alt: image.alt || "",
+          caption: image.caption || "",
+          event: image.event || "",
+          category: image.category || "eventos",
+          published: image.published ?? true,
+        });
+        // Usar API endpoint para mostrar imagen desde storage privado
+        setCurrentImage(`/api/gallery/image/${image.id}`);
+      } catch (error) {
+        console.error("Error fetching image:", error);
+        router.push("/admin/gallery");
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    if (params.id) {
+      fetchImage();
+    }
+  }, [params.id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // TODO: Actualizar en Supabase (subir nueva imagen si existe)
-    console.log("Actualizar imagen:", params.id, { ...formData, file });
+    try {
+      let newFilePath: string | undefined;
 
-    setTimeout(() => {
-      setIsLoading(false);
+      // Si hay archivo nuevo, subirlo primero
+      if (file) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", file);
+        uploadFormData.append("category", "gallery");
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadFormData,
+        });
+
+        if (!uploadRes.ok) {
+          const json = await uploadRes.json();
+          throw new Error(json.error || "Error al subir archivo");
+        }
+
+        const uploadData = await uploadRes.json();
+        newFilePath = uploadData.data.filePath;
+      }
+
+      // Actualizar registro en galería
+      const updateData: Record<string, unknown> = {
+        alt: formData.alt,
+        caption: formData.caption || null,
+        event: formData.event || null,
+        category: formData.category,
+        published: formData.published,
+      };
+
+      if (newFilePath) {
+        updateData.src = newFilePath;
+      }
+
+      const res = await fetch(`/api/gallery/${params.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Error al actualizar");
+      }
+
       router.push("/admin/gallery");
-    }, 1000);
+    } catch (error) {
+      console.error("Error updating image:", error);
+      alert(error instanceof Error ? error.message : "Error al actualizar la imagen");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async () => {
-    // TODO: Eliminar de Supabase
-    console.log("Eliminar imagen:", params.id);
-    router.push("/admin/gallery");
+    try {
+      const res = await fetch(`/api/gallery/${params.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Error al eliminar");
+      }
+
+      router.push("/admin/gallery");
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      alert("Error al eliminar la imagen");
+    }
   };
 
   const updateField = (field: string, value: string | boolean) => {
@@ -312,7 +371,7 @@ export default function EditGalleryImagePage() {
                       <SelectValue placeholder="Selecciona una categoría" />
                     </SelectTrigger>
                     <SelectContent>
-                      {imageCategories.map((cat) => (
+                      {IMAGE_CATEGORIES.map((cat) => (
                         <SelectItem key={cat.value} value={cat.value}>
                           {cat.label}
                         </SelectItem>

@@ -57,9 +57,9 @@ function ExpandableAnnouncementCard({
       <Card
         className={cn(
           "group relative h-full overflow-hidden flex flex-col",
-          "border bg-background/80 backdrop-blur-sm",
-          "transition-colors duration-300",
-          "hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+          "border border-border/50 bg-card shadow-professional-card",
+          "transition-all duration-300",
+          "hover:border-primary/30 hover:shadow-professional-lg hover:-translate-y-1"
         )}
       >
         {/* Important indicator */}
@@ -276,9 +276,7 @@ export default function Announcements({ config, className }: AnnouncementsProps)
         className
       )}
     >
-      {/* Background - transparente para mostrar animated-bg */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-transparent" />
-      <div className="absolute inset-0 dot-pattern opacity-20" />
+      {/* Background removed - unified with global animated-bg */}
 
       <div className="container relative px-4 md:px-6">
         {/* Section Header */}

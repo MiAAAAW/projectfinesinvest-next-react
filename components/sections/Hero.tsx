@@ -99,8 +99,8 @@ export default function Hero({ config, className }: HeroProps) {
             className="object-cover"
             priority
           />
-          {/* Overlay para legibilidad del texto - sutil en light mode */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/25 dark:from-background/60 dark:via-background/40 dark:to-background/70" />
+          {/* Overlay para legibilidad del texto - más sutil arriba en modo claro */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/45 dark:from-background/70 dark:via-background/50 dark:to-background/80" />
         </div>
       )}
 
@@ -156,30 +156,23 @@ export default function Hero({ config, className }: HeroProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
-                {title.main}{" "}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                {title.main}
                 {title.highlight && (
-                  <span className="relative">
+                  <span className="block mt-2">
                     <span className="bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-gradient drop-shadow-[0_0_2px_rgba(255,255,255,0.8)]">
                       {title.highlight}
                     </span>
-                    {/* Underline effect */}
-                    <motion.span
-                      className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-400 rounded-full"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.8, delay: 0.8 }}
-                    />
                   </span>
                 )}
-                {title.suffix && <span> {title.suffix}</span>}
+                {title.suffix && <span className="block text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{title.suffix}</span>}
               </h1>
             </motion.div>
           </div>
 
           {/* Description with fade effect */}
           <MotionWrapper delay={0.4} className="max-w-2xl">
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+            <p className="text-lg md:text-xl text-white/90 leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
               {description}
             </p>
           </MotionWrapper>

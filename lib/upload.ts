@@ -9,7 +9,7 @@ import { existsSync } from "fs";
 // - Nomenclatura: {CAT}-{YYMMDD}-{XXXXXXXXXXXX}.{ext} (12 chars random)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type UploadCategory = "images" | "documents" | "gallery";
+export type UploadCategory = "images" | "documents" | "gallery" | "authorities";
 
 // Subcategorías para documentos
 export type DocumentSubCategory = "reglamentos" | "formatos" | "manuales" | "investigacion";
@@ -34,6 +34,7 @@ const CATEGORY_PREFIXES: Record<UploadCategory, string> = {
   images: "IMG",
   documents: "DOC",
   gallery: "GAL",
+  authorities: "AUT",
 };
 
 const DOCUMENT_PREFIXES: Record<DocumentSubCategory, string> = {
@@ -128,7 +129,7 @@ function validateFileType(
   mimeType: string,
   category: UploadCategory
 ): boolean {
-  if (category === "images" || category === "gallery") {
+  if (category === "images" || category === "gallery" || category === "authorities") {
     return ALLOWED_IMAGE_TYPES.includes(mimeType);
   }
   if (category === "documents") {

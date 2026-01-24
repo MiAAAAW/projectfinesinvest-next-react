@@ -25,13 +25,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { FileUpload } from "@/components/admin/FileUpload";
-
-const imageCategories = [
-  { value: "eventos", label: "Eventos" },
-  { value: "instalaciones", label: "Instalaciones" },
-  { value: "academico", label: "Académico" },
-  { value: "investigacion", label: "Investigación" },
-];
+import { IMAGE_CATEGORIES } from "@/lib/admin-constants";
 
 export default function NewGalleryImagePage() {
   const router = useRouter();
@@ -61,13 +55,51 @@ export default function NewGalleryImagePage() {
 
     setIsLoading(true);
 
-    // TODO: Subir imagen a Supabase Storage y guardar en BD
-    console.log("Subir imagen:", { ...formData, file });
+    try {
+      // Paso 1: Subir archivo a storage
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("category", "gallery");
 
-    setTimeout(() => {
-      setIsLoading(false);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      if (!uploadRes.ok) {
+        const json = await uploadRes.json();
+        throw new Error(json.error || "Error al subir archivo");
+      }
+
+      const uploadData = await uploadRes.json();
+      const filePath = uploadData.data.filePath;
+
+      // Paso 2: Crear registro en galería con el path del archivo
+      const galleryRes = await fetch("/api/gallery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          src: filePath,
+          alt: formData.alt,
+          caption: formData.caption || null,
+          event: formData.event || null,
+          category: formData.category,
+          published: formData.published,
+        }),
+      });
+
+      if (!galleryRes.ok) {
+        const json = await galleryRes.json();
+        throw new Error(json.error || "Error al guardar imagen");
+      }
+
       router.push("/admin/gallery");
-    }, 1500);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert(error instanceof Error ? error.message : "Error al subir la imagen");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateField = (field: string, value: string | boolean) => {
@@ -193,7 +225,7 @@ export default function NewGalleryImagePage() {
                       <SelectValue placeholder="Selecciona una categoría" />
                     </SelectTrigger>
                     <SelectContent>
-                      {imageCategories.map((cat) => (
+                      {IMAGE_CATEGORIES.map((cat) => (
                         <SelectItem key={cat.value} value={cat.value}>
                           {cat.label}
                         </SelectItem>

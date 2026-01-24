@@ -58,6 +58,7 @@ import {
   GraduationCap,
   FileText,
   Calendar,
+  CalendarDays,
   BookOpen,
   Download,
   Brain,
@@ -78,6 +79,9 @@ import {
   Presentation,
   File,
   Eye,
+  LayoutGrid,
+  Camera,
+  Image,
   type LucideIcon,
 } from "lucide-react";
 
@@ -137,6 +141,7 @@ const iconMap: Record<string, LucideIcon> = {
   GraduationCap,
   FileText,
   Calendar,
+  CalendarDays,
   BookOpen,
   Download,
   Brain,
@@ -157,6 +162,9 @@ const iconMap: Record<string, LucideIcon> = {
   Presentation,
   File,
   Eye,
+  LayoutGrid,
+  Camera,
+  Image,
 };
 
 interface DynamicIconProps {
@@ -244,6 +252,7 @@ export {
   GraduationCap,
   FileText,
   Calendar,
+  CalendarDays,
   BookOpen,
   Download,
   Brain,
@@ -264,5 +273,8 @@ export {
   Presentation,
   File,
   Eye,
+  LayoutGrid,
+  Camera,
+  Image,
   type LucideIcon,
 };

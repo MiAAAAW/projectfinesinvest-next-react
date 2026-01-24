@@ -77,9 +77,9 @@ export default function Features({ config, className }: FeaturesProps) {
                 <Card
                   className={cn(
                     "group relative h-full overflow-hidden",
-                    "border border-primary/5 bg-background/80 backdrop-blur-sm",
-                    "transition-all duration-500",
-                    "hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
+                    "border border-border/50 bg-card shadow-professional-card",
+                    "transition-all duration-300",
+                    "hover:border-primary/30 hover:shadow-professional-lg"
                   )}
                 >
                   {/* Gradient overlay on hover */}

@@ -21,10 +21,10 @@ import {
 } from "@/components/ui/dialog";
 import { DynamicIcon } from "@/lib/icons";
 import type { DocumentsConfig, DocumentType, DocumentCategory } from "@/types/landing.types";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 // Tipo para documentos de la BD
 interface DBDocumentItem {
@@ -144,6 +144,23 @@ export default function Documents({ config, className }: DocumentsProps) {
   // Categorías disponibles
   const availableCategories = categories || Array.from(new Set(items.map(item => item.category)));
 
+  // Handler para descarga con feedback toast
+  const handleDownload = useCallback((docId: string, docTitle: string) => {
+    // Crear link temporal para descarga
+    const link = document.createElement("a");
+    link.href = `/api/download/${docId}?download=true`;
+    link.download = docTitle;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Mostrar toast de éxito
+    toast.success("Descarga iniciada", {
+      description: docTitle,
+      duration: 3000,
+    });
+  }, []);
+
   // Si está cargando, mostrar skeleton
   if (isLoading) {
     return (
@@ -176,9 +193,7 @@ export default function Documents({ config, className }: DocumentsProps) {
         className
       )}
     >
-      {/* Background - transparente */}
-      <div className="absolute inset-0 bg-background/20" />
-      <div className="absolute inset-0 grid-pattern opacity-30" />
+      {/* Background removed - unified with global animated-bg */}
 
       <div className="container relative px-4 md:px-6">
         {/* Section Header */}
@@ -313,14 +328,12 @@ export default function Documents({ config, className }: DocumentsProps) {
 
                         {/* Download */}
                         <Button
-                          asChild
                           variant="outline"
                           size="sm"
                           className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleDownload(doc.id, doc.title)}
                         >
-                          <Link href={`/api/download/${doc.id}?download=true`}>
-                            <DynamicIcon name="Download" size={16} />
-                          </Link>
+                          <DynamicIcon name="Download" size={16} />
                         </Button>
                       </div>
                     </div>

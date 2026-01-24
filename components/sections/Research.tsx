@@ -108,9 +108,7 @@ export default function Research({ config, className }: ResearchProps) {
         className
       )}
     >
-      {/* Background Effects - transparente */}
-      <div className="absolute inset-0 bg-background/10" />
-      <div className="absolute inset-0 dot-pattern opacity-20" />
+      {/* Background removed - unified with global animated-bg */}
 
       <div className="container relative px-4 md:px-6">
         {/* Section Header */}
@@ -150,9 +148,9 @@ export default function Research({ config, className }: ResearchProps) {
                 <Card
                   className={cn(
                     "group relative h-full overflow-hidden",
-                    "border border-primary/5 bg-background/80 backdrop-blur-sm",
-                    "transition-all duration-500",
-                    "hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
+                    "border border-border/50 bg-card shadow-professional-card",
+                    "transition-all duration-300",
+                    "hover:border-primary/30 hover:shadow-professional-lg"
                   )}
                 >
                   {/* Gradient overlay on hover */}

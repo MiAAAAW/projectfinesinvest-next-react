@@ -18,7 +18,7 @@ import Offices from "@/components/sections/Offices";
 import Authorities from "@/components/sections/Authorities";
 import Gallery from "@/components/sections/Gallery";
 import Calendar from "@/components/sections/Calendar";
-import FAQ from "@/components/sections/FAQ";
+// import FAQ from "@/components/sections/FAQ"; // COMENTADO: Sección FAQ desactivada
 
 // Animation Components
 import { ScrollProgressWrapper } from "@/components/ui/scroll-progress-wrapper";
@@ -50,14 +50,9 @@ export default function LandingPage() {
         <Documents config={landingConfig.documents} />
       )}
 
-      {/* Offices Section - Oficinas y Contacto */}
-      {landingConfig.offices && (
-        <Offices config={landingConfig.offices} />
-      )}
-
-      {/* Authorities Section - Autoridades */}
-      {landingConfig.authorities && (
-        <Authorities config={landingConfig.authorities} />
+      {/* Calendar Section - Calendario de Eventos */}
+      {landingConfig.calendar && (
+        <Calendar config={landingConfig.calendar} />
       )}
 
       {/* Gallery Section - Galería de Fotos */}
@@ -65,13 +60,20 @@ export default function LandingPage() {
         <Gallery config={landingConfig.gallery} />
       )}
 
-      {/* Calendar Section - Calendario de Eventos */}
-      {landingConfig.calendar && (
-        <Calendar config={landingConfig.calendar} />
+      {/* Authorities Section - Autoridades */}
+      {landingConfig.authorities && (
+        <Authorities config={landingConfig.authorities} />
+      )}
+
+      {/* Offices Section - Oficinas y Contacto */}
+      {landingConfig.offices && (
+        <Offices config={landingConfig.offices} />
       )}
 
       {/* FAQ Section - Preguntas Frecuentes */}
+      {/* COMENTADO: Sección FAQ desactivada
       {landingConfig.faq && <FAQ config={landingConfig.faq} />}
+      */}
 
       {/* Footer */}
       <Footer config={landingConfig.footer} />

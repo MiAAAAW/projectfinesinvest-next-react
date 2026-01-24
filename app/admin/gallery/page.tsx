@@ -52,7 +52,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { IMAGE_CATEGORY_LABELS } from "@/lib/admin-constants";
+import { IMAGE_CATEGORIES, IMAGE_CATEGORY_LABELS } from "@/lib/admin-constants";
 
 interface GalleryImage {
   id: string;
@@ -237,10 +237,11 @@ export default function GalleryPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las categorías</SelectItem>
-                <SelectItem value="eventos">Eventos</SelectItem>
-                <SelectItem value="instalaciones">Instalaciones</SelectItem>
-                <SelectItem value="academico">Académico</SelectItem>
-                <SelectItem value="investigacion">Investigación</SelectItem>
+                {IMAGE_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -274,7 +275,7 @@ export default function GalleryPage() {
             <Card key={image.id} className="overflow-hidden group">
               <div className="relative aspect-[4/3]">
                 <Image
-                  src={image.src}
+                  src={`/api/gallery/image/${image.id}`}
                   alt={image.alt}
                   fill
                   className="object-cover transition-transform group-hover:scale-105"
@@ -298,7 +299,7 @@ export default function GalleryPage() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={image.src} target="_blank">
+                        <Link href={`/api/gallery/image/${image.id}`} target="_blank">
                           <Eye className="mr-2 h-4 w-4" />
                           Ver original
                         </Link>
@@ -355,7 +356,7 @@ export default function GalleryPage() {
                   <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
                   <div className="relative h-16 w-24 rounded-lg overflow-hidden flex-shrink-0">
                     <Image
-                      src={image.src}
+                      src={`/api/gallery/image/${image.id}`}
                       alt={image.alt}
                       fill
                       className="object-cover"
@@ -388,7 +389,7 @@ export default function GalleryPage() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={image.src} target="_blank">
+                        <Link href={`/api/gallery/image/${image.id}`} target="_blank">
                           <Eye className="mr-2 h-4 w-4" />
                           Ver original
                         </Link>

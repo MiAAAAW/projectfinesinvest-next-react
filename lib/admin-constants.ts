@@ -159,16 +159,53 @@ export const FILE_TYPE_ICONS: Record<string, LucideIcon> = {
 
 export const IMAGE_CATEGORIES = [
   { value: "eventos", label: "Eventos" },
+  { value: "talleres", label: "Talleres" },
+  { value: "congresos", label: "Congresos" },
   { value: "instalaciones", label: "Instalaciones" },
   { value: "academico", label: "Académico" },
   { value: "investigacion", label: "Investigación" },
+  { value: "equipo", label: "Equipo" },
 ] as const;
 
 export const IMAGE_CATEGORY_LABELS: Record<string, string> = {
   eventos: "Eventos",
+  talleres: "Talleres",
+  congresos: "Congresos",
   instalaciones: "Instalaciones",
   academico: "Académico",
   investigacion: "Investigación",
+  equipo: "Equipo",
+} as const;
+
+// Estilos por categoría para filtros en el frontend
+export const IMAGE_CATEGORY_STYLES: Record<string, { color: string; bg: string; icon: string }> = {
+  eventos: { color: "text-purple-600", bg: "bg-purple-100 dark:bg-purple-900/30", icon: "CalendarDays" },
+  talleres: { color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30", icon: "GraduationCap" },
+  congresos: { color: "text-green-600", bg: "bg-green-100 dark:bg-green-900/30", icon: "Users" },
+  instalaciones: { color: "text-gray-600", bg: "bg-gray-100 dark:bg-gray-900/30", icon: "Building2" },
+  academico: { color: "text-orange-600", bg: "bg-orange-100 dark:bg-orange-900/30", icon: "BookOpen" },
+  investigacion: { color: "text-cyan-600", bg: "bg-cyan-100 dark:bg-cyan-900/30", icon: "FlaskConical" },
+  equipo: { color: "text-pink-600", bg: "bg-pink-100 dark:bg-pink-900/30", icon: "UserCircle" },
+} as const;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const CALENDAR_EVENT_TYPES = [
+  { value: "academico", label: "Académico" },
+  { value: "investigacion", label: "Investigación" },
+  { value: "administrativo", label: "Administrativo" },
+  { value: "social", label: "Social" },
+  { value: "deadline", label: "Fecha límite" },
+] as const;
+
+export const CALENDAR_TYPE_LABELS: Record<string, { label: string; color: string }> = {
+  academico: { label: "Académico", color: "bg-blue-500/10 text-blue-500" },
+  investigacion: { label: "Investigación", color: "bg-purple-500/10 text-purple-500" },
+  administrativo: { label: "Administrativo", color: "bg-gray-500/10 text-gray-500" },
+  social: { label: "Social", color: "bg-green-500/10 text-green-500" },
+  deadline: { label: "Fecha límite", color: "bg-red-500/10 text-red-500" },
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -212,16 +249,10 @@ export const LANDING_SECTIONS = [
     type: "crud" as const,
   },
   {
-    title: "Sedes",
-    url: "/admin/content/offices",
-    icon: MapPin,
-    type: "content" as const,
-  },
-  {
-    title: "Autoridades",
-    url: "/admin/content/authorities",
-    icon: Users,
-    type: "content" as const,
+    title: "Calendario",
+    url: "/admin/calendar",
+    icon: CalendarDays,
+    type: "crud" as const,
   },
   {
     title: "Galería",
@@ -230,17 +261,23 @@ export const LANDING_SECTIONS = [
     type: "crud" as const,
   },
   {
-    title: "Calendario",
-    url: "/admin/content/calendar",
-    icon: CalendarDays,
-    type: "content" as const,
+    title: "Autoridades",
+    url: "/admin/authorities",
+    icon: Users,
+    type: "crud" as const,
   },
   {
-    title: "FAQ",
-    url: "/admin/content/faq",
-    icon: HelpCircle,
-    type: "content" as const,
+    title: "Oficinas",
+    url: "/admin/offices",
+    icon: MapPin,
+    type: "crud" as const,
   },
+  // {
+  //   title: "FAQ",
+  //   url: "/admin/content/faq",
+  //   icon: HelpCircle,
+  //   type: "content" as const,
+  // },
   {
     title: "Footer",
     url: "/admin/content/footer",
@@ -267,7 +304,7 @@ export const ROUTE_NAMES: Record<string, string> = {
   content: "Contenido",
   hero: "Hero",
   research: "Investigación",
-  offices: "Sedes",
+  offices: "Oficinas",
   authorities: "Autoridades",
   calendar: "Calendario",
   faq: "FAQ",

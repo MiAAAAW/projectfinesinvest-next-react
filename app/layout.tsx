@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { BackgroundEffects } from "@/components/providers/BackgroundEffects";
+import { Toaster } from "@/components/ui/sonner";
 import { landingConfig } from "@/config/landing.config";
 import "./globals.css";
 
@@ -56,12 +57,14 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased floating-orbs`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
           {/* Efectos de fondo config-driven (animated-bg, code-rain) */}
           <BackgroundEffects />
           {children}
+          {/* Toast notifications */}
+          <Toaster position="bottom-right" richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

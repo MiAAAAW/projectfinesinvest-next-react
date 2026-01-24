@@ -3,16 +3,18 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // CALENDAR SECTION COMPONENT
 // Sección de calendario de eventos académicos
+// Conectado a API real con PostgreSQL (con fallback a config)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DynamicIcon } from "@/lib/icons";
-import type { CalendarConfig, CalendarEventType } from "@/types/landing.types";
+import type { CalendarConfig, CalendarEventType, CalendarEventItem } from "@/types/landing.types";
 import { motion } from "framer-motion";
 import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 interface CalendarProps {
   config: CalendarConfig;
@@ -61,7 +63,53 @@ function formatDateRange(startDate: string, endDate?: string): string {
 }
 
 export default function Calendar({ config, className }: CalendarProps) {
-  const { badge, title, subtitle, items, groupByMonth } = config;
+  const { badge, title, subtitle, items: configItems, groupByMonth } = config;
+  const [items, setItems] = useState<CalendarEventItem[]>(configItems);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch eventos desde API
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("/api/calendar?status=published&limit=50");
+        const json = await res.json();
+
+        if (res.ok && json.data && json.data.length > 0) {
+          // Mapear datos de API al formato esperado
+          const apiItems: CalendarEventItem[] = json.data.map((event: {
+            id: string;
+            title: string;
+            date: string;
+            endDate: string | null;
+            type: string;
+            description: string | null;
+            location: string | null;
+            href: string | null;
+            important: boolean;
+          }) => ({
+            id: event.id,
+            title: event.title,
+            date: event.date.split("T")[0],
+            endDate: event.endDate ? event.endDate.split("T")[0] : undefined,
+            type: event.type as CalendarEventType,
+            description: event.description || undefined,
+            location: event.location || undefined,
+            href: event.href || undefined,
+            important: event.important,
+          }));
+          setItems(apiItems);
+        }
+        // Si no hay datos de API, mantiene los del config
+      } catch (error) {
+        console.error("Error fetching calendar events:", error);
+        // En caso de error, usa los datos del config
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   // Agrupar eventos por mes si es necesario
   const groupedEvents = useMemo(() => {
@@ -98,8 +146,9 @@ export default function Calendar({ config, className }: CalendarProps) {
           transition={{ duration: 0.2 }}
         >
           <Card className={cn(
-            "group overflow-hidden border-l-4 hover:shadow-lg transition-all",
-            event.important ? "border-l-primary" : "border-l-transparent hover:border-l-primary/50"
+            "group overflow-hidden border border-border/50 bg-card shadow-professional-card transition-all",
+            "hover:border-primary/30 hover:shadow-professional-lg",
+            event.important && "ring-2 ring-primary/20"
           )}>
             <CardContent className="p-4">
               <div className="flex gap-4">
@@ -170,8 +219,7 @@ export default function Calendar({ config, className }: CalendarProps) {
         className
       )}
     >
-      {/* Background - transparente */}
-      <div className="absolute inset-0 bg-background/10" />
+      {/* Background removed - unified with global animated-bg */}
 
       <div className="container relative px-4 md:px-6">
         {/* Section Header */}
@@ -201,7 +249,31 @@ export default function Calendar({ config, className }: CalendarProps) {
 
         {/* Events */}
         <div className="max-w-3xl mx-auto">
-          {groupByMonth && groupedEvents ? (
+          {loading ? (
+            // Loading skeleton
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="flex gap-4">
+                      <Skeleton className="h-16 w-16 rounded-lg" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-5 w-20" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : items.length === 0 ? (
+            // Empty state
+            <div className="text-center py-12">
+              <DynamicIcon name="Calendar" size={48} className="mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No hay eventos programados</p>
+            </div>
+          ) : groupByMonth && groupedEvents ? (
             // Grouped by month
             groupedEvents.map((group) => (
               <div key={group.key} className="mb-8">

@@ -118,7 +118,7 @@ export default function Navbar({ config, className }: NavbarProps) {
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         isScrolled
           ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm"
-          : "bg-transparent",
+          : "bg-white/20 backdrop-blur-md dark:bg-transparent dark:backdrop-blur-none",
         className
       )}
     >
@@ -145,7 +145,7 @@ export default function Navbar({ config, className }: NavbarProps) {
                   />
                 </motion.div>
               )}
-              <span className="font-bold text-xl bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+              <span className="font-bold text-xl text-foreground">
                 {logo.text}
               </span>
             </Link>
@@ -166,7 +166,7 @@ export default function Navbar({ config, className }: NavbarProps) {
                   onClick={(e) => handleAnchorClick(e, item.href)}
                   target={item.external ? "_blank" : undefined}
                   rel={item.external ? "noopener noreferrer" : undefined}
-                  className="relative px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+                  className="relative px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors group cursor-pointer"
                 >
                   {item.label}
                   {/* Hover underline effect */}

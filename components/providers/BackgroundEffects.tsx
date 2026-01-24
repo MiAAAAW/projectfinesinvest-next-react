@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // BACKGROUND EFFECTS PROVIDER
-// Wrapper para efectos de fondo config-driven (AnimatedBg, CodeRain, etc.)
+// Wrapper para efectos de fondo config-driven (Liquid Blobs, CodeRain, etc.)
 // Server Component - sin hooks ni estado
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -12,13 +12,8 @@ export function BackgroundEffects() {
 
   return (
     <>
-      {/* Animated Background - config-driven */}
-      {bgConfig?.animatedBackground?.enabled && (
-        <div
-          className={bgConfig.animatedBackground.className || "animated-bg"}
-          aria-hidden="true"
-        />
-      )}
+      {/* Background - El color viene de --background en CSS */}
+      {/* Los blobs están desactivados - fondo uniforme celeste */}
 
       {/* Code Rain Effect */}
       {bgConfig?.codeRain?.enabled && (
