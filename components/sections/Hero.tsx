@@ -91,7 +91,13 @@ export default function Hero({ config, className }: HeroProps) {
 
       {/* Background Image - renderiza inmediatamente (SSR) */}
       {image && !enable3D && currentImage && (
-        <div className="absolute inset-0 z-0">
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
+          }}
+        >
           <Image
             src={currentImage}
             alt={image.alt}
@@ -99,8 +105,8 @@ export default function Hero({ config, className }: HeroProps) {
             className="object-cover"
             priority
           />
-          {/* Overlay para legibilidad del texto - más sutil arriba en modo claro */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/45 dark:from-background/70 dark:via-background/50 dark:to-background/80" />
+          {/* Overlay para legibilidad del texto */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/30 to-black/60 dark:from-background/60 dark:via-background/40 dark:to-background/80" />
         </div>
       )}
 

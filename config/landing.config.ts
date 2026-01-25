@@ -254,6 +254,9 @@ export const landingConfig: LandingConfig = {
         href: "/lineas/tecnologias-emergentes",
       },
     ],
+    showViewAll: true,
+    viewAllHref: "/investigacion",
+    viewAllText: "Ver todas las líneas",
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -583,9 +586,16 @@ export const landingConfig: LandingConfig = {
       className: "animated-bg",
     },
     codeRain: {
-      enabled: true,
+      enabled: false, // Desactivado para probar partículas
       opacity: 0.6,
       zIndex: 5,
+    },
+    floatingParticles: {
+      enabled: true,
+      count: 80,
+      color: "180, 100%, 80%", // HSL - cyan brillante como la imagen
+      opacity: 1,
+      zIndex: 10,
     },
   },
 };

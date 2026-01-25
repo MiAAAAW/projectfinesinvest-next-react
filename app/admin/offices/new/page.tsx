@@ -251,11 +251,14 @@ export default function NewOfficePage() {
                   <Label htmlFor="mapUrl">Enlace a Google Maps</Label>
                   <Input
                     id="mapUrl"
-                    type="url"
-                    placeholder="https://maps.google.com/..."
+                    type="text"
+                    placeholder="maps.google.com/... o URL completa"
                     value={formData.mapUrl}
                     onChange={(e) => updateField("mapUrl", e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Acepta URL de Google Maps con o sin https://
+                  </p>
                 </div>
               </CardContent>
             </Card>

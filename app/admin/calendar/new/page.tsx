@@ -150,13 +150,13 @@ export default function NewCalendarEventPage() {
                   <Label htmlFor="href">Enlace externo (opcional)</Label>
                   <Input
                     id="href"
-                    type="url"
-                    placeholder="https://ejemplo.com/evento"
+                    type="text"
+                    placeholder="ejemplo.com/evento, #seccion, o URL completa"
                     value={formData.href}
                     onChange={(e) => updateField("href", e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Enlace a más información o inscripción
+                    Acepta: dominio.com/ruta, #ancla, /ruta-relativa, o URL completa
                   </p>
                 </div>
               </CardContent>

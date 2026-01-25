@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { normalizeUrl } from "@/lib/url-utils";
 
 // Schema de validación para crear/actualizar anuncio
 const announcementSchema = z.object({
@@ -13,7 +14,7 @@ const announcementSchema = z.object({
   important: z.boolean().default(false),
   published: z.boolean().default(true),
   date: z.string().optional(),
-  href: z.string().optional().nullable(),
+  href: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
 });
 
 // GET /api/announcements - Listar anuncios

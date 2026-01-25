@@ -38,7 +38,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DASHBOARD_ITEM, LANDING_SECTIONS } from "@/lib/admin-constants";
+import { DASHBOARD_ITEM, LANDING_SECTIONS, MANAGEMENT_SECTIONS } from "@/lib/admin-constants";
 
 interface User {
   id: string;
@@ -181,6 +181,41 @@ export function AdminSidebar() {
                               CRUD
                             </span>
                           )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </SidebarGroup>
+
+        {/* Gestión - Datos Maestros */}
+        <SidebarGroup>
+          <Collapsible defaultOpen className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center">
+                Gestión
+                <ChevronDown className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {MANAGEMENT_SECTIONS.map((section) => (
+                    <SidebarMenuItem key={section.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive(section.url)}
+                        tooltip={section.title}
+                      >
+                        <Link href={section.url}>
+                          <section.icon className="size-4" />
+                          <span>{section.title}</span>
+                          <span className="ml-auto text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                            CRUD
+                          </span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

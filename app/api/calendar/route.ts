@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { normalizeUrl } from "@/lib/url-utils";
 
 // Schema de validación para crear evento
 const calendarEventSchema = z.object({
@@ -11,7 +12,7 @@ const calendarEventSchema = z.object({
   type: z.string().min(1, "Tipo requerido"),
   description: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
-  href: z.string().optional().nullable(),
+  href: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
   important: z.boolean().default(false),
   published: z.boolean().default(true),
   order: z.number().default(0),

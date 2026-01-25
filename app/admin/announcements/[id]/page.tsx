@@ -313,13 +313,13 @@ export default function EditAnnouncementPage({ params }: PageProps) {
                   <Label htmlFor="href">Enlace externo (opcional)</Label>
                   <Input
                     id="href"
-                    type="url"
-                    placeholder="https://ejemplo.com/documento.pdf"
+                    type="text"
+                    placeholder="ejemplo.com/doc.pdf, #seccion, o URL completa"
                     value={formData.href}
                     onChange={(e) => updateField("href", e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Si se proporciona, el botón &quot;Leer más&quot; llevará a este enlace
+                    Acepta: dominio.com/ruta, #ancla, /ruta-relativa, o URL completa
                   </p>
                 </div>
               </CardContent>

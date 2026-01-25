@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { normalizeUrl } from "@/lib/url-utils";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // OFFICES API
@@ -21,7 +22,7 @@ const createOfficeSchema = z.object({
   schedule: z.string().optional().nullable(), // JSON string
   responsible: z.string().optional().nullable(),
   icon: z.string().default("Building2"),
-  mapUrl: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  mapUrl: z.string().optional().nullable().or(z.literal("")).transform(v => normalizeUrl(v, 'googleMaps')),
   published: z.boolean().default(true),
   order: z.number().int().default(0),
 });

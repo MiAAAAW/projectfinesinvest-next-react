@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { normalizeUrl } from "@/lib/url-utils";
 
 // Schema de validación para crear línea de investigación
 const researchLineSchema = z.object({
@@ -10,7 +11,7 @@ const researchLineSchema = z.object({
   icon: z.string().default("FlaskConical"),
   coordinator: z.string().optional().nullable(),
   members: z.number().optional().nullable(),
-  href: z.string().optional().nullable(),
+  href: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
   published: z.boolean().default(true),
   order: z.number().default(0),
 });
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status") || "";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
+    const includeTeachers = searchParams.get("includeTeachers") === "true";
 
     // Construir filtros
     const where: Record<string, unknown> = {
@@ -51,11 +53,72 @@ export async function GET(request: NextRequest) {
         orderBy: [{ order: "asc" }, { createdAt: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
+        include: includeTeachers
+          ? {
+              teachers: {
+                where: {
+                  teacher: {
+                    deletedAt: null,
+                    // Solo incluir publicados si se pide status=published (landing)
+                    ...(status === "published" ? { published: true } : {}),
+                  },
+                },
+                include: {
+                  teacher: {
+                    select: {
+                      id: true,
+                      name: true,
+                      degree: true,
+                      avatarUrl: true,
+                      specialty: true,
+                      email: true,
+                      published: true,
+                    },
+                  },
+                },
+                orderBy: [
+                  { role: "asc" }, // coordinador first
+                  { joinedAt: "asc" },
+                ],
+              },
+            }
+          : undefined,
       }),
     ]);
 
+    // Transform data to include computed fields
+    const transformedData = researchLines.map((line) => {
+      const data: Record<string, unknown> = { ...line };
+
+      if (includeTeachers && "teachers" in line) {
+        const teachers = line.teachers as Array<{
+          role: string;
+          joinedAt: Date;
+          teacher: {
+            id: string;
+            name: string;
+            degree: string | null;
+            avatarUrl: string | null;
+            specialty: string | null;
+            email: string | null;
+          };
+        }>;
+
+        // Find coordinator
+        const coordinatorRel = teachers.find((t) => t.role === "coordinador");
+        if (coordinatorRel) {
+          data.coordinatorTeacher = coordinatorRel.teacher;
+        }
+
+        // Count members
+        data.teacherCount = teachers.length;
+      }
+
+      return data;
+    });
+
     return NextResponse.json({
-      data: researchLines,
+      data: transformedData,
       meta: {
         total,
         page,

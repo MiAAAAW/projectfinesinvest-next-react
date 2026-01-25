@@ -400,11 +400,14 @@ export default function EditAuthorityPage() {
                   <Label htmlFor="orcid">ORCID</Label>
                   <Input
                     id="orcid"
-                    type="url"
-                    placeholder="https://orcid.org/0000-0001-2345-6789"
+                    type="text"
+                    placeholder="0000-0002-1234-5678"
                     value={formData.orcid}
                     onChange={(e) => updateField("orcid", e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Acepta: ID ORCID o URL completa
+                  </p>
                 </div>
 
                 {/* Google Scholar */}
@@ -412,11 +415,14 @@ export default function EditAuthorityPage() {
                   <Label htmlFor="googleScholar">Google Scholar</Label>
                   <Input
                     id="googleScholar"
-                    type="url"
-                    placeholder="https://scholar.google.com/citations?user=..."
+                    type="text"
+                    placeholder="ABC123xyz o URL completa"
                     value={formData.googleScholar}
                     onChange={(e) => updateField("googleScholar", e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Acepta: ID de usuario, o URL completa
+                  </p>
                 </div>
 
                 {/* LinkedIn */}
@@ -424,11 +430,14 @@ export default function EditAuthorityPage() {
                   <Label htmlFor="linkedin">LinkedIn</Label>
                   <Input
                     id="linkedin"
-                    type="url"
-                    placeholder="https://linkedin.com/in/..."
+                    type="text"
+                    placeholder="in/usuario o URL completa"
                     value={formData.linkedin}
                     onChange={(e) => updateField("linkedin", e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Acepta: in/usuario, linkedin.com/in/usuario, o URL completa
+                  </p>
                 </div>
               </CardContent>
             </Card>

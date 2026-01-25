@@ -151,13 +151,13 @@ export default function NewResearchLinePage() {
                   <Label htmlFor="href">Enlace a más información (opcional)</Label>
                   <Input
                     id="href"
-                    type="url"
-                    placeholder="https://ejemplo.com/linea-investigacion"
+                    type="text"
+                    placeholder="ejemplo.com/ruta, #seccion, o URL completa"
                     value={formData.href}
                     onChange={(e) => updateField("href", e.target.value)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Si se proporciona, aparecerá un botón &quot;Ver proyectos&quot;
+                    Acepta: dominio.com/ruta, #ancla, /ruta-relativa, o URL completa
                   </p>
                 </div>
               </CardContent>

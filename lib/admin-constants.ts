@@ -18,6 +18,7 @@ import {
   Users,
   CalendarDays,
   HelpCircle,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -189,6 +190,37 @@ export const IMAGE_CATEGORY_STYLES: Record<string, { color: string; bg: string; 
 } as const;
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// TEACHERS / DOCENTES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const TEACHER_ROLES = [
+  { value: "coordinador", label: "Coordinador" },
+  { value: "investigador", label: "Investigador" },
+  { value: "colaborador", label: "Colaborador" },
+] as const;
+
+// Array simple de valores para usar en validación Zod
+export const TEACHER_ROLE_VALUES = ["coordinador", "investigador", "colaborador"] as const;
+
+export const TEACHER_ROLE_LABELS: Record<string, { label: string; color: string }> = {
+  coordinador: { label: "Coordinador", color: "bg-primary text-primary-foreground" },
+  investigador: { label: "Investigador", color: "bg-blue-500/10 text-blue-600" },
+  colaborador: { label: "Colaborador", color: "bg-gray-500/10 text-gray-600" },
+} as const;
+
+export const TEACHER_DEGREES = [
+  { value: "", label: "Sin título" },
+  { value: "Ing.", label: "Ingeniero (Ing.)" },
+  { value: "Lic.", label: "Licenciado (Lic.)" },
+  { value: "Mg.", label: "Magíster (Mg.)" },
+  { value: "Dr.", label: "Doctor (Dr.)" },
+  { value: "PhD.", label: "PhD" },
+] as const;
+
+// Tipo para roles (derivado de TEACHER_ROLE_VALUES para consistencia)
+export type TeacherRole = typeof TEACHER_ROLE_VALUES[number];
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // CALENDAR
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -286,6 +318,16 @@ export const LANDING_SECTIONS = [
   },
 ] as const;
 
+// Secciones de Gestión (datos maestros)
+export const MANAGEMENT_SECTIONS = [
+  {
+    title: "Docentes",
+    url: "/admin/teachers",
+    icon: GraduationCap,
+    type: "crud" as const,
+  },
+] as const;
+
 // Mantener exports antiguos para compatibilidad (deprecados)
 export const MAIN_MENU_ITEMS = [
   DASHBOARD_ITEM,
@@ -309,5 +351,6 @@ export const ROUTE_NAMES: Record<string, string> = {
   calendar: "Calendario",
   faq: "FAQ",
   footer: "Footer",
+  teachers: "Docentes",
   new: "Nuevo",
 } as const;

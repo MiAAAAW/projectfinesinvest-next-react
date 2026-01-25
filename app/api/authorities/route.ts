@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { normalizeUrl } from "@/lib/url-utils";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AUTHORITIES API
@@ -18,10 +19,10 @@ const authoritySchema = z.object({
   email: z.string().email().optional().nullable(),
   phone: z.string().optional().nullable(),
   officeHours: z.string().optional().nullable(),
-  avatarUrl: z.string().optional().nullable(),
-  linkedin: z.string().url().optional().nullable(),
-  orcid: z.string().url().optional().nullable(),
-  googleScholar: z.string().url().optional().nullable(),
+  avatarUrl: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
+  linkedin: z.string().optional().nullable().transform(v => normalizeUrl(v, 'linkedin')),
+  orcid: z.string().optional().nullable().transform(v => normalizeUrl(v, 'orcid')),
+  googleScholar: z.string().optional().nullable().transform(v => normalizeUrl(v, 'googleScholar')),
   published: z.boolean().default(true),
   order: z.number().default(0),
 });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { normalizeUrl } from "@/lib/url-utils";
 
 // Schema de validación para actualizar línea de investigación
 const updateResearchLineSchema = z.object({
@@ -10,7 +11,7 @@ const updateResearchLineSchema = z.object({
   icon: z.string().optional(),
   coordinator: z.string().optional().nullable(),
   members: z.number().optional().nullable(),
-  href: z.string().optional().nullable(),
+  href: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
   published: z.boolean().optional(),
   order: z.number().optional(),
 });
@@ -23,12 +24,40 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const includeTeachers = searchParams.get("includeTeachers") === "true";
 
     const researchLine = await prisma.researchLine.findFirst({
       where: {
         id,
         ...notDeleted,
       },
+      include: includeTeachers
+        ? {
+            teachers: {
+              where: {
+                teacher: {
+                  deletedAt: null,
+                },
+              },
+              include: {
+                teacher: {
+                  select: {
+                    id: true,
+                    name: true,
+                    degree: true,
+                    avatarUrl: true,
+                    specialty: true,
+                    email: true,
+                    phone: true,
+                    published: true,
+                  },
+                },
+              },
+              orderBy: [{ role: "asc" }, { joinedAt: "asc" }],
+            },
+          }
+        : undefined,
     });
 
     if (!researchLine) {
@@ -38,7 +67,29 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json({ data: researchLine });
+    // Transform data if teachers included
+    const data: Record<string, unknown> = { ...researchLine };
+
+    if (includeTeachers && "teachers" in researchLine) {
+      const teachers = researchLine.teachers as Array<{
+        role: string;
+        joinedAt: Date;
+        teacher: {
+          id: string;
+          name: string;
+          degree: string | null;
+          avatarUrl: string | null;
+        };
+      }>;
+
+      const coordinatorRel = teachers.find((t) => t.role === "coordinador");
+      if (coordinatorRel) {
+        data.coordinatorTeacher = coordinatorRel.teacher;
+      }
+      data.teacherCount = teachers.length;
+    }
+
+    return NextResponse.json({ data });
   } catch (error) {
     console.error("Error fetching research line:", error);
     return NextResponse.json(

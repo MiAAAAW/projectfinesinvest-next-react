@@ -134,20 +134,16 @@
   }
 }
 
-/* Light mode - Gradiente celeste sutil */
+/* Light mode - Gradiente radial celeste suave */
 :root body {
-  background: linear-gradient(
-    180deg,
-    oklch(0.93 0.04 210) 0%,
-    oklch(0.96 0.02 210) 50%,
-    oklch(0.98 0.01 210) 100%
-  );
+  background: radial-gradient(ellipse at center, #f0f9ff 0%, #dbeafe 50%, #bfdbfe 100%);
   background-attachment: fixed;
 }
 
-/* Dark mode - Fondo oscuro sólido */
+/* Dark mode - Gradiente radial azul oscuro a negro */
 .dark body {
-  background: var(--background);
+  background: radial-gradient(ellipse at center, #0a1628 0%, #000000 100%);
+  background-attachment: fixed;
 }
 
 /* Fix: Center container in Tailwind v4 */
@@ -327,6 +323,46 @@
 
 .animate-rain-fall {
   animation: rain-fall linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FLOATING PARTICLES - Partículas flotantes con glow
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-110vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes particle-glow {
+  0%, 100% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+}
+
+.animate-float-up {
+  animation: float-up linear infinite;
+}
+
+.animate-particle-glow {
+  animation: particle-glow 2s ease-in-out infinite;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════

@@ -4,11 +4,14 @@
 // RESEARCH SECTION COMPONENT
 // Líneas de Investigación de la facultad
 // CONECTADO A BASE DE DATOS via /api/research
+// Muestra coordinadores desde relación con Teachers
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DynamicIcon, ArrowRight } from "@/lib/icons";
 import type { ResearchConfig } from "@/types/landing.types";
 import Link from "next/link";
@@ -16,17 +19,28 @@ import { motion } from "framer-motion";
 import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
 import { useEffect, useState } from "react";
 
+// Tipo para coordinador
+interface CoordinatorTeacher {
+  id: string;
+  name: string;
+  degree: string | null;
+  avatarUrl: string | null;
+  specialty: string | null;
+}
+
 // Tipo para líneas de investigación de la BD
 interface DBResearchLine {
   id: string;
   title: string;
   description: string;
   icon: string;
-  coordinator: string | null;
-  members: number | null;
+  coordinator: string | null; // legacy field
+  members: number | null; // legacy field
   href: string | null;
   published: boolean;
   order: number;
+  coordinatorTeacher?: CoordinatorTeacher;
+  teacherCount?: number;
 }
 
 interface ResearchProps {
@@ -35,17 +49,17 @@ interface ResearchProps {
 }
 
 export default function Research({ config, className }: ResearchProps) {
-  const { badge, title, subtitle, columns = 3 } = config;
+  const { badge, title, subtitle, columns = 3, showViewAll, viewAllHref, viewAllText } = config;
 
   // Estado para líneas de investigación de la BD
   const [dbItems, setDbItems] = useState<DBResearchLine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch líneas de investigación de la API al montar
+  // Fetch líneas de investigación de la API al montar (con teachers)
   useEffect(() => {
     async function fetchResearchLines() {
       try {
-        const res = await fetch("/api/research?status=published&limit=20");
+        const res = await fetch("/api/research?status=published&limit=20&includeTeachers=true");
         if (res.ok) {
           const json = await res.json();
           setDbItems(json.data || []);
@@ -59,16 +73,31 @@ export default function Research({ config, className }: ResearchProps) {
     fetchResearchLines();
   }, []);
 
-  // Usar datos de la BD
+  // Usar datos de la BD - priorizar relación de teachers sobre campos legacy
   const items = dbItems.map(item => ({
     id: item.id,
     title: item.title,
     description: item.description,
     icon: item.icon,
-    coordinator: item.coordinator || undefined,
-    members: item.members || undefined,
+    // Usar coordinador desde teacher si existe, sino el legacy
+    coordinator: item.coordinatorTeacher
+      ? `${item.coordinatorTeacher.degree || ""} ${item.coordinatorTeacher.name}`.trim()
+      : (item.coordinator || undefined),
+    coordinatorTeacher: item.coordinatorTeacher,
+    // Usar conteo de teachers si existe, sino el legacy
+    members: item.teacherCount || item.members || undefined,
     href: item.href || undefined,
   }));
+
+  // Helper para obtener iniciales
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   // Si está cargando, mostrar skeleton
   if (isLoading) {
@@ -178,13 +207,28 @@ export default function Research({ config, className }: ResearchProps) {
 
                     {/* Coordinator & Members */}
                     <div className="space-y-2 text-sm">
-                      {line.coordinator && (
+                      {line.coordinatorTeacher ? (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Avatar className="h-6 w-6">
+                            {line.coordinatorTeacher.avatarUrl ? (
+                              <AvatarImage src={line.coordinatorTeacher.avatarUrl} alt={line.coordinatorTeacher.name} />
+                            ) : null}
+                            <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                              {getInitials(line.coordinatorTeacher.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>
+                            {line.coordinatorTeacher.degree && `${line.coordinatorTeacher.degree} `}
+                            {line.coordinatorTeacher.name}
+                          </span>
+                        </div>
+                      ) : line.coordinator && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <DynamicIcon name="User" size={16} />
                           <span>Coordinador: {line.coordinator}</span>
                         </div>
                       )}
-                      {line.members && (
+                      {line.members && line.members > 0 && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <DynamicIcon name="Users" size={16} />
                           <span>{line.members} investigadores</span>
@@ -216,6 +260,18 @@ export default function Research({ config, className }: ResearchProps) {
             </StaggerItem>
           ))}
         </StaggerContainer>
+
+        {/* View All Button */}
+        {showViewAll && viewAllHref && (
+          <MotionWrapper delay={0.4} className="flex justify-center mt-12">
+            <Button asChild size="lg" variant="outline" className="group">
+              <Link href={viewAllHref}>
+                {viewAllText || "Ver todas las líneas de investigación"}
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </MotionWrapper>
+        )}
       </div>
     </section>
   );

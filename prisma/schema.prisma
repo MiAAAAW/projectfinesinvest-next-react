@@ -42,6 +42,7 @@ model User {
   sessionLogs     SessionLog[]  // Historial de sesiones
   userChanges     UserLog[]     @relation("UserChanges")  // Cambios en este usuario
   changesBy       UserLog[]     @relation("UserChangedBy") // Cambios hechos por este usuario
+  teacher         Teacher?      // Perfil de docente/investigador (opcional)
 
   @@index([deletedAt]) // Para filtrar usuarios no eliminados
   @@map("users")
@@ -374,14 +375,17 @@ model ResearchLine {
   title       String
   description String    @db.Text
   icon        String    @default("FlaskConical")
-  coordinator String?   // Nombre del coordinador
-  members     Int?      // Número de investigadores
+  coordinator String?   // Nombre del coordinador (legacy, usar teachers)
+  members     Int?      // Número de investigadores (calculado de teachers)
   href        String?   // Link a más información
   published   Boolean   @default(true)
   order       Int       @default(0)
   deletedAt   DateTime? @map("deleted_at") // Soft delete
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones
+  teachers    TeacherResearchLine[]
 
   @@index([deletedAt])
   @@index([order])
@@ -640,4 +644,76 @@ model OfficeLog {
   @@index([officeId])
   @@index([createdAt])
   @@map("office_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DOCENTES/INVESTIGADORES
+// Perfiles de docentes que participan en líneas de investigación
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Teacher {
+  id            String    @id @default(cuid())
+  name          String
+  email         String?   @unique
+  phone         String?
+  avatarUrl     String?   @map("avatar_url")
+  specialty     String?   // Especialidad o área de expertise
+  degree        String?   // "Dr.", "Mg.", "Lic.", "Ing."
+  orcid         String?   // ORCID ID para investigadores
+  googleScholar String?   @map("google_scholar")
+  linkedin      String?
+  bio           String?   @db.Text
+  userId        String?   @unique @map("user_id") // Vinculación opcional con cuenta de usuario
+  published     Boolean   @default(true)
+  order         Int       @default(0)
+  deletedAt     DateTime? @map("deleted_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  researchLines TeacherResearchLine[]
+
+  @@index([deletedAt])
+  @@index([order])
+  @@map("teachers")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DOCENTE-LÍNEA DE INVESTIGACIÓN (Muchos a Muchos con rol)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model TeacherResearchLine {
+  teacherId      String   @map("teacher_id")
+  researchLineId String   @map("research_line_id")
+  role           String   @default("investigador") // coordinador, investigador, colaborador
+  joinedAt       DateTime @default(now()) @map("joined_at")
+
+  // Relaciones
+  teacher        Teacher      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  researchLine   ResearchLine @relation(fields: [researchLineId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, researchLineId])
+  @@map("teacher_research_lines")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOG DE DOCENTES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model TeacherLog {
+  id          String     @id @default(cuid())
+  teacherId   String     @map("teacher_id")
+  changedBy   String?    @map("changed_by")
+  action      DataAction
+  fieldName   String?    @map("field_name")
+  oldValue    String?    @map("old_value") @db.Text
+  newValue    String?    @map("new_value") @db.Text
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([teacherId])
+  @@index([createdAt])
+  @@map("teacher_logs")
 }

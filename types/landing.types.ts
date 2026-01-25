@@ -463,6 +463,9 @@ export interface ResearchConfig {
   subtitle?: string;
   items: ResearchLineItem[];
   columns?: 2 | 3 | 4;
+  showViewAll?: boolean;
+  viewAllHref?: string;
+  viewAllText?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────
@@ -621,9 +624,18 @@ export interface AnimatedBackgroundConfig {
   className?: string;   // Clase CSS personalizada (default: "animated-bg")
 }
 
+export interface FloatingParticlesConfig {
+  enabled: boolean;
+  count?: number;
+  color?: string; // HSL sin hsl() - ej: "195, 100%, 70%"
+  opacity?: number;
+  zIndex?: number;
+}
+
 export interface BackgroundEffectsConfig {
   animatedBackground?: AnimatedBackgroundConfig;
   codeRain?: CodeRainConfig;
+  floatingParticles?: FloatingParticlesConfig;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────
