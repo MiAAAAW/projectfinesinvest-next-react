@@ -353,7 +353,6 @@ async function main() {
       type: "convocatoria",
       icon: "FileText",
       published: true,
-      order: 1,
     },
   });
   await prisma.announcement.upsert({
@@ -366,7 +365,6 @@ async function main() {
       type: "evento",
       icon: "Calendar",
       published: true,
-      order: 2,
     },
   });
   await prisma.announcement.upsert({
@@ -379,7 +377,6 @@ async function main() {
       type: "comunicado",
       icon: "Bell",
       published: true,
-      order: 3,
     },
   });
   console.log("  ✓ 3 anuncios");
@@ -395,10 +392,9 @@ async function main() {
       category: "reglamentos",
       fileUrl: "/docs/reglamento-2026.pdf",
       fileType: "pdf",
-      fileSize: 2500000,
+      fileSize: "2.5 MB",
       downloads: 150,
       published: true,
-      order: 1,
     },
   });
   await prisma.document.upsert({
@@ -411,10 +407,9 @@ async function main() {
       category: "formatos",
       fileUrl: "/docs/formato-proyecto.docx",
       fileType: "doc",
-      fileSize: 500000,
+      fileSize: "500 KB",
       downloads: 320,
       published: true,
-      order: 2,
     },
   });
   console.log("  ✓ 2 documentos");
@@ -426,7 +421,7 @@ async function main() {
     create: {
       id: "seed-autoridad-1",
       name: "Dr. Roberto Jimenez Alvarez",
-      position: "Director de Investigacion",
+      role: "Director de Investigacion",
       email: "direccion@universidad.edu.pe",
       phone: "+51 1 234 5678",
       avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
@@ -440,7 +435,7 @@ async function main() {
     create: {
       id: "seed-autoridad-2",
       name: "Dra. Carmen Flores Rios",
-      position: "Coordinadora General",
+      role: "Coordinadora General",
       email: "coordinacion@universidad.edu.pe",
       avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop",
       published: true,
@@ -456,7 +451,7 @@ async function main() {
     create: {
       id: "seed-oficina-1",
       name: "Direccion de Investigacion",
-      address: "Pabellon A, 3er piso, Oficina 301",
+      location: "Pabellon A, 3er piso, Oficina 301",
       phone: "+51 1 234 5678",
       email: "investigacion@universidad.edu.pe",
       schedule: "Lunes a Viernes: 8:00 - 17:00",
@@ -472,9 +467,10 @@ async function main() {
     update: {},
     create: {
       id: "seed-imagen-1",
-      title: "Seminario IA 2025",
-      description: "Participantes del seminario internacional de IA.",
-      imageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
+      src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
+      alt: "Seminario IA 2025",
+      caption: "Participantes del seminario internacional de IA.",
+      event: "Seminario IA 2025",
       category: "eventos",
       published: true,
       order: 1,
@@ -485,9 +481,9 @@ async function main() {
     update: {},
     create: {
       id: "seed-imagen-2",
-      title: "Laboratorio de Investigacion",
-      description: "Instalaciones del laboratorio de computacion avanzada.",
-      imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800",
+      src: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800",
+      alt: "Laboratorio de Investigacion",
+      caption: "Instalaciones del laboratorio de computacion avanzada.",
       category: "instalaciones",
       published: true,
       order: 2,
@@ -507,7 +503,7 @@ async function main() {
       title: "Seminario de IA",
       description: "Seminario internacional sobre avances en Inteligencia Artificial.",
       type: "investigacion",
-      startDate: nextMonth,
+      date: nextMonth,
       location: "Auditorio Principal",
       published: true,
     },
@@ -520,8 +516,7 @@ async function main() {
       title: "Fecha limite - Proyectos",
       description: "Ultimo dia para presentar proyectos de investigacion.",
       type: "deadline",
-      startDate: new Date(today.getFullYear(), today.getMonth() + 1, 28),
-      allDay: true,
+      date: new Date(today.getFullYear(), today.getMonth() + 1, 28),
       published: true,
     },
   });
