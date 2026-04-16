@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { normalizeUrl } from "@/lib/url-utils";
+import { requireAuth, validateBody, errorResponse, successResponse } from "@/lib/api-utils";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// AUTHORITIES API
-// GET /api/authorities - Listar autoridades
-// POST /api/authorities - Crear autoridad (requiere auth)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Schema de validación para crear autoridad
 const authoritySchema = z.object({
   name: z.string().min(1, "Nombre requerido"),
   role: z.string().min(1, "Cargo requerido"),
@@ -27,7 +20,7 @@ const authoritySchema = z.object({
   order: z.number().default(0),
 });
 
-// GET /api/authorities - Listar autoridades
+// GET /api/authorities
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -36,10 +29,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    // Construir filtros
-    const where: Record<string, unknown> = {
-      ...notDeleted,
-    };
+    const where: Record<string, unknown> = { ...notDeleted };
 
     if (search) {
       where.OR = [
@@ -49,13 +39,9 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (status === "published") {
-      where.published = true;
-    } else if (status === "draft") {
-      where.published = false;
-    }
+    if (status === "published") where.published = true;
+    else if (status === "draft") where.published = false;
 
-    // Obtener total y datos
     const [total, authorities] = await Promise.all([
       prisma.authority.count({ where }),
       prisma.authority.findMany({
@@ -68,45 +54,27 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: authorities,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
     console.error("Error fetching authorities:", error);
-    return NextResponse.json(
-      { error: "Error al obtener autoridades" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener autoridades");
   }
 }
 
-// POST /api/authorities - Crear autoridad
+// POST /api/authorities
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const body = await request.json();
 
-    // Validar datos
-    const result = authoritySchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, authoritySchema);
+    if (validation.error) return validation.error;
 
-    const data = result.data;
+    const data = validation.data;
 
-    // Crear autoridad
     const authority = await prisma.authority.create({
       data: {
         name: data.name,
@@ -125,12 +93,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ data: authority }, { status: 201 });
+    return successResponse(authority, 201);
   } catch (error) {
     console.error("Error creating authority:", error);
-    return NextResponse.json(
-      { error: "Error al crear autoridad" },
-      { status: 500 }
-    );
+    return errorResponse("Error al crear autoridad");
   }
 }

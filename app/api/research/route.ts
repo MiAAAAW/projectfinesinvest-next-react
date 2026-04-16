@@ -57,9 +57,10 @@ export async function GET(request: NextRequest) {
           ? {
               teachers: {
                 where: {
+                  // Solo mostrar activos en la landing
+                  ...(status === "published" ? { active: true } : {}),
                   teacher: {
                     deletedAt: null,
-                    // Solo incluir publicados si se pide status=published (landing)
                     ...(status === "published" ? { published: true } : {}),
                   },
                 },
@@ -72,6 +73,8 @@ export async function GET(request: NextRequest) {
                       avatarUrl: true,
                       specialty: true,
                       email: true,
+                      category: true,
+                      employmentType: true,
                       published: true,
                     },
                   },
@@ -112,6 +115,12 @@ export async function GET(request: NextRequest) {
 
         // Count members
         data.teacherCount = teachers.length;
+
+        // Full teacher list for modal detail
+        data.teachersList = teachers.map((t) => ({
+          ...t.teacher,
+          role: t.role,
+        }));
       }
 
       return data;

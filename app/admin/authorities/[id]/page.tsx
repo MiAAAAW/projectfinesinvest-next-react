@@ -8,41 +8,17 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { FileUpload } from "@/components/admin/FileUpload";
-
-// Obtener iniciales del nombre
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
+  EditPageHeader, EditPageSkeleton, PublishSettingsCard, FormActionsCard, FileUpload,
+} from "@/components/admin";
+import { getInitials } from "@/lib/utils";
 
 export default function EditAuthorityPage() {
   const router = useRouter();
@@ -128,7 +104,7 @@ export default function EditAuthorityPage() {
       if (file) {
         const uploadFormData = new FormData();
         uploadFormData.append("file", file);
-        uploadFormData.append("category", "authorities");
+        uploadFormData.append("folder", "authorities");
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
@@ -208,76 +184,19 @@ export default function EditAuthorityPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  if (isFetching) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-10 rounded-lg" />
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-        </div>
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <Skeleton className="h-[300px] w-full rounded-lg" />
-            <Skeleton className="h-[250px] w-full rounded-lg" />
-          </div>
-          <div className="space-y-6">
-            <Skeleton className="h-[200px] w-full rounded-lg" />
-            <Skeleton className="h-[150px] w-full rounded-lg" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (isFetching) return <EditPageSkeleton />;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/authorities">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Editar Autoridad</h1>
-            <p className="text-muted-foreground">
-              Modifica la información de la autoridad
-            </p>
-          </div>
-        </div>
-
-        {/* Delete Button */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Eliminar
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar autoridad?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción no se puede deshacer. La autoridad será eliminada
-                permanentemente.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Eliminar
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+      <EditPageHeader
+        backHref="/admin/authorities"
+        title="Editar Autoridad"
+        description="Modifica la información de la autoridad"
+        onDelete={handleDelete}
+        isDeleting={false}
+        deleteTitle="¿Eliminar autoridad?"
+        deleteDescription="Esta acción no se puede deshacer. La autoridad será eliminada permanentemente."
+      />
 
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 lg:grid-cols-3">
@@ -498,70 +417,18 @@ export default function EditAuthorityPage() {
               </CardContent>
             </Card>
 
-            {/* Publish Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Publicación</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Published */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="published">Publicar</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Visible en el landing
-                    </p>
-                  </div>
-                  <Switch
-                    id="published"
-                    checked={formData.published}
-                    onCheckedChange={(checked) => updateField("published", checked)}
-                  />
-                </div>
+            <PublishSettingsCard
+              published={formData.published}
+              onPublishedChange={(checked) => updateField("published", checked)}
+              order={formData.order}
+              onOrderChange={(value) => updateField("order", value)}
+            />
 
-                <Separator />
-
-                {/* Order */}
-                <div className="space-y-2">
-                  <Label htmlFor="order">Orden de aparición</Label>
-                  <Input
-                    id="order"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={formData.order}
-                    onChange={(e) => updateField("order", e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Menor número = aparece primero
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Actions */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col gap-2">
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        Guardando...
-                      </span>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Guardar cambios
-                      </>
-                    )}
-                  </Button>
-                  <Button type="button" variant="outline" asChild>
-                    <Link href="/admin/authorities">Cancelar</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <FormActionsCard
+              isLoading={isLoading}
+              cancelHref="/admin/authorities"
+              saveLabel="Guardar cambios"
+            />
           </div>
         </div>
       </form>

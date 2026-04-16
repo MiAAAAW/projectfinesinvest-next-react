@@ -1,17 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { normalizeUrl } from "@/lib/url-utils";
+import { requireAuth, validateBody, errorResponse, successResponse, messageResponse, softDelete } from "@/lib/api-utils";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// AUTHORITY BY ID API
-// GET /api/authorities/[id] - Obtener autoridad por ID
-// PUT /api/authorities/[id] - Actualizar autoridad
-// DELETE /api/authorities/[id] - Eliminar autoridad (soft delete)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Schema de validación para actualizar autoridad
 const updateAuthoritySchema = z.object({
   name: z.string().optional(),
   role: z.string().optional(),
@@ -32,71 +24,43 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// GET /api/authorities/[id] - Obtener autoridad por ID
+// GET /api/authorities/[id]
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
     const authority = await prisma.authority.findFirst({
-      where: {
-        id,
-        ...notDeleted,
-      },
+      where: { id, ...notDeleted },
     });
 
-    if (!authority) {
-      return NextResponse.json(
-        { error: "Autoridad no encontrada" },
-        { status: 404 }
-      );
-    }
+    if (!authority) return errorResponse("Autoridad no encontrada", 404);
 
-    return NextResponse.json({ data: authority });
+    return successResponse(authority);
   } catch (error) {
     console.error("Error fetching authority:", error);
-    return NextResponse.json(
-      { error: "Error al obtener autoridad" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener autoridad");
   }
 }
 
-// PUT /api/authorities/[id] - Actualizar autoridad
+// PUT /api/authorities/[id]
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const { id } = await params;
     const body = await request.json();
 
-    // Validar datos
-    const result = updateAuthoritySchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, updateAuthoritySchema);
+    if (validation.error) return validation.error;
 
-    // Verificar que existe
     const existing = await prisma.authority.findFirst({
       where: { id, ...notDeleted },
     });
+    if (!existing) return errorResponse("Autoridad no encontrada", 404);
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: "Autoridad no encontrada" },
-        { status: 404 }
-      );
-    }
+    const data = validation.data;
 
-    const data = result.data;
-
-    // Actualizar autoridad
     const authority = await prisma.authority.update({
       where: { id },
       data: {
@@ -116,51 +80,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    return NextResponse.json({ data: authority });
+    return successResponse(authority);
   } catch (error) {
     console.error("Error updating authority:", error);
-    return NextResponse.json(
-      { error: "Error al actualizar autoridad" },
-      { status: 500 }
-    );
+    return errorResponse("Error al actualizar autoridad");
   }
 }
 
-// DELETE /api/authorities/[id] - Eliminar autoridad (soft delete)
+// DELETE /api/authorities/[id]
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const { id } = await params;
 
-    // Verificar que existe
-    const existing = await prisma.authority.findFirst({
-      where: { id, ...notDeleted },
-    });
+    const result = await softDelete(prisma.authority, id, "Autoridad");
+    if (result.error) return result.error;
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: "Autoridad no encontrada" },
-        { status: 404 }
-      );
-    }
-
-    // Soft delete
-    await prisma.authority.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-
-    return NextResponse.json({ message: "Autoridad eliminada" });
+    return messageResponse("Autoridad eliminada");
   } catch (error) {
     console.error("Error deleting authority:", error);
-    return NextResponse.json(
-      { error: "Error al eliminar autoridad" },
-      { status: 500 }
-    );
+    return errorResponse("Error al eliminar autoridad");
   }
 }

@@ -464,9 +464,45 @@
   animation-delay: 500ms;
 }
 
-/* Smooth scroll */
+/* Smooth scroll + offset para navbar fijo (h-16 = 64px + buffer) */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+/* Global scrollbar - matches blue theme */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.25) transparent;
+}
+
+:root::-webkit-scrollbar {
+  width: 8px;
+}
+
+:root::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:root::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.25);
+  border-radius: 9999px;
+}
+
+:root::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.4);
+}
+
+.dark {
+  scrollbar-color: rgba(56, 189, 248, 0.2) transparent;
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.2);
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.35);
 }
 
 /* Hide scrollbar but allow scrolling */
@@ -477,6 +513,29 @@ html {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Thin styled scrollbar - matches blue theme */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.2) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.2);
+  border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.35);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════

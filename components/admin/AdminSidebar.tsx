@@ -2,8 +2,7 @@
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ADMIN SIDEBAR COMPONENT
-// Navegación lateral para el panel de administración
-// Conectado a API real para mostrar usuario autenticado
+// Navegación lateral con 6 grupos de secciones
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { useCallback, useEffect, useState } from "react";
@@ -38,12 +37,77 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DASHBOARD_ITEM, LANDING_SECTIONS, MANAGEMENT_SECTIONS } from "@/lib/admin-constants";
+import {
+  DASHBOARD_ITEM,
+  LANDING_SECTIONS,
+  RESEARCH_SECTIONS,
+  DOCUMENTS_SECTIONS,
+  POSTGRAD_SECTIONS,
+  ACCREDITATION_SECTIONS,
+  MANAGEMENT_SECTIONS,
+} from "@/lib/constants/sidebar";
 
 interface User {
   id: string;
   name: string | null;
   email: string;
+}
+
+interface SidebarSection {
+  title: string;
+  url: string;
+  icon: React.ComponentType<{ className?: string }>;
+  type: string;
+}
+
+function SidebarCollapsibleGroup({
+  label,
+  sections,
+  isActive,
+  defaultOpen = true,
+}: {
+  label: string;
+  sections: readonly SidebarSection[];
+  isActive: (url: string) => boolean;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <SidebarGroup>
+      <Collapsible defaultOpen={defaultOpen} className="group/collapsible">
+        <SidebarGroupLabel asChild>
+          <CollapsibleTrigger className="flex w-full items-center">
+            {label}
+            <ChevronDown className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+          </CollapsibleTrigger>
+        </SidebarGroupLabel>
+        <CollapsibleContent>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sections.map((section) => (
+                <SidebarMenuItem key={section.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive(section.url)}
+                    tooltip={section.title}
+                  >
+                    <Link href={section.url}>
+                      <section.icon className="size-4" />
+                      <span>{section.title}</span>
+                      {section.type === "crud" && (
+                        <span className="ml-auto text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                          CRUD
+                        </span>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </SidebarGroup>
+  );
 }
 
 export function AdminSidebar() {
@@ -52,7 +116,6 @@ export function AdminSidebar() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Fetch current user
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -65,11 +128,9 @@ export function AdminSidebar() {
         console.error("Error fetching user:", error);
       }
     };
-
     fetchUser();
   }, []);
 
-  // Handle logout
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
@@ -87,25 +148,16 @@ export function AdminSidebar() {
     }
   };
 
-  // Get user initials for avatar
   const getInitials = (name: string | null, email: string) => {
     if (name) {
-      return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
+      return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
     }
     return email.slice(0, 2).toUpperCase();
   };
 
-  // Memoizar función isActive para evitar recreación en cada render
   const isActive = useCallback(
     (url: string) => {
-      if (url === "/admin") {
-        return pathname === "/admin";
-      }
+      if (url === "/admin") return pathname === "/admin";
       return pathname.startsWith(url);
     },
     [pathname]
@@ -154,77 +206,38 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Secciones del Landing - en orden del landing */}
-        <SidebarGroup>
-          <Collapsible defaultOpen className="group/collapsible">
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center">
-                Secciones del Landing
-                <ChevronDown className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {LANDING_SECTIONS.map((section) => (
-                    <SidebarMenuItem key={section.title}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive(section.url)}
-                        tooltip={section.title}
-                      >
-                        <Link href={section.url}>
-                          <section.icon className="size-4" />
-                          <span>{section.title}</span>
-                          {section.type === "crud" && (
-                            <span className="ml-auto text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                              CRUD
-                            </span>
-                          )}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </SidebarGroup>
-
-        {/* Gestión - Datos Maestros */}
-        <SidebarGroup>
-          <Collapsible defaultOpen className="group/collapsible">
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center">
-                Gestión
-                <ChevronDown className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {MANAGEMENT_SECTIONS.map((section) => (
-                    <SidebarMenuItem key={section.title}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive(section.url)}
-                        tooltip={section.title}
-                      >
-                        <Link href={section.url}>
-                          <section.icon className="size-4" />
-                          <span>{section.title}</span>
-                          <span className="ml-auto text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                            CRUD
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </SidebarGroup>
+        <SidebarCollapsibleGroup
+          label="Página Principal"
+          sections={LANDING_SECTIONS}
+          isActive={isActive}
+        />
+        <SidebarCollapsibleGroup
+          label="Investigación"
+          sections={RESEARCH_SECTIONS}
+          isActive={isActive}
+        />
+        <SidebarCollapsibleGroup
+          label="Documentos"
+          sections={DOCUMENTS_SECTIONS}
+          isActive={isActive}
+        />
+        <SidebarCollapsibleGroup
+          label="Posgrado"
+          sections={POSTGRAD_SECTIONS}
+          isActive={isActive}
+          defaultOpen={false}
+        />
+        <SidebarCollapsibleGroup
+          label="Acreditación"
+          sections={ACCREDITATION_SECTIONS}
+          isActive={isActive}
+          defaultOpen={false}
+        />
+        <SidebarCollapsibleGroup
+          label="Gestión"
+          sections={MANAGEMENT_SECTIONS}
+          isActive={isActive}
+        />
       </SidebarContent>
 
       <SidebarFooter>

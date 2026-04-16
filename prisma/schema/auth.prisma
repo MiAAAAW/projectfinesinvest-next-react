@@ -1,0 +1,114 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUTH - User, Role, UserRole, Permission, RolePermission, SessionLog
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  name         String
+  dni          String?   @unique
+  phone        String?
+  avatarUrl    String?   @map("avatar_url")
+  active       Boolean   @default(true)
+  verified     Boolean   @default(false)
+  deletedAt    DateTime? @map("deleted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  roles       UserRole[]
+  sessionLogs SessionLog[]
+  userChanges UserLog[]    @relation("UserChanges")
+  changesBy   UserLog[]    @relation("UserChangedBy")
+  teacher     Teacher?
+  student     Student?
+
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  description String?
+  color       String?
+  icon        String?
+  isSystem    Boolean   @default(false) @map("is_system")
+  active      Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@index([deletedAt])
+  @@map("roles")
+}
+
+model UserRole {
+  id         String    @id @default(cuid())
+  userId     String    @map("user_id")
+  roleId     String    @map("role_id")
+  context    String?
+  active     Boolean   @default(true)
+  validFrom  DateTime? @map("valid_from")
+  validUntil DateTime? @map("valid_until")
+  grantedBy  String?   @map("granted_by")
+  notes      String?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId, context])
+  @@map("user_roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  module      String
+  action      String
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  roles RolePermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String   @id @default(cuid())
+  roleId       String   @map("role_id")
+  permissionId String   @map("permission_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model SessionLog {
+  id         String        @id @default(cuid())
+  userId     String?       @map("user_id")
+  action     SessionAction
+  ipAddress  String?       @map("ip_address")
+  userAgent  String?       @map("user_agent")
+  location   String?
+  success    Boolean       @default(true)
+  failReason String?       @map("fail_reason")
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("session_logs")
+}

@@ -1,0 +1,697 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - link "FINESI Admin Panel de Administración" [ref=e9] [cursor=pointer]:
+            - /url: /admin
+            - img [ref=e11]
+            - generic [ref=e14]:
+              - generic [ref=e15]: FINESI Admin
+              - generic [ref=e16]: Panel de Administración
+      - generic [ref=e17]:
+        - list [ref=e20]:
+          - listitem [ref=e21]:
+            - link "Dashboard" [ref=e22] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e23]
+              - generic [ref=e28]: Dashboard
+        - generic [ref=e30]:
+          - button "Página Principal" [expanded] [ref=e31]:
+            - text: Página Principal
+            - img [ref=e32]
+          - list [ref=e36]:
+            - listitem [ref=e37]:
+              - link "Hero" [ref=e38] [cursor=pointer]:
+                - /url: /admin/content/hero
+                - img [ref=e39]
+                - generic [ref=e42]: Hero
+            - listitem [ref=e43]:
+              - link "Anuncios CRUD" [ref=e44] [cursor=pointer]:
+                - /url: /admin/announcements
+                - img [ref=e45]
+                - generic [ref=e48]: Anuncios
+                - generic [ref=e49]: CRUD
+            - listitem [ref=e50]:
+              - link "Calendario CRUD" [ref=e51] [cursor=pointer]:
+                - /url: /admin/calendar
+                - img [ref=e52]
+                - generic [ref=e54]: Calendario
+                - generic [ref=e55]: CRUD
+            - listitem [ref=e56]:
+              - link "Galería CRUD" [ref=e57] [cursor=pointer]:
+                - /url: /admin/gallery
+                - img [ref=e58]
+                - generic [ref=e62]: Galería
+                - generic [ref=e63]: CRUD
+            - listitem [ref=e64]:
+              - link "Autoridades CRUD" [ref=e65] [cursor=pointer]:
+                - /url: /admin/authorities
+                - img [ref=e66]
+                - generic [ref=e71]: Autoridades
+                - generic [ref=e72]: CRUD
+            - listitem [ref=e73]:
+              - link "Oficinas CRUD" [ref=e74] [cursor=pointer]:
+                - /url: /admin/offices
+                - img [ref=e75]
+                - generic [ref=e78]: Oficinas
+                - generic [ref=e79]: CRUD
+            - listitem [ref=e80]:
+              - link "Footer" [ref=e81] [cursor=pointer]:
+                - /url: /admin/content/footer
+                - img [ref=e82]
+                - generic [ref=e85]: Footer
+        - generic [ref=e87]:
+          - button "Investigación" [expanded] [ref=e88]:
+            - text: Investigación
+            - img [ref=e89]
+          - list [ref=e93]:
+            - listitem [ref=e94]:
+              - link "Líneas CRUD" [ref=e95] [cursor=pointer]:
+                - /url: /admin/research
+                - img [ref=e96]
+                - generic [ref=e98]: Líneas
+                - generic [ref=e99]: CRUD
+            - listitem [ref=e100]:
+              - link "Grupos CRUD" [ref=e101] [cursor=pointer]:
+                - /url: /admin/research-groups
+                - img [ref=e102]
+                - generic [ref=e106]: Grupos
+                - generic [ref=e107]: CRUD
+            - listitem [ref=e108]:
+              - link "Semilleros CRUD" [ref=e109] [cursor=pointer]:
+                - /url: /admin/semilleros
+                - img [ref=e110]
+                - generic [ref=e113]: Semilleros
+                - generic [ref=e114]: CRUD
+            - listitem [ref=e115]:
+              - link "Publicaciones CRUD" [ref=e116] [cursor=pointer]:
+                - /url: /admin/publications
+                - img [ref=e117]
+                - generic [ref=e119]: Publicaciones
+                - generic [ref=e120]: CRUD
+            - listitem [ref=e121]:
+              - link "Docentes RENACYT CRUD" [ref=e122] [cursor=pointer]:
+                - /url: /admin/teachers-renacyt
+                - img [ref=e123]
+                - generic [ref=e126]: Docentes RENACYT
+                - generic [ref=e127]: CRUD
+            - listitem [ref=e128]:
+              - link "Ética" [ref=e129] [cursor=pointer]:
+                - /url: /admin/content/etica
+                - img [ref=e130]
+                - generic [ref=e132]: Ética
+        - generic [ref=e134]:
+          - button "Documentos" [expanded] [ref=e135]:
+            - text: Documentos
+            - img [ref=e136]
+          - list [ref=e140]:
+            - listitem [ref=e141]:
+              - link "Documentos CRUD" [ref=e142] [cursor=pointer]:
+                - /url: /admin/documents
+                - img [ref=e143]
+                - generic [ref=e146]: Documentos
+                - generic [ref=e147]: CRUD
+            - listitem [ref=e148]:
+              - link "Res. Decanales CRUD" [ref=e149] [cursor=pointer]:
+                - /url: /admin/resolutions/decanales
+                - img [ref=e150]
+                - generic [ref=e154]: Res. Decanales
+                - generic [ref=e155]: CRUD
+            - listitem [ref=e156]:
+              - link "Res. Rectorales CRUD" [ref=e157] [cursor=pointer]:
+                - /url: /admin/resolutions/rectorales
+                - img [ref=e158]
+                - generic [ref=e162]: Res. Rectorales
+                - generic [ref=e163]: CRUD
+            - listitem [ref=e164]:
+              - link "Convenios CRUD" [ref=e165] [cursor=pointer]:
+                - /url: /admin/agreements
+                - img [ref=e166]
+                - generic [ref=e171]: Convenios
+                - generic [ref=e172]: CRUD
+            - listitem [ref=e173]:
+              - link "Enlaces CRUD" [ref=e174] [cursor=pointer]:
+                - /url: /admin/links
+                - img [ref=e175]
+                - generic [ref=e178]: Enlaces
+                - generic [ref=e179]: CRUD
+        - button "Posgrado" [ref=e182]:
+          - text: Posgrado
+          - img [ref=e183]
+        - button "Acreditación" [ref=e187]:
+          - text: Acreditación
+          - img [ref=e188]
+        - generic [ref=e191]:
+          - button "Gestión" [expanded] [ref=e192]:
+            - text: Gestión
+            - img [ref=e193]
+          - list [ref=e197]:
+            - listitem [ref=e198]:
+              - link "Docentes CRUD" [ref=e199] [cursor=pointer]:
+                - /url: /admin/teachers
+                - img [ref=e200]
+                - generic [ref=e203]: Docentes
+                - generic [ref=e204]: CRUD
+      - list [ref=e206]:
+        - listitem [ref=e207]:
+          - button "A Administrador admin@gmail.com" [ref=e357]:
+            - generic [ref=e210]: A
+            - generic [ref=e211]:
+              - generic [ref=e212]: Administrador
+              - generic [ref=e358]: admin@gmail.com
+            - img [ref=e213]
+      - button "Toggle Sidebar" [ref=e215]
+    - main [ref=e216]:
+      - generic [ref=e217]:
+        - button "Toggle Sidebar" [ref=e218]:
+          - img
+          - generic [ref=e219]: Toggle Sidebar
+        - navigation "breadcrumb" [ref=e220]:
+          - list [ref=e221]:
+            - listitem [ref=e222]:
+              - link "Dashboard" [ref=e223] [cursor=pointer]:
+                - /url: /admin
+            - listitem [ref=e224]:
+              - img [ref=e225]
+            - listitem [ref=e227]:
+              - link "Investigación" [ref=e461] [cursor=pointer]:
+                - /url: /admin/research
+            - listitem [ref=e462]:
+              - img [ref=e463]
+            - listitem [ref=e465]:
+              - link "cmkv2sfgl00023ayszainqchx" [disabled] [ref=e466]
+      - main [ref=e229]:
+        - generic [ref=e467]:
+          - generic [ref=e468]:
+            - generic [ref=e469]:
+              - link [ref=e470] [cursor=pointer]:
+                - /url: /admin/research
+                - img
+              - generic [ref=e471]:
+                - heading "Editar Línea de Investigación" [level=1] [ref=e472]
+                - paragraph [ref=e473]: Modifica la información y gestiona los docentes
+            - button "Eliminar" [ref=e474]:
+              - img
+              - text: Eliminar
+          - generic [ref=e476]:
+            - generic [ref=e477]:
+              - generic [ref=e478]:
+                - generic [ref=e479]:
+                  - generic [ref=e480]: Información
+                  - generic [ref=e481]: Datos principales de la línea de investigación
+                - generic [ref=e482]:
+                  - generic [ref=e483]:
+                    - generic [ref=e484]: Nombre de la línea *
+                    - textbox "Nombre de la línea *" [ref=e485]:
+                      - /placeholder: "Ej: Inteligencia Artificial y Machine Learning"
+                      - text: Análisis Multivariado, Big Data, Minería de Datos e Investigación de Mercados
+                  - generic [ref=e486]:
+                    - generic [ref=e487]: Descripción *
+                    - textbox "Descripción *" [ref=e488]:
+                      - /placeholder: Describe el enfoque y objetivos...
+                      - text: Investigación en técnicas de análisis multivariado, procesamiento de grandes volúmenes de datos (Big Data), minería de datos y su aplicación en investigación de mercados para la toma de decisiones basada en evidencia.
+                  - generic [ref=e489]:
+                    - generic [ref=e490]: Enlace a más información
+                    - textbox "Enlace a más información" [ref=e491]:
+                      - /placeholder: "ejemplo.com/ruta, #seccion, o URL completa"
+                    - paragraph [ref=e492]: "Acepta: dominio.com/ruta, #ancla, /ruta-relativa, o URL completa"
+              - generic [ref=e493]:
+                - generic [ref=e494]:
+                  - generic [ref=e495]:
+                    - generic [ref=e496]:
+                      - text: Equipo de Investigación
+                      - generic [ref=e497]: 32 docentes
+                    - generic [ref=e498]: Docentes asignados a esta línea de investigación
+                  - button "Agregar Docente" [ref=e499]:
+                    - img
+                    - text: Agregar Docente
+                - generic [ref=e501]:
+                  - generic [ref=e502]:
+                    - generic [ref=e503]:
+                      - generic [ref=e505]: LA
+                      - paragraph [ref=e507]: Leonid Aleman Gonzales
+                    - generic [ref=e508]:
+                      - combobox [ref=e509]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e510]
+                      - button "Desactivar docente" [ref=e511]:
+                        - img
+                      - button [ref=e512]:
+                        - img
+                  - generic [ref=e513]:
+                    - generic [ref=e514]:
+                      - generic [ref=e516]: TP
+                      - paragraph [ref=e518]: Teresa Paola Alvarez Rozas
+                    - generic [ref=e519]:
+                      - combobox [ref=e520]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e521]
+                      - button "Desactivar docente" [ref=e522]:
+                        - img
+                      - button [ref=e523]:
+                        - img
+                  - generic [ref=e524]:
+                    - generic [ref=e525]:
+                      - generic [ref=e527]: RA
+                      - paragraph [ref=e529]: Renzo Apaza Cutipa
+                    - generic [ref=e530]:
+                      - combobox [ref=e531]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e532]
+                      - button "Desactivar docente" [ref=e533]:
+                        - img
+                      - button [ref=e534]:
+                        - img
+                  - generic [ref=e535]:
+                    - generic [ref=e536]:
+                      - generic [ref=e538]: OR
+                      - paragraph [ref=e540]: Oscar Rene Barrientos Huaman
+                    - generic [ref=e541]:
+                      - combobox [ref=e542]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e543]
+                      - button "Desactivar docente" [ref=e544]:
+                        - img
+                      - button [ref=e545]:
+                        - img
+                  - generic [ref=e546]:
+                    - generic [ref=e547]:
+                      - generic [ref=e549]: BC
+                      - paragraph [ref=e551]: Bernabe Canqui Flores
+                    - generic [ref=e552]:
+                      - combobox [ref=e553]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e554]
+                      - button "Desactivar docente" [ref=e555]:
+                        - img
+                      - button [ref=e556]:
+                        - img
+                  - generic [ref=e557]:
+                    - generic [ref=e558]:
+                      - generic [ref=e560]: EE
+                      - paragraph [ref=e562]: Edgar Eloy Carpio Vargas
+                    - generic [ref=e563]:
+                      - combobox [ref=e564]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e565]
+                      - button "Desactivar docente" [ref=e566]:
+                        - img
+                      - button [ref=e567]:
+                        - img
+                  - generic [ref=e568]:
+                    - generic [ref=e569]:
+                      - generic [ref=e571]: GJ
+                      - paragraph [ref=e573]: Gerardino Juvenal Cauna Huanca
+                    - generic [ref=e574]:
+                      - combobox [ref=e575]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e576]
+                      - button "Desactivar docente" [ref=e577]:
+                        - img
+                      - button [ref=e578]:
+                        - img
+                  - generic [ref=e579]:
+                    - generic [ref=e580]:
+                      - generic [ref=e582]: RC
+                      - paragraph [ref=e584]: Remo Choquejahua Acero
+                    - generic [ref=e585]:
+                      - combobox [ref=e586]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e587]
+                      - button "Desactivar docente" [ref=e588]:
+                        - img
+                      - button [ref=e589]:
+                        - img
+                  - generic [ref=e590]:
+                    - generic [ref=e591]:
+                      - generic [ref=e593]: LC
+                      - paragraph [ref=e595]: Leonel Coyla Idme
+                    - generic [ref=e596]:
+                      - combobox [ref=e597]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e598]
+                      - button "Desactivar docente" [ref=e599]:
+                        - img
+                      - button [ref=e600]:
+                        - img
+                  - generic [ref=e601]:
+                    - generic [ref=e602]:
+                      - generic [ref=e604]: EE
+                      - paragraph [ref=e606]: Erardo Espinoza Coaquira
+                    - generic [ref=e607]:
+                      - combobox [ref=e608]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e609]
+                      - button "Desactivar docente" [ref=e610]:
+                        - img
+                      - button [ref=e611]:
+                        - img
+                  - generic [ref=e612]:
+                    - generic [ref=e613]:
+                      - generic [ref=e615]: AP
+                      - paragraph [ref=e617]: Alain Paul Herrera Urtiaga
+                    - generic [ref=e618]:
+                      - combobox [ref=e619]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e620]
+                      - button "Desactivar docente" [ref=e621]:
+                        - img
+                      - button [ref=e622]:
+                        - img
+                  - generic [ref=e623]:
+                    - generic [ref=e624]:
+                      - generic [ref=e626]: VI
+                      - paragraph [ref=e628]: Vladimiro Ibañez Quispe
+                    - generic [ref=e629]:
+                      - combobox [ref=e630]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e631]
+                      - button "Desactivar docente" [ref=e632]:
+                        - img
+                      - button [ref=e633]:
+                        - img
+                  - generic [ref=e634]:
+                    - generic [ref=e635]:
+                      - generic [ref=e637]: YL
+                      - paragraph [ref=e639]: Yeni Liz Jihuallanca Ccoa
+                    - generic [ref=e640]:
+                      - combobox [ref=e641]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e642]
+                      - button "Desactivar docente" [ref=e643]:
+                        - img
+                      - button [ref=e644]:
+                        - img
+                  - generic [ref=e645]:
+                    - generic [ref=e646]:
+                      - generic [ref=e648]: JC
+                      - paragraph [ref=e650]: Juan Carlos Juarez Vargas
+                    - generic [ref=e651]:
+                      - combobox [ref=e652]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e653]
+                      - button "Desactivar docente" [ref=e654]:
+                        - img
+                      - button [ref=e655]:
+                        - img
+                  - generic [ref=e656]:
+                    - generic [ref=e657]:
+                      - generic [ref=e659]: RP
+                      - paragraph [ref=e661]: Ramiro Pedro Laura Murillo
+                    - generic [ref=e662]:
+                      - combobox [ref=e663]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e664]
+                      - button "Desactivar docente" [ref=e665]:
+                        - img
+                      - button [ref=e666]:
+                        - img
+                  - generic [ref=e667]:
+                    - generic [ref=e668]:
+                      - generic [ref=e670]: CA
+                      - paragraph [ref=e672]: Cesar Augusto Lluen Vallejos
+                    - generic [ref=e673]:
+                      - combobox [ref=e674]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e675]
+                      - button "Desactivar docente" [ref=e676]:
+                        - img
+                      - button [ref=e677]:
+                        - img
+                  - generic [ref=e678]:
+                    - generic [ref=e679]:
+                      - generic [ref=e681]: MA
+                      - paragraph [ref=e683]: Milton Antonio Lopez Cueva
+                    - generic [ref=e684]:
+                      - combobox [ref=e685]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e686]
+                      - button "Desactivar docente" [ref=e687]:
+                        - img
+                      - button [ref=e688]:
+                        - img
+                  - generic [ref=e689]:
+                    - generic [ref=e690]:
+                      - generic [ref=e692]: MV
+                      - paragraph [ref=e694]: Milton Vladimir Mamani Calisaya
+                    - generic [ref=e695]:
+                      - combobox [ref=e696]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e697]
+                      - button "Desactivar docente" [ref=e698]:
+                        - img
+                      - button [ref=e699]:
+                        - img
+                  - generic [ref=e700]:
+                    - generic [ref=e701]:
+                      - generic [ref=e703]: RP
+                      - paragraph [ref=e705]: Romel Percy Melgarejo Bolivar
+                    - generic [ref=e706]:
+                      - combobox [ref=e707]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e708]
+                      - button "Desactivar docente" [ref=e709]:
+                        - img
+                      - button [ref=e710]:
+                        - img
+                  - generic [ref=e711]:
+                    - generic [ref=e712]:
+                      - generic [ref=e714]: CI
+                      - paragraph [ref=e716]: Charles Ignacio Mendoza Mollocondo
+                    - generic [ref=e717]:
+                      - combobox [ref=e718]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e719]
+                      - button "Desactivar docente" [ref=e720]:
+                        - img
+                      - button [ref=e721]:
+                        - img
+                  - generic [ref=e722]:
+                    - generic [ref=e723]:
+                      - generic [ref=e725]: RA
+                      - paragraph [ref=e727]: Renan Abelardo Palli Mamani
+                    - generic [ref=e728]:
+                      - combobox [ref=e729]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e730]
+                      - button "Desactivar docente" [ref=e731]:
+                        - img
+                      - button [ref=e732]:
+                        - img
+                  - generic [ref=e733]:
+                    - generic [ref=e734]:
+                      - generic [ref=e736]: JR
+                      - paragraph [ref=e738]: Juan Reynaldo Paredes Quispe
+                    - generic [ref=e739]:
+                      - combobox [ref=e740]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e741]
+                      - button "Desactivar docente" [ref=e742]:
+                        - img
+                      - button [ref=e743]:
+                        - img
+                  - generic [ref=e744]:
+                    - generic [ref=e745]:
+                      - generic [ref=e747]: EY
+                      - paragraph [ref=e749]: Elqui Yeye Pari Condori
+                    - generic [ref=e750]:
+                      - combobox [ref=e751]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e752]
+                      - button "Desactivar docente" [ref=e753]:
+                        - img
+                      - button [ref=e754]:
+                        - img
+                  - generic [ref=e755]:
+                    - generic [ref=e756]:
+                      - generic [ref=e758]: JP
+                      - paragraph [ref=e760]: Jesus Pari Flores
+                    - generic [ref=e761]:
+                      - combobox [ref=e762]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e763]
+                      - button "Desactivar docente" [ref=e764]:
+                        - img
+                      - button [ref=e765]:
+                        - img
+                  - generic [ref=e766]:
+                    - generic [ref=e767]:
+                      - generic [ref=e769]: AJ
+                      - paragraph [ref=e771]: Angel Javier Quispe Carita
+                    - generic [ref=e772]:
+                      - combobox [ref=e773]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e774]
+                      - button "Desactivar docente" [ref=e775]:
+                        - img
+                      - button [ref=e776]:
+                        - img
+                  - generic [ref=e777]:
+                    - generic [ref=e778]:
+                      - generic [ref=e780]: AR
+                      - paragraph [ref=e782]: Alcides Ramos Calcina
+                    - generic [ref=e783]:
+                      - combobox [ref=e784]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e785]
+                      - button "Desactivar docente" [ref=e786]:
+                        - img
+                      - button [ref=e787]:
+                        - img
+                  - generic [ref=e788]:
+                    - generic [ref=e789]:
+                      - generic [ref=e791]: RE
+                      - paragraph [ref=e793]: Roberto Elvis Roque Claros
+                    - generic [ref=e794]:
+                      - combobox [ref=e795]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e796]
+                      - button "Desactivar docente" [ref=e797]:
+                        - img
+                      - button [ref=e798]:
+                        - img
+                  - generic [ref=e799]:
+                    - generic [ref=e800]:
+                      - generic [ref=e802]: MM
+                      - paragraph [ref=e804]: Maria Maura Salas Pilco
+                    - generic [ref=e805]:
+                      - combobox [ref=e806]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e807]
+                      - button "Desactivar docente" [ref=e808]:
+                        - img
+                      - button [ref=e809]:
+                        - img
+                  - generic [ref=e810]:
+                    - generic [ref=e811]:
+                      - generic [ref=e813]: JP
+                      - paragraph [ref=e815]: Jose Panfilo Tito Lipa
+                    - generic [ref=e816]:
+                      - combobox [ref=e817]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e818]
+                      - button "Desactivar docente" [ref=e819]:
+                        - img
+                      - button [ref=e820]:
+                        - img
+                  - generic [ref=e821]:
+                    - generic [ref=e822]:
+                      - generic [ref=e824]: FT
+                      - paragraph [ref=e826]: Fred Torres Cruz
+                    - generic [ref=e827]:
+                      - combobox [ref=e828]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e829]
+                      - button "Desactivar docente" [ref=e830]:
+                        - img
+                      - button [ref=e831]:
+                        - img
+                  - generic [ref=e832]:
+                    - generic [ref=e833]:
+                      - generic [ref=e835]: EN
+                      - paragraph [ref=e837]: Ernesto Nayer Tumi Figueroa
+                    - generic [ref=e838]:
+                      - combobox [ref=e839]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e840]
+                      - button "Desactivar docente" [ref=e841]:
+                        - img
+                      - button [ref=e842]:
+                        - img
+                  - generic [ref=e843]:
+                    - generic [ref=e844]:
+                      - generic [ref=e846]: FH
+                      - paragraph [ref=e848]: Fredy Heric Villasante Saravia
+                    - generic [ref=e849]:
+                      - combobox [ref=e850]:
+                        - generic: Investigador
+                        - img
+                      - combobox [ref=e851]
+                      - button "Desactivar docente" [ref=e852]:
+                        - img
+                      - button [ref=e853]:
+                        - img
+              - generic [ref=e855]:
+                - generic [ref=e856] [cursor=pointer]:
+                  - generic [ref=e857]:
+                    - img [ref=e858]
+                    - text: Campos Legacy (Deprecados)
+                    - img [ref=e860]
+                  - generic [ref=e862]:
+                    - text: Estos campos serán reemplazados por la gestión de docentes.
+                    - generic [ref=e863]: (Ya tienes 32 docentes asignados)
+                - generic [ref=e865]:
+                  - generic [ref=e866]:
+                    - strong [ref=e867]: "Nota:"
+                    - text: Usa la sección "Equipo de Investigación" para gestionar docentes. Estos campos se mantendrán por compatibilidad pero serán ignorados si hay docentes asignados.
+                  - generic [ref=e868]:
+                    - generic [ref=e869]: Coordinador (texto manual)
+                    - textbox "Coordinador (texto manual)" [ref=e870]:
+                      - /placeholder: Nombre del coordinador
+                  - generic [ref=e871]:
+                    - generic [ref=e872]: Número de investigadores (manual)
+                    - spinbutton "Número de investigadores (manual)" [ref=e873]: "32"
+            - generic [ref=e874]:
+              - generic [ref=e875]:
+                - generic [ref=e877]: Publicación
+                - generic [ref=e878]:
+                  - generic [ref=e879]:
+                    - generic [ref=e880]:
+                      - generic [ref=e881]: Publicar
+                      - paragraph [ref=e882]: Visible en el landing
+                    - switch "Publicar" [checked] [ref=e883]
+                    - checkbox [checked]
+                  - generic [ref=e884]:
+                    - generic [ref=e885]: Orden de aparición
+                    - spinbutton "Orden de aparición" [ref=e886]: "0"
+                    - paragraph [ref=e887]: Menor número = aparece primero
+              - generic [ref=e888]:
+                - generic [ref=e890]: Apariencia
+                - generic [ref=e892]:
+                  - generic [ref=e893]: Icono
+                  - combobox [ref=e894]:
+                    - generic: Gráfico (Estadística)
+                    - img
+                  - combobox [ref=e895]
+              - generic [ref=e898]:
+                - button "Guardar cambios" [ref=e899]:
+                  - img
+                  - text: Guardar cambios
+                - link "Cancelar" [ref=e900] [cursor=pointer]:
+                  - /url: /admin/research
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e353] [cursor=pointer]:
+    - img [ref=e354]
+  - alert [ref=e455]

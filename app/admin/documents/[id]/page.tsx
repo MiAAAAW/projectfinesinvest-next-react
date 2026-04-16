@@ -9,34 +9,20 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Trash2, FileText, ExternalLink, Loader2 } from "lucide-react";
+import { FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { FileUpload } from "@/components/admin/FileUpload";
+  EditPageHeader, EditPageSkeleton, NotFoundState, FormActionsCard, FileUpload,
+} from "@/components/admin";
 import { toast } from "sonner";
 
 const documentCategories = [
@@ -147,8 +133,7 @@ export default function EditDocumentPage({ params }: PageProps) {
       if (file) {
         const uploadFormData = new FormData();
         uploadFormData.append("file", file);
-        uploadFormData.append("category", "documents");
-        uploadFormData.append("subCategory", formData.category); // REG, FRM, MAN, INV
+        uploadFormData.append("folder", `documents/${formData.category}`);
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
@@ -222,92 +207,30 @@ export default function EditDocumentPage({ params }: PageProps) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  if (isFetching) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-10 rounded-lg" />
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-        </div>
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <Skeleton className="h-[200px] w-full rounded-lg" />
-            <Skeleton className="h-[250px] w-full rounded-lg" />
-          </div>
-          <div className="space-y-6">
-            <Skeleton className="h-[200px] w-full rounded-lg" />
-            <Skeleton className="h-[120px] w-full rounded-lg" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (isFetching) return <EditPageSkeleton />;
 
   if (notFound) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <h1 className="text-2xl font-bold">Documento no encontrado</h1>
-        <p className="text-muted-foreground mb-4">El documento que buscas no existe o fue eliminado.</p>
-        <Button asChild>
-          <Link href="/admin/documents">Volver a documentos</Link>
-        </Button>
-      </div>
+      <NotFoundState
+        title="Documento no encontrado"
+        description="El documento que buscas no existe o fue eliminado."
+        backHref="/admin/documents"
+        backLabel="Volver a documentos"
+      />
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/documents">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Editar Documento</h1>
-            <p className="text-muted-foreground">
-              Modifica la información del documento
-            </p>
-          </div>
-        </div>
-
-        {/* Delete Button */}
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" disabled={isDeleting}>
-              {isDeleting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="mr-2 h-4 w-4" />
-              )}
-              Eliminar
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>¿Eliminar documento?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción no se puede deshacer. El documento será
-                eliminado permanentemente.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Eliminar
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+      <EditPageHeader
+        backHref="/admin/documents"
+        title="Editar Documento"
+        description="Modifica la información del documento"
+        onDelete={handleDelete}
+        isDeleting={isDeleting}
+        deleteTitle="¿Eliminar documento?"
+        deleteDescription="Esta acción no se puede deshacer. El documento será eliminado permanentemente."
+      />
 
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 lg:grid-cols-3">
@@ -356,7 +279,7 @@ export default function EditDocumentPage({ params }: PageProps) {
               <CardContent>
                 <FileUpload
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                  maxSize={50}
+                  maxSize={100}
                   value={file}
                   onChange={(f) => setFile(f as File | null)}
                 />
@@ -459,29 +382,11 @@ export default function EditDocumentPage({ params }: PageProps) {
               </CardContent>
             </Card>
 
-            {/* Actions */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col gap-2">
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        Guardando...
-                      </span>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Guardar cambios
-                      </>
-                    )}
-                  </Button>
-                  <Button type="button" variant="outline" asChild>
-                    <Link href="/admin/documents">Cancelar</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <FormActionsCard
+              isLoading={isLoading}
+              cancelHref="/admin/documents"
+              saveLabel="Guardar cambios"
+            />
           </div>
         </div>
       </form>

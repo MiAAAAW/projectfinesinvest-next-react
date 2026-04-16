@@ -1,0 +1,236 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e46]:
+    - generic [ref=e49]:
+      - list [ref=e51]:
+        - listitem [ref=e52]:
+          - link "FINESI Admin Panel de Administración" [ref=e53] [cursor=pointer]:
+            - /url: /admin
+            - img [ref=e55]
+            - generic [ref=e58]:
+              - generic [ref=e59]: FINESI Admin
+              - generic [ref=e60]: Panel de Administración
+      - generic [ref=e61]:
+        - list [ref=e64]:
+          - listitem [ref=e65]:
+            - link "Dashboard" [ref=e66] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e67]
+              - generic [ref=e72]: Dashboard
+        - generic [ref=e74]:
+          - button "Página Principal" [expanded] [ref=e75]:
+            - text: Página Principal
+            - img [ref=e76]
+          - list [ref=e80]:
+            - listitem [ref=e81]:
+              - link "Hero" [ref=e82] [cursor=pointer]:
+                - /url: /admin/content/hero
+                - img [ref=e83]
+                - generic [ref=e86]: Hero
+            - listitem [ref=e87]:
+              - link "Anuncios CRUD" [ref=e88] [cursor=pointer]:
+                - /url: /admin/announcements
+                - img [ref=e89]
+                - generic [ref=e92]: Anuncios
+                - generic [ref=e93]: CRUD
+            - listitem [ref=e94]:
+              - link "Calendario CRUD" [ref=e95] [cursor=pointer]:
+                - /url: /admin/calendar
+                - img [ref=e96]
+                - generic [ref=e98]: Calendario
+                - generic [ref=e99]: CRUD
+            - listitem [ref=e100]:
+              - link "Galería CRUD" [ref=e101] [cursor=pointer]:
+                - /url: /admin/gallery
+                - img [ref=e102]
+                - generic [ref=e106]: Galería
+                - generic [ref=e107]: CRUD
+            - listitem [ref=e108]:
+              - link "Autoridades CRUD" [ref=e109] [cursor=pointer]:
+                - /url: /admin/authorities
+                - img [ref=e110]
+                - generic [ref=e115]: Autoridades
+                - generic [ref=e116]: CRUD
+            - listitem [ref=e117]:
+              - link "Oficinas CRUD" [ref=e118] [cursor=pointer]:
+                - /url: /admin/offices
+                - img [ref=e119]
+                - generic [ref=e122]: Oficinas
+                - generic [ref=e123]: CRUD
+            - listitem [ref=e124]:
+              - link "Footer" [ref=e125] [cursor=pointer]:
+                - /url: /admin/content/footer
+                - img [ref=e126]
+                - generic [ref=e129]: Footer
+        - generic [ref=e131]:
+          - button "Investigación" [expanded] [ref=e132]:
+            - text: Investigación
+            - img [ref=e133]
+          - list [ref=e137]:
+            - listitem [ref=e138]:
+              - link "Líneas CRUD" [ref=e139] [cursor=pointer]:
+                - /url: /admin/research
+                - img [ref=e140]
+                - generic [ref=e142]: Líneas
+                - generic [ref=e143]: CRUD
+            - listitem [ref=e144]:
+              - link "Grupos CRUD" [ref=e145] [cursor=pointer]:
+                - /url: /admin/research-groups
+                - img [ref=e146]
+                - generic [ref=e150]: Grupos
+                - generic [ref=e151]: CRUD
+            - listitem [ref=e152]:
+              - link "Semilleros CRUD" [ref=e153] [cursor=pointer]:
+                - /url: /admin/semilleros
+                - img [ref=e154]
+                - generic [ref=e157]: Semilleros
+                - generic [ref=e158]: CRUD
+            - listitem [ref=e159]:
+              - link "Publicaciones CRUD" [ref=e160] [cursor=pointer]:
+                - /url: /admin/publications
+                - img [ref=e161]
+                - generic [ref=e163]: Publicaciones
+                - generic [ref=e164]: CRUD
+            - listitem [ref=e165]:
+              - link "Docentes RENACYT CRUD" [ref=e166] [cursor=pointer]:
+                - /url: /admin/teachers-renacyt
+                - img [ref=e167]
+                - generic [ref=e170]: Docentes RENACYT
+                - generic [ref=e171]: CRUD
+            - listitem [ref=e172]:
+              - link "Ética" [ref=e173] [cursor=pointer]:
+                - /url: /admin/content/etica
+                - img [ref=e174]
+                - generic [ref=e176]: Ética
+        - generic [ref=e178]:
+          - button "Documentos" [expanded] [ref=e179]:
+            - text: Documentos
+            - img [ref=e180]
+          - list [ref=e184]:
+            - listitem [ref=e185]:
+              - link "Documentos CRUD" [ref=e186] [cursor=pointer]:
+                - /url: /admin/documents
+                - img [ref=e187]
+                - generic [ref=e190]: Documentos
+                - generic [ref=e191]: CRUD
+            - listitem [ref=e192]:
+              - link "Res. Decanales CRUD" [ref=e193] [cursor=pointer]:
+                - /url: /admin/resolutions/decanales
+                - img [ref=e194]
+                - generic [ref=e198]: Res. Decanales
+                - generic [ref=e199]: CRUD
+            - listitem [ref=e200]:
+              - link "Res. Rectorales CRUD" [ref=e201] [cursor=pointer]:
+                - /url: /admin/resolutions/rectorales
+                - img [ref=e202]
+                - generic [ref=e206]: Res. Rectorales
+                - generic [ref=e207]: CRUD
+            - listitem [ref=e208]:
+              - link "Convenios CRUD" [ref=e209] [cursor=pointer]:
+                - /url: /admin/agreements
+                - img [ref=e210]
+                - generic [ref=e215]: Convenios
+                - generic [ref=e216]: CRUD
+            - listitem [ref=e217]:
+              - link "Enlaces CRUD" [ref=e218] [cursor=pointer]:
+                - /url: /admin/links
+                - img [ref=e219]
+                - generic [ref=e222]: Enlaces
+                - generic [ref=e223]: CRUD
+        - button "Posgrado" [ref=e226]:
+          - text: Posgrado
+          - img [ref=e227]
+        - button "Acreditación" [ref=e231]:
+          - text: Acreditación
+          - img [ref=e232]
+        - generic [ref=e235]:
+          - button "Gestión" [expanded] [ref=e236]:
+            - text: Gestión
+            - img [ref=e237]
+          - list [ref=e241]:
+            - listitem [ref=e242]:
+              - link "Docentes CRUD" [ref=e243] [cursor=pointer]:
+                - /url: /admin/teachers
+                - img [ref=e244]
+                - generic [ref=e247]: Docentes
+                - generic [ref=e248]: CRUD
+      - list [ref=e250]:
+        - listitem [ref=e251]:
+          - button "A Administrador admin@gmail.com" [ref=e252]:
+            - generic [ref=e254]: A
+            - generic [ref=e255]:
+              - generic [ref=e256]: Administrador
+              - generic [ref=e257]: admin@gmail.com
+            - img [ref=e258]
+      - button "Toggle Sidebar" [ref=e260]
+    - main [ref=e261]:
+      - generic [ref=e262]:
+        - button "Toggle Sidebar" [ref=e263]:
+          - img
+          - generic [ref=e264]: Toggle Sidebar
+        - navigation "breadcrumb" [ref=e265]:
+          - list [ref=e266]:
+            - listitem [ref=e267]:
+              - link "Dashboard" [disabled] [ref=e268]
+      - main [ref=e269]:
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - generic [ref=e272]:
+              - heading "Dashboard" [level=1] [ref=e273]
+              - paragraph [ref=e274]: Bienvenido al panel de administración de FINESI
+            - generic [ref=e275]:
+              - link "Ver Landing" [ref=e276] [cursor=pointer]:
+                - /url: /
+                - img
+                - text: Ver Landing
+              - link "Nuevo Anuncio" [ref=e277] [cursor=pointer]:
+                - /url: /admin/announcements/new
+                - img
+                - text: Nuevo Anuncio
+          - generic [ref=e307]:
+            - generic [ref=e309]:
+              - generic [ref=e310]:
+                - generic [ref=e311]: Anuncios Recientes
+                - generic [ref=e312]: Últimos anuncios publicados
+              - link "Ver todos" [ref=e313] [cursor=pointer]:
+                - /url: /admin/announcements
+                - text: Ver todos
+                - img
+            - generic [ref=e329]:
+              - generic [ref=e330]:
+                - generic [ref=e331]: Documentos Recientes
+                - generic [ref=e332]: Últimos documentos agregados
+              - link "Ver todos" [ref=e333] [cursor=pointer]:
+                - /url: /admin/documents
+                - text: Ver todos
+                - img
+          - generic [ref=e351]:
+            - generic [ref=e352]:
+              - generic [ref=e353]: Acciones Rápidas
+              - generic [ref=e354]: Accede rápidamente a las funciones más utilizadas
+            - generic [ref=e356]:
+              - link "Nuevo Anuncio" [ref=e357] [cursor=pointer]:
+                - /url: /admin/announcements/new
+                - img
+                - generic [ref=e358]: Nuevo Anuncio
+              - link "Subir Documento" [ref=e359] [cursor=pointer]:
+                - /url: /admin/documents/new
+                - img
+                - generic [ref=e360]: Subir Documento
+              - link "Agregar Imagen" [ref=e361] [cursor=pointer]:
+                - /url: /admin/gallery/new
+                - img
+                - generic [ref=e362]: Agregar Imagen
+              - link "Editar Contenido" [ref=e363] [cursor=pointer]:
+                - /url: /admin/content
+                - img
+                - generic [ref=e364]: Editar Contenido
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e365]:
+        - button "Close toast" [ref=e366] [cursor=pointer]:
+          - img [ref=e367]
+        - img [ref=e371]
+        - generic [ref=e375]: Bienvenido, Administrador
+  - button "Open Next.js Dev Tools" [ref=e41] [cursor=pointer]:
+    - img [ref=e42]
+  - alert [ref=e45]

@@ -9,12 +9,8 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { DynamicIcon } from "@/lib/icons";
 import type { AuthoritiesConfig } from "@/types/landing.types";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
 import { useState, useEffect, useMemo } from "react";
@@ -77,7 +73,7 @@ export default function Authorities({ config, className }: AuthoritiesProps) {
     fetchAuthorities();
   }, []);
 
-  // Mapear datos de BD al formato del componente
+  // Mapear datos de BD al formato del componente (solo info pública no sensible)
   const members = useMemo(() =>
     dbAuthorities.map(authority => ({
       id: authority.id,
@@ -85,33 +81,24 @@ export default function Authorities({ config, className }: AuthoritiesProps) {
       role: authority.role,
       department: authority.department || undefined,
       avatar: authority.avatarUrl ? `/api/authorities/image/${authority.id}` : undefined,
-      bio: authority.bio || undefined,
-      email: authority.email || undefined,
-      phone: authority.phone || undefined,
-      officeHours: authority.officeHours || undefined,
-      social: {
-        linkedin: authority.linkedin || undefined,
-        orcid: authority.orcid || undefined,
-        googleScholar: authority.googleScholar || undefined,
-      },
     }))
   , [dbAuthorities]);
 
   // Grid dinámico basado en cantidad de miembros
   const getGridClasses = (count: number) => {
     if (count === 1) {
-      return "md:grid-cols-1 max-w-md";
+      return "md:grid-cols-1 max-w-xs";
     }
     if (count === 2) {
-      return "md:grid-cols-2 max-w-2xl";
+      return "md:grid-cols-2 max-w-xl";
     }
-    return "md:grid-cols-2 lg:grid-cols-3";
+    return "md:grid-cols-2 lg:grid-cols-3 max-w-4xl";
   };
 
   // Si está cargando, mostrar skeleton
   if (isLoading) {
     return (
-      <section id="authorities" className={cn("relative py-24 md:py-32 overflow-hidden", className)}>
+      <section id="authorities" className={cn("relative py-16 md:py-20 overflow-hidden scroll-mt-[68px]", className)}>
         <div className="absolute inset-0 bg-background/10" />
         <div className="container relative px-4 md:px-6">
           <div className="flex flex-col items-center text-center space-y-4 mb-16">
@@ -138,7 +125,7 @@ export default function Authorities({ config, className }: AuthoritiesProps) {
     <section
       id="authorities"
       className={cn(
-        "relative py-24 md:py-32 overflow-hidden",
+        "relative py-16 md:py-20 overflow-hidden scroll-mt-[68px]",
         className
       )}
     >
@@ -181,115 +168,47 @@ export default function Authorities({ config, className }: AuthoritiesProps) {
           {members.map((member) => (
             <StaggerItem key={member.id}>
               <motion.div
-                whileHover={{ y: -8 }}
-                transition={{ duration: 0.3 }}
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.25 }}
                 className="h-full"
               >
-                <Card className="group h-full overflow-hidden border border-border/50 bg-card shadow-professional-card hover:border-primary/30 hover:shadow-professional-lg transition-all duration-300">
-                  <CardContent className="p-6">
-                    {/* Avatar - shadcn */}
-                    <div className="flex justify-center mb-6">
-                      <div className="relative">
-                        <Avatar className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 border-4 border-primary/10 group-hover:border-primary/30 transition-colors">
-                          <AvatarImage
-                            src={member.avatar}
-                            alt={member.name}
-                            className="object-cover"
-                          />
-                          <AvatarFallback className="text-xl sm:text-2xl font-semibold bg-primary/10 text-primary">
-                            {getInitials(member.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        {/* Status indicator */}
-                        <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full border-2 border-background" />
-                      </div>
+                <Card className="group relative h-full overflow-hidden border border-border/60 bg-card/60 backdrop-blur-sm shadow-professional-card hover:border-primary/40 hover:shadow-professional-lg transition-all duration-300">
+                  {/* Top accent bar */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/40 via-primary to-primary/40 opacity-70 group-hover:opacity-100 transition-opacity" />
+
+                  <CardContent className="p-5 flex flex-col items-center text-center">
+                    {/* Avatar compacto */}
+                    <div className="relative mb-4 mt-2">
+                      <Avatar className="w-20 h-20 border-2 border-primary/15 group-hover:border-primary/40 transition-colors ring-2 ring-background">
+                        <AvatarImage
+                          src={member.avatar}
+                          alt={member.name}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="text-base font-semibold bg-primary/10 text-primary">
+                          {getInitials(member.name)}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
 
-                    {/* Info */}
-                    <div className="text-center space-y-2">
-                      <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
-                        {member.name}
-                      </h3>
-                      <p className="text-primary font-medium">
-                        {member.role}
-                      </p>
-                      {member.department && (
-                        <p className="text-sm text-muted-foreground">
+                    {/* Nombre */}
+                    <h3 className="text-base font-semibold leading-tight group-hover:text-primary transition-colors">
+                      {member.name}
+                    </h3>
+
+                    {/* Cargo */}
+                    <p className="mt-1.5 text-xs font-medium uppercase tracking-wider text-primary/90">
+                      {member.role}
+                    </p>
+
+                    {/* Departamento */}
+                    {member.department && (
+                      <>
+                        <div className="my-3 h-px w-10 bg-border/60" />
+                        <p className="text-xs text-muted-foreground leading-snug">
                           {member.department}
                         </p>
-                      )}
-                    </div>
-
-                    {/* Bio */}
-                    {member.bio && (
-                      <p className="mt-4 text-sm text-muted-foreground text-center leading-relaxed">
-                        {member.bio}
-                      </p>
-                    )}
-
-                    {/* Contact Info */}
-                    <div className="mt-6 space-y-2">
-                      {member.email && (
-                        <div className="flex items-center justify-center gap-2 text-sm">
-                          <DynamicIcon name="Mail" size={16} className="text-muted-foreground" />
-                          <Link
-                            href={`mailto:${member.email}`}
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            {member.email}
-                          </Link>
-                        </div>
-                      )}
-                      {member.officeHours && (
-                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                          <DynamicIcon name="Clock" size={16} />
-                          <span>{member.officeHours}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Social Links with Tooltips */}
-                    {member.social && (member.social.linkedin || member.social.orcid || member.social.googleScholar) && (
-                      <TooltipProvider>
-                        <div className="flex justify-center gap-2 mt-6">
-                          {member.social.orcid && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button asChild variant="ghost" size="icon" className="h-9 w-9">
-                                  <Link href={member.social.orcid} target="_blank" rel="noopener noreferrer">
-                                    <DynamicIcon name="ExternalLink" size={18} />
-                                  </Link>
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>ORCID</TooltipContent>
-                            </Tooltip>
-                          )}
-                          {member.social.googleScholar && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button asChild variant="ghost" size="icon" className="h-9 w-9">
-                                  <Link href={member.social.googleScholar} target="_blank" rel="noopener noreferrer">
-                                    <DynamicIcon name="GraduationCap" size={18} />
-                                  </Link>
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Google Scholar</TooltipContent>
-                            </Tooltip>
-                          )}
-                          {member.social.linkedin && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button asChild variant="ghost" size="icon" className="h-9 w-9">
-                                  <Link href={member.social.linkedin} target="_blank" rel="noopener noreferrer">
-                                    <DynamicIcon name="Linkedin" size={18} />
-                                  </Link>
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>LinkedIn</TooltipContent>
-                            </Tooltip>
-                          )}
-                        </div>
-                      </TooltipProvider>
+                      </>
                     )}
                   </CardContent>
                 </Card>

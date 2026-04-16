@@ -1,24 +1,31 @@
 "use client";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// GALLERY SECTION COMPONENT
-// Galería de fotos con filtros por categoría y lightbox
-// CONECTADO A BASE DE DATOS via /api/gallery
-// Categorías desde constantes centralizadas
+// GALLERY SECTION · landing (v2 · editorial masonry)
+//
+// Principios:
+//   - Masonry vía CSS columns → aspect ratios naturales, sin cropping forzado,
+//     layout robusto con 1 imagen o con 100 (cero hardcode de posiciones).
+//   - Filtro minimalista tipo segmented control (sin pills pesados).
+//   - Lightbox tracking por `id` (no por índice) → inmune a reordenamientos,
+//     filtros y borrados posteriores.
+//   - Motion con propósito: reveal al scroll, crossfade en filter, hover lift.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { GalleryConfig } from "@/types/landing.types";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { MotionWrapper, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { MotionWrapper } from "@/components/ui/motion-wrapper";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DynamicIcon } from "@/lib/icons";
 import { IMAGE_CATEGORIES, IMAGE_CATEGORY_STYLES } from "@/lib/admin-constants";
 
-// Tipo para imágenes de la BD
+// ──────────────────────────────────────────────────────────────────────────
+// Tipos
+// ──────────────────────────────────────────────────────────────────────────
+
 interface DBGalleryItem {
   id: string;
   src: string;
@@ -31,174 +38,282 @@ interface DBGalleryItem {
   order: number;
 }
 
+interface GalleryItem {
+  id: string;
+  src: string;
+  alt: string;
+  caption?: string;
+  event?: string;
+  category?: string;
+  date?: string;
+}
+
 interface GalleryProps {
   config: GalleryConfig;
   className?: string;
 }
 
-// Número inicial de imágenes a mostrar
 const INITIAL_ITEMS_COUNT = 9;
+const ALL_FILTER = "all";
+
+// ──────────────────────────────────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────────────────────────────────
 
 function formatDate(dateStr?: string): string {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("es-PE", {
+  return new Date(dateStr).toLocaleDateString("es-PE", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
 }
 
-export default function Gallery({ config, className }: GalleryProps) {
-  const { badge, title, subtitle, columns = 3 } = config;
-  const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [showAll, setShowAll] = useState(false);
+// ──────────────────────────────────────────────────────────────────────────
+// Main component
+// ──────────────────────────────────────────────────────────────────────────
 
-  // Estado para imágenes de la BD
+export default function Gallery({ config, className }: GalleryProps) {
+  const { badge, title, subtitle } = config;
+
   const [dbItems, setDbItems] = useState<DBGalleryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>(ALL_FILTER);
+  const [showAll, setShowAll] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Fetch imágenes de la API al montar
+  // Fetch inicial
   useEffect(() => {
-    async function fetchGallery() {
+    let cancelled = false;
+    (async () => {
       try {
-        // Traer más imágenes para permitir filtrado
-        const res = await fetch("/api/gallery?status=published&limit=50");
-        if (res.ok) {
+        const res = await fetch("/api/gallery?status=published&limit=100", {
+          cache: "no-store",
+        });
+        if (!cancelled && res.ok) {
           const json = await res.json();
-          setDbItems(json.data || []);
+          setDbItems(json.data ?? []);
         }
-      } catch (error) {
-        console.error("Error fetching gallery:", error);
+      } catch (err) {
+        console.error("Error fetching gallery:", err);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
-    }
-    fetchGallery();
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Mapear datos de BD al formato del componente
-  // Usar API endpoint para servir imágenes desde storage privado
-  const allItems = useMemo(() =>
-    dbItems.map(item => ({
-      id: item.id,
-      src: `/api/gallery/image/${item.id}`,
-      alt: item.alt,
-      caption: item.caption || undefined,
-      event: item.event || undefined,
-      category: item.category || undefined,
-      date: item.date || undefined,
-    }))
-  , [dbItems]);
+  // Mapeo a shape del componente. El src usa el endpoint privado.
+  const allItems: GalleryItem[] = useMemo(
+    () =>
+      dbItems.map((item) => ({
+        id: item.id,
+        src: `/api/gallery/image/${item.id}`,
+        alt: item.alt,
+        caption: item.caption ?? undefined,
+        event: item.event ?? undefined,
+        category: item.category ?? undefined,
+        date: item.date ?? undefined,
+      })),
+    [dbItems],
+  );
 
-  // Obtener categorías únicas de las imágenes (dinámico desde BD)
+  // Categorías disponibles derivadas de la data (no hardcode)
   const availableCategories = useMemo(() => {
-    const cats = new Set(allItems.map(item => item.category).filter(Boolean));
-    return IMAGE_CATEGORIES.filter(cat => cats.has(cat.value));
+    const present = new Set(
+      allItems.map((i) => i.category).filter(Boolean) as string[],
+    );
+    return IMAGE_CATEGORIES.filter((c) => present.has(c.value));
   }, [allItems]);
 
-  // Filtrar por categoría activa
+  // Conteos por categoría (para el segmented control)
+  const categoryCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const i of allItems) {
+      if (!i.category) continue;
+      map[i.category] = (map[i.category] ?? 0) + 1;
+    }
+    return map;
+  }, [allItems]);
+
   const filteredItems = useMemo(() => {
-    if (activeCategory === "all") return allItems;
-    return allItems.filter(item => item.category === activeCategory);
+    if (activeCategory === ALL_FILTER) return allItems;
+    return allItems.filter((i) => i.category === activeCategory);
   }, [allItems, activeCategory]);
 
-  // Limitar items mostrados si no se ha clickeado "Ver más"
-  const displayItems = useMemo(() => {
-    if (showAll) return filteredItems;
-    return filteredItems.slice(0, INITIAL_ITEMS_COUNT);
-  }, [filteredItems, showAll]);
+  const displayItems = useMemo(
+    () => (showAll ? filteredItems : filteredItems.slice(0, INITIAL_ITEMS_COUNT)),
+    [filteredItems, showAll],
+  );
 
   const hasMoreItems = filteredItems.length > INITIAL_ITEMS_COUNT;
 
-  // Grid responsive: 1 col móvil, 2 col tablet, 3-4 col desktop
-  const gridCols: Record<number, string> = {
-    2: "grid-cols-1 sm:grid-cols-2",
-    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-    4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-  };
-
-  // Navegación en lightbox - usa filteredItems para mantener contexto del filtro
-  const navigateImage = useCallback((direction: "prev" | "next") => {
-    if (selectedImage === null) return;
-
-    if (direction === "prev" && selectedImage > 0) {
-      setSelectedImage(selectedImage - 1);
-    } else if (direction === "next" && selectedImage < filteredItems.length - 1) {
-      setSelectedImage(selectedImage + 1);
-    }
-  }, [selectedImage, filteredItems.length]);
-
-  // Keyboard navigation en lightbox
+  // Al cambiar filtro: resetear "ver más" y cerrar lightbox si el id activo
+  // dejó de estar en la lista filtrada (evita índice fantasma).
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedImage === null) return;
-
-      if (e.key === "ArrowLeft") {
-        navigateImage("prev");
-      } else if (e.key === "ArrowRight") {
-        navigateImage("next");
-      } else if (e.key === "Escape") {
-        setSelectedImage(null);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImage, navigateImage]);
-
-  const currentItem = selectedImage !== null ? filteredItems[selectedImage] : null;
-
-  // Al cambiar categoría, resetear showAll
-  const handleCategoryChange = (category: string) => {
-    setActiveCategory(category);
     setShowAll(false);
-  };
+  }, [activeCategory]);
 
-  // Si está cargando, mostrar skeleton responsive
+  useEffect(() => {
+    if (selectedId && !filteredItems.find((i) => i.id === selectedId)) {
+      setSelectedId(null);
+    }
+  }, [filteredItems, selectedId]);
+
+  // Lightbox · tracking por id (inmune a reordenamientos/filtros)
+  const selectedIndex = selectedId
+    ? filteredItems.findIndex((i) => i.id === selectedId)
+    : -1;
+  const currentItem = selectedIndex >= 0 ? filteredItems[selectedIndex] : null;
+
+  const navigateImage = useCallback(
+    (direction: "prev" | "next") => {
+      if (selectedIndex < 0) return;
+      const newIdx = direction === "next" ? selectedIndex + 1 : selectedIndex - 1;
+      if (newIdx < 0 || newIdx >= filteredItems.length) return;
+      setSelectedId(filteredItems[newIdx].id);
+    },
+    [selectedIndex, filteredItems],
+  );
+
+  // Keyboard: ← → navegar, Esc cerrar
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") navigateImage("prev");
+      else if (e.key === "ArrowRight") navigateImage("next");
+      else if (e.key === "Escape") setSelectedId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedId, navigateImage]);
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Estados de render temprano
+  // ─────────────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <section id="gallery" className={cn("relative py-16 sm:py-24 md:py-32", className)}>
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4 mb-10 sm:mb-16">
-            <div className="h-7 sm:h-8 w-24 sm:w-32 bg-muted animate-pulse rounded" />
-            <div className="h-10 sm:h-12 w-48 sm:w-64 bg-muted animate-pulse rounded" />
-          </div>
-          {/* Filter skeleton */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8 px-2 sm:px-0">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 sm:h-9 w-20 sm:w-24 bg-muted animate-pulse rounded-full" />
-            ))}
-          </div>
-          <div className={cn("grid gap-3 sm:gap-4 max-w-6xl mx-auto px-2 sm:px-0", gridCols[columns])}>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="aspect-[4/3] bg-muted animate-pulse rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </section>
+      <GallerySectionShell badge={badge} title={title} subtitle={subtitle} className={className}>
+        <GallerySkeleton />
+      </GallerySectionShell>
     );
   }
 
-  // Si no hay imágenes, no mostrar sección
-  if (allItems.length === 0) {
-    return null;
-  }
+  if (allItems.length === 0) return null;
 
+  // ─────────────────────────────────────────────────────────────────────
+  return (
+    <GallerySectionShell badge={badge} title={title} subtitle={subtitle} className={className}>
+      {/* Filter · segmented control minimalista (solo si hay >1 categoría) */}
+      {availableCategories.length > 1 && (
+        <MotionWrapper delay={0.3} className="mb-10">
+          <CategoryFilter
+            active={activeCategory}
+            onChange={setActiveCategory}
+            total={allItems.length}
+            availableCategories={availableCategories}
+            categoryCounts={categoryCounts}
+          />
+        </MotionWrapper>
+      )}
+
+      {/* Masonry · columns naturales, sin cropping */}
+      {displayItems.length === 0 ? (
+        <div className="py-16 text-center text-sm text-muted-foreground">
+          Sin imágenes en esta categoría.
+        </div>
+      ) : (
+        <motion.div
+          key={activeCategory}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="mx-auto max-w-6xl px-2 sm:px-0"
+        >
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 md:gap-5 [column-fill:balance]">
+            {displayItems.map((item, index) => (
+              <MasonryCard
+                key={item.id}
+                item={item}
+                index={index}
+                onOpen={() => setSelectedId(item.id)}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Ver más */}
+      {hasMoreItems && !showAll && (
+        <MotionWrapper delay={0.3} className="mt-10 text-center">
+          <Button
+            variant="outline"
+            size="default"
+            onClick={() => setShowAll(true)}
+            className="group"
+          >
+            Ver más
+            <DynamicIcon
+              name="ChevronDown"
+              size={18}
+              className="ml-2 transition-transform group-hover:translate-y-0.5"
+            />
+            <Badge variant="secondary" className="ml-2 text-xs">
+              +{filteredItems.length - INITIAL_ITEMS_COUNT}
+            </Badge>
+          </Button>
+        </MotionWrapper>
+      )}
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {currentItem && (
+          <Lightbox
+            item={currentItem}
+            index={selectedIndex}
+            total={filteredItems.length}
+            canPrev={selectedIndex > 0}
+            canNext={selectedIndex < filteredItems.length - 1}
+            onPrev={() => navigateImage("prev")}
+            onNext={() => navigateImage("next")}
+            onClose={() => setSelectedId(null)}
+          />
+        )}
+      </AnimatePresence>
+    </GallerySectionShell>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Shell con header (evita duplicación entre estados)
+// ──────────────────────────────────────────────────────────────────────────
+
+function GallerySectionShell({
+  badge,
+  title,
+  subtitle,
+  className,
+  children,
+}: {
+  badge?: string;
+  title: string;
+  subtitle?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
     <section
       id="gallery"
       className={cn(
-        "relative py-16 sm:py-24 md:py-32 overflow-hidden",
-        className
+        "relative py-16 md:py-20 overflow-hidden scroll-mt-[68px]",
+        className,
       )}
     >
-      {/* Background removed - unified with global animated-bg */}
-
       <div className="container relative px-4 md:px-6">
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4 mb-10 sm:mb-12">
+        <div className="flex flex-col items-center text-center space-y-3 mb-10 sm:mb-12">
           {badge && (
             <MotionWrapper direction="down">
               <Badge variant="secondary" className="px-4 py-1.5 text-sm">
@@ -206,13 +321,11 @@ export default function Gallery({ config, className }: GalleryProps) {
               </Badge>
             </MotionWrapper>
           )}
-
           <MotionWrapper delay={0.1}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
               {title}
             </h2>
           </MotionWrapper>
-
           {subtitle && (
             <MotionWrapper delay={0.2} className="max-w-2xl px-4 sm:px-0">
               <p className="text-base sm:text-lg text-muted-foreground">
@@ -221,275 +334,328 @@ export default function Gallery({ config, className }: GalleryProps) {
             </MotionWrapper>
           )}
         </div>
-
-        {/* Category Filters - Solo mostrar si hay más de 1 categoría */}
-        {availableCategories.length > 1 && (
-          <MotionWrapper delay={0.3} className="mb-8 sm:mb-10">
-            <div className="flex flex-wrap justify-center gap-2 px-2 sm:px-0">
-              {/* Botón "Todos" */}
-              <Button
-                variant={activeCategory === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleCategoryChange("all")}
-                className="rounded-full"
-              >
-                <DynamicIcon name="LayoutGrid" size={16} className="mr-2" />
-                Todos
-                <Badge variant="secondary" className="ml-2 px-1.5 py-0 text-xs">
-                  {allItems.length}
-                </Badge>
-              </Button>
-
-              {/* Botones de categorías dinámicas */}
-              {availableCategories.map((cat) => {
-                const style = IMAGE_CATEGORY_STYLES[cat.value];
-                const count = allItems.filter(item => item.category === cat.value).length;
-
-                return (
-                  <Button
-                    key={cat.value}
-                    variant={activeCategory === cat.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleCategoryChange(cat.value)}
-                    className={cn(
-                      "rounded-full",
-                      activeCategory !== cat.value && style && `hover:${style.bg}`
-                    )}
-                  >
-                    {style && (
-                      <DynamicIcon
-                        name={style.icon}
-                        size={16}
-                        className={cn("mr-2", activeCategory !== cat.value && style.color)}
-                      />
-                    )}
-                    {cat.label}
-                    <Badge variant="secondary" className="ml-2 px-1.5 py-0 text-xs">
-                      {count}
-                    </Badge>
-                  </Button>
-                );
-              })}
-            </div>
-          </MotionWrapper>
-        )}
-
-        {/* Gallery Grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCategory}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <StaggerContainer
-              className={cn("grid gap-3 sm:gap-4 lg:gap-5 max-w-6xl mx-auto px-2 sm:px-0", gridCols[columns])}
-              staggerDelay={0.06}
-            >
-              {displayItems.map((item, index) => (
-                <StaggerItem key={item.id}>
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.3 }}
-                    className="group relative aspect-[4/3] w-full rounded-xl overflow-hidden cursor-pointer bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                    onClick={() => setSelectedImage(index)}
-                    aria-label={`Ver imagen: ${item.caption || item.alt}`}
-                  >
-                    {/* Image */}
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-
-                    {/* Category Badge */}
-                    {item.category && IMAGE_CATEGORY_STYLES[item.category] && (
-                      <div className="absolute top-3 left-3 z-10">
-                        <Badge
-                          variant="secondary"
-                          className={cn(
-                            "text-xs backdrop-blur-sm",
-                            IMAGE_CATEGORY_STYLES[item.category].bg,
-                            IMAGE_CATEGORY_STYLES[item.category].color
-                          )}
-                        >
-                          {IMAGE_CATEGORIES.find(c => c.value === item.category)?.label}
-                        </Badge>
-                      </div>
-                    )}
-
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                    {/* Caption */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      {item.caption && (
-                        <p className="text-white font-medium text-sm">
-                          {item.caption}
-                        </p>
-                      )}
-                      {(item.date || item.event) && (
-                        <p className="text-white/70 text-xs mt-1">
-                          {item.event && <span>{item.event}</span>}
-                          {item.event && item.date && <span> • </span>}
-                          {item.date && <span>{formatDate(item.date)}</span>}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Zoom icon */}
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <DynamicIcon name="ZoomIn" size={20} className="text-white" />
-                      </div>
-                    </div>
-                  </motion.button>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Ver más button */}
-        {hasMoreItems && !showAll && (
-          <MotionWrapper delay={0.4} className="mt-8 sm:mt-10 text-center px-4 sm:px-0">
-            <Button
-              variant="outline"
-              size="default"
-              onClick={() => setShowAll(true)}
-              className="group sm:text-base"
-            >
-              Ver más
-              <DynamicIcon
-                name="ChevronDown"
-                size={18}
-                className="ml-1.5 sm:ml-2 transition-transform group-hover:translate-y-1"
-              />
-              <Badge variant="secondary" className="ml-2 text-xs">
-                +{filteredItems.length - INITIAL_ITEMS_COUNT}
-              </Badge>
-            </Button>
-          </MotionWrapper>
-        )}
-
-        {/* Lightbox - Overlay fullscreen profesional */}
-        <AnimatePresence>
-          {selectedImage !== null && currentItem && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 flex items-center justify-center"
-              onClick={() => setSelectedImage(null)}
-              role="dialog"
-              aria-modal="true"
-              aria-label={currentItem.caption || "Imagen de galería"}
-            >
-              {/* Backdrop oscuro */}
-              <div className="absolute inset-0 bg-black/95" />
-
-              {/* Close Button - Fixed top right */}
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm flex items-center justify-center transition-colors"
-                aria-label="Cerrar (Esc)"
-              >
-                <DynamicIcon name="X" size={24} />
-              </button>
-
-              {/* Navigation - Previous */}
-              {selectedImage > 0 && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigateImage("prev");
-                  }}
-                  className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm flex items-center justify-center transition-colors"
-                  aria-label="Imagen anterior (←)"
-                >
-                  <DynamicIcon name="ChevronLeft" size={28} />
-                </button>
-              )}
-
-              {/* Navigation - Next */}
-              {selectedImage < filteredItems.length - 1 && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigateImage("next");
-                  }}
-                  className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm flex items-center justify-center transition-colors"
-                  aria-label="Imagen siguiente (→)"
-                >
-                  <DynamicIcon name="ChevronRight" size={28} />
-                </button>
-              )}
-
-              {/* Image Container - Centered, natural size with limits */}
-              <motion.div
-                key={selectedImage}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2 }}
-                className="relative z-10 flex flex-col items-center max-w-[92vw] max-h-[92vh] sm:max-w-[88vw] sm:max-h-[88vh]"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Image - Natural size, limited by viewport */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={currentItem.src}
-                  alt={currentItem.alt}
-                  className="max-w-full max-h-[calc(92vh-80px)] sm:max-h-[calc(88vh-100px)] w-auto h-auto object-contain rounded-lg shadow-2xl"
-                />
-
-                {/* Caption overlay - Below image */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 }}
-                  className="mt-4 text-center text-white px-4 max-w-2xl"
-                >
-                  {/* Category badge */}
-                  {currentItem.category && IMAGE_CATEGORY_STYLES[currentItem.category] && (
-                    <Badge
-                      variant="secondary"
-                      className={cn(
-                        "mb-2",
-                        IMAGE_CATEGORY_STYLES[currentItem.category].bg,
-                        IMAGE_CATEGORY_STYLES[currentItem.category].color
-                      )}
-                    >
-                      {IMAGE_CATEGORIES.find(c => c.value === currentItem.category)?.label}
-                    </Badge>
-                  )}
-
-                  {currentItem.caption && (
-                    <p className="font-semibold text-lg sm:text-xl">{currentItem.caption}</p>
-                  )}
-
-                  <div className="flex flex-wrap items-center justify-center gap-2 mt-1 text-sm text-white/70">
-                    {currentItem.event && <span>{currentItem.event}</span>}
-                    {currentItem.event && currentItem.date && <span>•</span>}
-                    {currentItem.date && <span>{formatDate(currentItem.date)}</span>}
-                  </div>
-
-                  {/* Counter */}
-                  <div className="mt-3 text-xs text-white/50">
-                    {(selectedImage ?? 0) + 1} / {filteredItems.length}
-                    <span className="hidden sm:inline"> • ← → navegar • Esc cerrar</span>
-                  </div>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {children}
       </div>
     </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Category filter · segmented control (underline en activo)
+// ──────────────────────────────────────────────────────────────────────────
+
+function CategoryFilter({
+  active,
+  onChange,
+  total,
+  availableCategories,
+  categoryCounts,
+}: {
+  active: string;
+  onChange: (v: string) => void;
+  total: number;
+  availableCategories: readonly { value: string; label: string }[];
+  categoryCounts: Record<string, number>;
+}) {
+  const options = [
+    { value: ALL_FILTER, label: "Todos", count: total },
+    ...availableCategories.map((c) => ({
+      value: c.value,
+      label: c.label,
+      count: categoryCounts[c.value] ?? 0,
+    })),
+  ];
+
+  return (
+    <div
+      role="tablist"
+      aria-label="Filtro de categoría"
+      className="flex flex-wrap justify-center gap-x-5 gap-y-2 border-b border-border/40 pb-1"
+    >
+      {options.map((opt) => {
+        const isActive = active === opt.value;
+        return (
+          <button
+            key={opt.value}
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              "relative py-2 text-sm font-medium transition-colors",
+              "outline-none focus-visible:text-foreground",
+              isActive
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground/80",
+            )}
+          >
+            <span className="tracking-tight">{opt.label}</span>
+            <span
+              className={cn(
+                "ml-1.5 text-[11px] font-normal tabular-nums",
+                isActive ? "text-primary" : "text-muted-foreground/60",
+              )}
+            >
+              {opt.count}
+            </span>
+            {isActive && (
+              <motion.span
+                layoutId="gallery-filter-underline"
+                className="absolute inset-x-0 -bottom-[1px] h-[2px] bg-primary rounded-full"
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+              />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// MasonryCard · preserva aspect ratio natural (vía <img>) y entra con fade-up
+// ──────────────────────────────────────────────────────────────────────────
+
+function MasonryCard({
+  item,
+  index,
+  onOpen,
+}: {
+  item: GalleryItem;
+  index: number;
+  onOpen: () => void;
+}) {
+  const categoryStyle = item.category ? IMAGE_CATEGORY_STYLES[item.category] : null;
+  const categoryLabel = item.category
+    ? IMAGE_CATEGORIES.find((c) => c.value === item.category)?.label
+    : null;
+
+  return (
+    <motion.figure
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.38, delay: Math.min(index * 0.03, 0.24), ease: [0.22, 1, 0.36, 1] }}
+      className="mb-4 md:mb-5 break-inside-avoid"
+    >
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`Ver imagen: ${item.caption || item.alt}`}
+        className={cn(
+          "group relative block w-full overflow-hidden rounded-xl bg-muted",
+          "ring-1 ring-border/50 transition-all duration-300",
+          "hover:ring-primary/40 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)]",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        )}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={item.src}
+          alt={item.alt}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.03]"
+        />
+
+        {/* Category tag · esquina discreta */}
+        {categoryStyle && categoryLabel && (
+          <span
+            className={cn(
+              "absolute top-2.5 left-2.5 z-10 px-2 py-0.5 rounded-md text-[10px] font-medium",
+              "backdrop-blur-md border border-white/10",
+              categoryStyle.bg,
+              categoryStyle.color,
+            )}
+          >
+            {categoryLabel}
+          </span>
+        )}
+
+        {/* Overlay · gradient suave solo al hover (caption abajo del img, fuera del overlay) */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Zoom cue sutil */}
+        <span className="pointer-events-none absolute bottom-2.5 right-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <DynamicIcon name="Maximize2" size={14} />
+        </span>
+      </button>
+
+      {/* Caption tipográfico fuera de la imagen (editorial) */}
+      {(item.caption || item.event || item.date) && (
+        <figcaption className="mt-2 px-1 space-y-0.5">
+          {item.caption && (
+            <p className="text-sm font-medium leading-snug text-foreground line-clamp-2">
+              {item.caption}
+            </p>
+          )}
+          {(item.event || item.date) && (
+            <p className="text-xs text-muted-foreground">
+              {item.event && <span>{item.event}</span>}
+              {item.event && item.date && <span className="mx-1">·</span>}
+              {item.date && <span>{formatDate(item.date)}</span>}
+            </p>
+          )}
+        </figcaption>
+      )}
+    </motion.figure>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Lightbox · backdrop-blur, tracking por id, keyboard nav, focus-trap light
+// ──────────────────────────────────────────────────────────────────────────
+
+function Lightbox({
+  item,
+  index,
+  total,
+  canPrev,
+  canNext,
+  onPrev,
+  onNext,
+  onClose,
+}: {
+  item: GalleryItem;
+  index: number;
+  total: number;
+  canPrev: boolean;
+  canNext: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+  onClose: () => void;
+}) {
+  const categoryStyle = item.category ? IMAGE_CATEGORY_STYLES[item.category] : null;
+  const categoryLabel = item.category
+    ? IMAGE_CATEGORIES.find((c) => c.value === item.category)?.label
+    : null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={item.caption || "Imagen de galería"}
+    >
+      {/* Backdrop con blur en vez de negro sólido */}
+      <div className="absolute inset-0 bg-background/85 backdrop-blur-xl" />
+
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 h-11 w-11 rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground backdrop-blur-sm flex items-center justify-center transition-colors"
+        aria-label="Cerrar (Esc)"
+      >
+        <DynamicIcon name="X" size={22} />
+      </button>
+
+      {/* Prev */}
+      {canPrev && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onPrev();
+          }}
+          className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-50 h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground backdrop-blur-sm flex items-center justify-center transition-colors"
+          aria-label="Imagen anterior (←)"
+        >
+          <DynamicIcon name="ChevronLeft" size={22} />
+        </button>
+      )}
+
+      {/* Next */}
+      {canNext && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext();
+          }}
+          className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-50 h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground backdrop-blur-sm flex items-center justify-center transition-colors"
+          aria-label="Imagen siguiente (→)"
+        >
+          <DynamicIcon name="ChevronRight" size={22} />
+        </button>
+      )}
+
+      {/* Image + caption */}
+      <motion.div
+        key={item.id}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 flex flex-col items-center max-w-[92vw] max-h-[92vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={item.src}
+          alt={item.alt}
+          className="max-w-full max-h-[calc(92vh-120px)] w-auto h-auto object-contain rounded-lg shadow-2xl"
+        />
+
+        <div className="mt-4 text-center px-4 max-w-2xl space-y-1.5">
+          {categoryStyle && categoryLabel && (
+            <span
+              className={cn(
+                "inline-block px-2 py-0.5 rounded-md text-[10px] font-medium",
+                categoryStyle.bg,
+                categoryStyle.color,
+              )}
+            >
+              {categoryLabel}
+            </span>
+          )}
+          {item.caption && (
+            <h3 className="font-semibold text-lg sm:text-xl tracking-tight">
+              {item.caption}
+            </h3>
+          )}
+          {(item.event || item.date) && (
+            <p className="text-sm text-muted-foreground">
+              {item.event && <span>{item.event}</span>}
+              {item.event && item.date && <span className="mx-1">·</span>}
+              {item.date && <span>{formatDate(item.date)}</span>}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground/70 pt-1 tabular-nums">
+            {index + 1} / {total}
+            <span className="hidden sm:inline"> · ← → navegar · Esc cerrar</span>
+          </p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Skeleton
+// ──────────────────────────────────────────────────────────────────────────
+
+function GallerySkeleton() {
+  // Alturas variadas para sugerir el masonry
+  const heights = [180, 240, 200, 260, 220, 190, 250, 210, 230];
+  return (
+    <div className="mx-auto max-w-6xl px-2 sm:px-0">
+      <div className="flex justify-center gap-4 pb-10">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-5 w-20 bg-muted animate-pulse rounded" />
+        ))}
+      </div>
+      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 md:gap-5 [column-fill:balance]">
+        {heights.map((h, i) => (
+          <div key={i} className="mb-4 md:mb-5 break-inside-avoid">
+            <div
+              className="w-full bg-muted animate-pulse rounded-xl"
+              style={{ height: `${h}px` }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

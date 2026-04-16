@@ -1,0 +1,743 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "FINESI Investigación" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img [ref=e9]
+          - generic [ref=e12]: FINESI Investigación
+        - generic [ref=e13]:
+          - link "Inicio" [ref=e15] [cursor=pointer]:
+            - /url: "#"
+            - text: Inicio
+          - link "Anuncios" [ref=e17] [cursor=pointer]:
+            - /url: "#announcements"
+            - text: Anuncios
+          - link "Investigación" [ref=e20] [cursor=pointer]:
+            - /url: "#research"
+            - text: Investigación
+            - img [ref=e21]
+          - link "Documentos" [ref=e25] [cursor=pointer]:
+            - /url: "#documents"
+            - text: Documentos
+            - img [ref=e26]
+          - link "Calendario" [ref=e29] [cursor=pointer]:
+            - /url: "#calendar"
+            - text: Calendario
+          - link "Galería" [ref=e31] [cursor=pointer]:
+            - /url: "#gallery"
+            - text: Galería
+          - link "Posgrado" [ref=e33] [cursor=pointer]:
+            - /url: /posgrado
+            - text: Posgrado
+          - link "Acreditación" [ref=e35] [cursor=pointer]:
+            - /url: /acreditacion
+            - text: Acreditación
+          - link "Oficinas" [ref=e37] [cursor=pointer]:
+            - /url: "#offices"
+            - text: Oficinas
+        - generic [ref=e38]:
+          - button "Toggle theme" [ref=e273]:
+            - generic [ref=e274]:
+              - img
+            - generic [ref=e275]: Toggle theme
+          - link "Admin" [ref=e40] [cursor=pointer]:
+            - /url: /admin
+    - generic [ref=e41]:
+      - img
+      - img "Facultad de Ingeniería Estadística e Informática - FINESI" [ref=e43]
+      - generic [ref=e47]:
+        - generic [ref=e49]: Dirección de Investigación
+        - heading "Portal de Investigación FINESI" [level=1] [ref=e53]:
+          - text: Portal de Investigación
+          - generic [ref=e54]: FINESI
+        - paragraph [ref=e56]: Sistema integral de seguimiento de proyectos de investigación científica y tecnológica de la Facultad de Ingeniería Estadística e Informática - UNA Puno.
+        - generic [ref=e57]:
+          - link "Ver Convocatorias" [ref=e60] [cursor=pointer]:
+            - /url: "#announcements"
+            - generic [ref=e61]:
+              - text: Ver Convocatorias
+              - img
+          - link "Líneas de Investigación" [ref=e65] [cursor=pointer]:
+            - /url: "#research"
+      - button "Desplazar hacia abajo" [ref=e67] [cursor=pointer]
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - generic [ref=e277]: Actualidad
+        - heading "Anuncios y Convocatorias" [level=2] [ref=e279]
+        - paragraph [ref=e281]: Mantente informado sobre las últimas novedades de investigación
+      - generic [ref=e282]:
+        - generic [ref=e285]:
+          - generic [ref=e287]: Nuevo
+          - generic [ref=e289]:
+            - img [ref=e291]
+            - generic [ref=e294]:
+              - generic [ref=e295]:
+                - generic [ref=e296]: Convocatoria
+                - generic [ref=e297]: 4 mar. 2026
+              - heading "Beca CONCYTEC para Estudios de Maestría y Doctorado" [level=3] [ref=e298]
+          - paragraph [ref=e301]: Becas CONCYTEC disponibles para maestría y doctorado en CTI.
+        - generic [ref=e309]:
+          - generic [ref=e311]:
+            - img [ref=e313]
+            - generic [ref=e316]:
+              - generic [ref=e317]:
+                - generic [ref=e318]: Noticia
+                - generic [ref=e319]: 27 feb. 2026
+              - heading "Nuevo Laboratorio de IA inaugurado en la FINESI" [level=3] [ref=e320]
+          - paragraph [ref=e323]: Nuevo laboratorio de IA con equipos de última generación al servicio de investigadores y estudiantes.
+        - generic [ref=e331]:
+          - generic [ref=e335]:
+            - generic [ref=e336]:
+              - generic [ref=e337]: Noticia
+              - generic [ref=e338]: 26 ene. 2026
+            - heading "CONCURSO DE CATEDRA" [level=3] [ref=e339]
+          - paragraph [ref=e342]: CONCOCATORIA DOCENTES CONTRATADOS
+        - generic [ref=e350]:
+          - generic [ref=e352]:
+            - img [ref=e354]
+            - generic [ref=e357]:
+              - generic [ref=e358]:
+                - generic [ref=e359]: Noticia
+                - generic [ref=e360]: 25 ene. 2026
+              - heading "CONCURSO DE DOCENTES DATA SCIENCE" [level=3] [ref=e361]
+          - generic [ref=e362]:
+            - paragraph [ref=e364]: XD
+            - link "Leer más" [ref=e366] [cursor=pointer]:
+              - /url: https://XD.COM
+              - text: Leer más
+              - img [ref=e367]
+      - link "Ver todos los anuncios" [ref=e370] [cursor=pointer]:
+        - /url: /anuncios
+        - text: Ver todos los anuncios
+        - img
+    - generic [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e372]: Investigación
+        - heading "Líneas de Investigación" [level=2] [ref=e374]
+        - paragraph [ref=e376]: Áreas prioritarias de investigación de la facultad
+      - generic [ref=e377]:
+        - generic [ref=e380]:
+          - generic [ref=e382]:
+            - img [ref=e384]
+            - generic [ref=e392]: Inteligencia Artificial y Aprendizaje Automático
+          - generic [ref=e393]:
+            - paragraph [ref=e394]: Investigación en algoritmos de aprendizaje supervisado, no supervisado y por refuerzo, con aplicaciones en visión por computadora, procesamiento de lenguaje natural y sistemas inteligentes para el contexto altoandino.
+            - generic [ref=e395]:
+              - generic [ref=e396]:
+                - generic [ref=e398]: DJ
+                - generic [ref=e399]: Doctor en Ciencias de la Computación Dr. Juan Carlos Mamani Quispe
+              - generic [ref=e400]:
+                - img [ref=e401]
+                - generic [ref=e406]: 3 investigadores
+        - generic [ref=e410]:
+          - generic [ref=e412]:
+            - img [ref=e414]
+            - generic [ref=e418]: Ciencia de Datos y Analítica
+          - generic [ref=e419]:
+            - paragraph [ref=e420]: Desarrollo de metodologías para el análisis de grandes volúmenes de datos, visualización de información y toma de decisiones basada en datos en contextos de salud, educación y medio ambiente.
+            - generic [ref=e421]:
+              - generic [ref=e422]:
+                - generic [ref=e424]: DM
+                - generic [ref=e425]: Doctora en Ingeniería de Sistemas Dra. María Elena Condori Apaza
+              - generic [ref=e426]:
+                - img [ref=e427]
+                - generic [ref=e432]: 3 investigadores
+        - generic [ref=e436]:
+          - generic [ref=e438]:
+            - img [ref=e440]
+            - generic [ref=e442]: Estadística Aplicada y Bioestadística
+          - generic [ref=e443]:
+            - paragraph [ref=e444]: Aplicación de métodos estadísticos avanzados en investigaciones biomédicas, ecológicas y sociales. Modelos multivariados, series de tiempo y estadística bayesiana.
+            - generic [ref=e445]:
+              - generic [ref=e446]:
+                - generic [ref=e448]: DP
+                - generic [ref=e449]: Doctor en Estadística Dr. Pedro Luis Huanca Mamani
+              - generic [ref=e450]:
+                - img [ref=e451]
+                - generic [ref=e456]: 2 investigadores
+        - generic [ref=e460]:
+          - generic [ref=e462]:
+            - img [ref=e464]
+            - generic [ref=e467]: Ingeniería de Software y Sistemas de Información
+          - generic [ref=e468]:
+            - paragraph [ref=e469]: Investigación en arquitecturas de software, metodologías de desarrollo, calidad de software y sistemas de información para la gestión institucional.
+            - generic [ref=e470]:
+              - generic [ref=e471]:
+                - generic [ref=e473]: MR
+                - generic [ref=e474]: Magíster en Ingeniería de Software Mg. Roberto Carlos Flores Ticona
+              - generic [ref=e475]:
+                - img [ref=e476]
+                - generic [ref=e481]: 3 investigadores
+        - generic [ref=e485]:
+          - generic [ref=e489]: Internet de las Cosas y Sistemas Embebidos
+          - generic [ref=e490]:
+            - paragraph [ref=e491]: Diseño e implementación de soluciones IoT para agricultura de precisión, monitoreo ambiental y ciudades inteligentes en el altiplano peruano.
+            - generic [ref=e492]:
+              - generic [ref=e493]:
+                - generic [ref=e495]: DM
+                - generic [ref=e496]: Doctor en Ingeniería Electrónica Dr. Miguel Ángel Quispe Ccama
+              - generic [ref=e497]:
+                - img [ref=e498]
+                - generic [ref=e503]: 2 investigadores
+        - generic [ref=e507]:
+          - generic [ref=e511]: Procesamiento de Lenguaje Natural para Lenguas Originarias
+          - generic [ref=e512]:
+            - paragraph [ref=e513]: Desarrollo de tecnologías de procesamiento de lenguaje natural para la preservación y revitalización del quechua y aymara mediante herramientas computacionales.
+            - generic [ref=e514]:
+              - generic [ref=e515]:
+                - generic [ref=e517]: DE
+                - generic [ref=e518]: Doctor en Inteligencia Artificial Dr. Edwin Raúl Catacora Llanque
+              - generic [ref=e519]:
+                - img [ref=e520]
+                - generic [ref=e525]: 1 investigadores
+      - link "Ver todas las líneas" [ref=e528] [cursor=pointer]:
+        - /url: /investigacion
+        - text: Ver todas las líneas
+        - img
+    - generic [ref=e89]:
+      - generic [ref=e90]:
+        - generic [ref=e530]: Descargas
+        - heading "Documentos y Formatos" [level=2] [ref=e532]
+        - paragraph [ref=e534]: Reglamentos, formatos y documentos institucionales
+      - generic [ref=e536]:
+        - img [ref=e537]
+        - textbox "Buscar documentos..." [ref=e540]
+      - tablist [ref=e543]:
+        - tab "Todos" [selected] [ref=e544]
+        - tab "Reglamentos" [ref=e545]
+        - tab "Formatos" [ref=e546]
+        - tab "Manuales" [ref=e547]
+        - tab "Investigación" [ref=e548]
+      - generic [ref=e549]:
+        - generic [ref=e552]:
+          - img [ref=e553]
+          - generic [ref=e556]:
+            - generic [ref=e557]: Reglamento de Investigación FINESI 2026
+            - generic [ref=e558]: 2.4 MB
+          - generic [ref=e560]:
+            - button [ref=e561]:
+              - img
+            - button [ref=e562]:
+              - img
+        - generic [ref=e565]:
+          - img [ref=e566]
+          - generic [ref=e569]:
+            - generic [ref=e570]: Formato de Proyecto de Investigación
+            - generic [ref=e571]: 156 KB
+          - button [ref=e574]:
+            - img
+        - generic [ref=e577]:
+          - img [ref=e578]
+          - generic [ref=e581]:
+            - generic [ref=e582]: Formato de Informe Final de Investigación
+            - generic [ref=e583]: 189 KB
+          - button [ref=e586]:
+            - img
+        - generic [ref=e589]:
+          - img [ref=e590]
+          - generic [ref=e593]:
+            - generic [ref=e594]: Guía para Publicación en Revistas Indexadas
+            - generic [ref=e595]: 1.8 MB
+          - generic [ref=e597]:
+            - button [ref=e598]:
+              - img
+            - button [ref=e599]:
+              - img
+        - generic [ref=e602]:
+          - img [ref=e603]
+          - generic [ref=e606]:
+            - generic [ref=e607]: Plan Estratégico de Investigación 2024-2028
+            - generic [ref=e608]: 3.1 MB
+          - generic [ref=e610]:
+            - button [ref=e611]:
+              - img
+            - button [ref=e612]:
+              - img
+        - generic [ref=e615]:
+          - img [ref=e616]
+          - generic [ref=e619]:
+            - generic [ref=e620]: Código de Ética en Investigación
+            - generic [ref=e621]: 890 KB
+          - generic [ref=e623]:
+            - button [ref=e624]:
+              - img
+            - button [ref=e625]:
+              - img
+        - generic [ref=e628]:
+          - img [ref=e629]
+          - generic [ref=e632]:
+            - generic [ref=e633]: Formato de Declaración Jurada del Investigador
+            - generic [ref=e634]: 95 KB
+          - generic [ref=e636]:
+            - button [ref=e637]:
+              - img
+            - button [ref=e638]:
+              - img
+        - generic [ref=e641]:
+          - img [ref=e642]
+          - generic [ref=e645]:
+            - generic [ref=e646]: Catálogo de Líneas de Investigación 2026
+            - generic [ref=e647]: 4.2 MB
+          - generic [ref=e649]:
+            - button [ref=e650]:
+              - img
+            - button [ref=e651]:
+              - img
+    - generic [ref=e99]:
+      - generic [ref=e100]:
+        - generic [ref=e102]: Calendario
+        - heading "Próximos Eventos" [level=2] [ref=e104]
+        - paragraph [ref=e106]: Fechas importantes del semestre académico
+      - generic [ref=e107]:
+        - generic [ref=e652]:
+          - heading "marzo de 2026" [level=3] [ref=e654]:
+            - img [ref=e655]
+            - text: marzo de 2026
+          - generic [ref=e662]:
+            - generic [ref=e664]:
+              - generic [ref=e665]: "31"
+              - generic [ref=e666]: MAR.
+            - generic [ref=e667]:
+              - generic [ref=e668]:
+                - generic [ref=e669]:
+                  - img
+                  - text: convocatoria
+                - generic [ref=e670]: Importante
+              - heading "Convocatoria de Proyectos de Investigación 2026" [level=3] [ref=e671]
+              - paragraph [ref=e672]: Apertura de la convocatoria para la presentación de proyectos de investigación financiados por la UNA Puno. Se priorizan proyectos alineados a las líneas de investigación de la facultad.
+              - generic [ref=e673]:
+                - generic [ref=e674]:
+                  - img [ref=e675]
+                  - generic [ref=e677]: martes, 31 de marzo de 2026 - jueves, 14 de mayo de 2026
+                - generic [ref=e678]:
+                  - img [ref=e679]
+                  - generic [ref=e682]: Plataforma Virtual UNAP
+        - generic [ref=e683]:
+          - heading "abril de 2026" [level=3] [ref=e685]:
+            - img [ref=e686]
+            - text: abril de 2026
+          - generic [ref=e688]:
+            - generic [ref=e693]:
+              - generic [ref=e695]:
+                - generic [ref=e696]: "14"
+                - generic [ref=e697]: ABR.
+              - generic [ref=e698]:
+                - generic [ref=e699]:
+                  - generic [ref=e700]:
+                    - img
+                    - text: seminario
+                  - generic [ref=e701]: Importante
+                - heading "Seminario Internacional de Inteligencia Artificial" [level=3] [ref=e702]
+                - paragraph [ref=e703]: III Seminario Internacional de IA aplicada a problemas del altiplano. Ponentes de universidades de Perú, Bolivia y Chile.
+                - generic [ref=e704]:
+                  - generic [ref=e705]:
+                    - img [ref=e706]
+                    - generic [ref=e708]: 14 - 16 de abril de 2026
+                  - generic [ref=e709]:
+                    - img [ref=e710]
+                    - generic [ref=e713]: Auditorio Central UNA Puno
+            - generic [ref=e718]:
+              - generic [ref=e720]:
+                - generic [ref=e721]: "24"
+                - generic [ref=e722]: ABR.
+              - generic [ref=e723]:
+                - generic [ref=e725]:
+                  - img
+                  - text: taller
+                - heading "Capacitación en Uso de LaTeX y Mendeley" [level=3] [ref=e726]
+                - paragraph [ref=e727]: Capacitación gratuita para docentes y estudiantes en herramientas de escritura académica y gestión de referencias bibliográficas.
+                - generic [ref=e728]:
+                  - generic [ref=e729]:
+                    - img [ref=e730]
+                    - generic [ref=e732]: viernes, 24 de abril de 2026
+                  - generic [ref=e733]:
+                    - img [ref=e734]
+                    - generic [ref=e737]: Laboratorio de Cómputo FINESI
+        - generic [ref=e738]:
+          - heading "mayo de 2026" [level=3] [ref=e740]:
+            - img [ref=e741]
+            - text: mayo de 2026
+          - generic [ref=e743]:
+            - generic [ref=e748]:
+              - generic [ref=e750]:
+                - generic [ref=e751]: "04"
+                - generic [ref=e752]: MAY.
+              - generic [ref=e753]:
+                - generic [ref=e755]:
+                  - img
+                  - text: taller
+                - heading "Taller de Redacción de Artículos Científicos" [level=3] [ref=e756]
+                - paragraph [ref=e757]: Taller práctico dirigido a docentes y estudiantes de posgrado sobre redacción de artículos para revistas indexadas en Scopus y Web of Science.
+                - generic [ref=e758]:
+                  - generic [ref=e759]:
+                    - img [ref=e760]
+                    - generic [ref=e762]: 4 - 8 de mayo de 2026
+                  - generic [ref=e763]:
+                    - img [ref=e764]
+                    - generic [ref=e767]: Sala de Conferencias FINESI
+            - generic [ref=e772]:
+              - generic [ref=e774]:
+                - generic [ref=e775]: "29"
+                - generic [ref=e776]: MAY.
+              - generic [ref=e777]:
+                - generic [ref=e778]:
+                  - generic [ref=e779]:
+                    - img
+                    - text: fecha_limite
+                  - generic [ref=e780]: Importante
+                - heading "Cierre de Convocatoria CONCYTEC - ProCiencia" [level=3] [ref=e781]
+                - paragraph [ref=e782]: Fecha límite para la presentación de propuestas al programa ProCiencia de CONCYTEC en las categorías de investigación básica y aplicada.
+                - generic [ref=e784]:
+                  - img [ref=e785]
+                  - generic [ref=e787]: viernes, 29 de mayo de 2026
+        - generic [ref=e788]:
+          - heading "junio de 2026" [level=3] [ref=e790]:
+            - img [ref=e791]
+            - text: junio de 2026
+          - generic [ref=e798]:
+            - generic [ref=e800]:
+              - generic [ref=e801]: "19"
+              - generic [ref=e802]: JUN.
+            - generic [ref=e803]:
+              - generic [ref=e804]:
+                - generic [ref=e805]:
+                  - img
+                  - text: evento
+                - generic [ref=e806]: Importante
+              - heading "Jornada de Investigación Estudiantil 2026" [level=3] [ref=e807]
+              - paragraph [ref=e808]: "Presentación de trabajos de investigación de estudiantes de pregrado y posgrado. Categorías: poster, ponencia oral y proyecto de innovación."
+              - generic [ref=e809]:
+                - generic [ref=e810]:
+                  - img [ref=e811]
+                  - generic [ref=e813]: 19 - 20 de junio de 2026
+                - generic [ref=e814]:
+                  - img [ref=e815]
+                  - generic [ref=e818]: Campus Universitario UNA Puno
+        - generic [ref=e819]:
+          - heading "julio de 2026" [level=3] [ref=e821]:
+            - img [ref=e822]
+            - text: julio de 2026
+          - generic [ref=e829]:
+            - generic [ref=e831]:
+              - generic [ref=e832]: "14"
+              - generic [ref=e833]: JUL.
+            - generic [ref=e834]:
+              - generic [ref=e836]:
+                - img
+                - text: fecha_limite
+              - heading "Fecha Límite - Informe de Avance de Proyectos" [level=3] [ref=e837]
+              - paragraph [ref=e838]: Los investigadores principales deben presentar el informe de avance de sus proyectos vigentes ante la Dirección de Investigación.
+              - generic [ref=e840]:
+                - img [ref=e841]
+                - generic [ref=e843]: martes, 14 de julio de 2026
+        - generic [ref=e844]:
+          - heading "agosto de 2026" [level=3] [ref=e846]:
+            - img [ref=e847]
+            - text: agosto de 2026
+          - generic [ref=e854]:
+            - generic [ref=e856]:
+              - generic [ref=e857]: "09"
+              - generic [ref=e858]: AGO.
+            - generic [ref=e859]:
+              - generic [ref=e860]:
+                - generic [ref=e861]:
+                  - img
+                  - text: evento
+                - generic [ref=e862]: Importante
+              - heading "Congreso Nacional de Estadística e Informática" [level=3] [ref=e863]
+              - paragraph [ref=e864]: "XII Congreso Nacional organizado por la FINESI. Ejes temáticos: Data Science, IA, Estadística Aplicada, IoT y Desarrollo de Software."
+              - generic [ref=e865]:
+                - generic [ref=e866]:
+                  - img [ref=e867]
+                  - generic [ref=e869]: 9 - 11 de agosto de 2026
+                - generic [ref=e870]:
+                  - img [ref=e871]
+                  - generic [ref=e874]: Centro de Convenciones UNA Puno
+    - generic [ref=e134]:
+      - generic [ref=e135]:
+        - generic [ref=e876]: Galería
+        - heading "Actividades y Eventos" [level=2] [ref=e878]
+        - paragraph [ref=e880]: Momentos destacados de nuestra comunidad investigadora
+      - 'button "Ver imagen: test img" [ref=e884] [cursor=pointer]':
+        - img "test img" [ref=e885]
+        - generic [ref=e887]: Eventos
+        - generic [ref=e889]:
+          - paragraph [ref=e890]: test img
+          - paragraph [ref=e891]: .
+        - img [ref=e894]
+    - generic [ref=e150]:
+      - generic [ref=e897]:
+        - generic [ref=e899]: Equipo
+        - heading "Autoridades" [level=2] [ref=e901]
+        - paragraph [ref=e903]: Equipo de la Dirección de Investigación
+      - generic [ref=e904]:
+        - generic [ref=e908]:
+          - generic [ref=e912]: DJ
+          - generic [ref=e914]:
+            - heading "Dr. Juan Carlos Mamani Quispe" [level=3] [ref=e915]
+            - paragraph [ref=e916]: Director de Investigación
+            - paragraph [ref=e917]: Dirección de Investigación - FINESI
+          - paragraph [ref=e918]: Director de la Unidad de Investigación de la Facultad de Ingeniería Estadística e Informática. Responsable de la promoción y gestión de la investigación científica.
+          - generic [ref=e919]:
+            - link "direccion.investigacion.finesi@unap.edu.pe" [ref=e923] [cursor=pointer]:
+              - /url: mailto:direccion.investigacion.finesi@unap.edu.pe
+            - generic [ref=e924]:
+              - img [ref=e925]
+              - generic [ref=e928]: "Lunes a Viernes: 8:00 - 13:00 y 14:00 - 16:00"
+        - generic [ref=e932]:
+          - generic [ref=e936]: DM
+          - generic [ref=e938]:
+            - heading "Dra. María Elena Condori Apaza" [level=3] [ref=e939]
+            - paragraph [ref=e940]: Coordinadora de Investigación Formativa
+            - paragraph [ref=e941]: Investigación Formativa - FINESI
+          - paragraph [ref=e942]: Responsable de coordinar las actividades de investigación formativa y los semilleros de investigación de la facultad.
+          - generic [ref=e943]:
+            - generic [ref=e944]:
+              - img [ref=e945]
+              - link "inv.formativa.finesi@unap.edu.pe" [ref=e948] [cursor=pointer]:
+                - /url: mailto:inv.formativa.finesi@unap.edu.pe
+            - generic [ref=e949]:
+              - img [ref=e950]
+              - generic [ref=e953]: "Lunes a Viernes: 9:00 - 13:00"
+        - generic [ref=e957]:
+          - generic [ref=e961]: DP
+          - generic [ref=e963]:
+            - heading "Dr. Pedro Luis Huanca Mamani" [level=3] [ref=e964]
+            - paragraph [ref=e965]: Coordinador de Líneas de Investigación
+            - paragraph [ref=e966]: Líneas de Investigación - FINESI
+          - paragraph [ref=e967]: Encargado de la articulación de las líneas de investigación con los grupos de investigación y los proyectos financiados.
+          - generic [ref=e968]:
+            - generic [ref=e969]:
+              - img [ref=e970]
+              - link "lineas.inv.finesi@unap.edu.pe" [ref=e973] [cursor=pointer]:
+                - /url: mailto:lineas.inv.finesi@unap.edu.pe
+            - generic [ref=e974]:
+              - img [ref=e975]
+              - generic [ref=e978]: "Martes y Jueves: 8:00 - 12:00"
+        - generic [ref=e982]:
+          - generic [ref=e986]: DC
+          - generic [ref=e988]:
+            - heading "Dr. Carlos Alberto Choque Velásquez" [level=3] [ref=e989]
+            - paragraph [ref=e990]: Coordinador de Publicaciones
+            - paragraph [ref=e991]: Publicaciones - FINESI
+          - paragraph [ref=e992]: Responsable de promover la publicación de artículos científicos en revistas indexadas y la difusión del conocimiento generado.
+          - generic [ref=e993]:
+            - generic [ref=e994]:
+              - img [ref=e995]
+              - link "publicaciones.finesi@unap.edu.pe" [ref=e998] [cursor=pointer]:
+                - /url: mailto:publicaciones.finesi@unap.edu.pe
+            - generic [ref=e999]:
+              - img [ref=e1000]
+              - generic [ref=e1003]: "Lunes, Miércoles y Viernes: 10:00 - 13:00"
+        - generic [ref=e1007]:
+          - generic [ref=e1011]: DM
+          - generic [ref=e1013]:
+            - heading "Dr. Miguel Ángel Quispe Ccama" [level=3] [ref=e1014]
+            - paragraph [ref=e1015]: Coordinador de Transferencia Tecnológica
+            - paragraph [ref=e1016]: Transferencia Tecnológica - FINESI
+          - paragraph [ref=e1017]: Encargado de vincular la investigación con el sector productivo y facilitar la transferencia de tecnología y conocimiento.
+          - generic [ref=e1018]:
+            - generic [ref=e1019]:
+              - img [ref=e1020]
+              - link "transferencia.finesi@unap.edu.pe" [ref=e1023] [cursor=pointer]:
+                - /url: mailto:transferencia.finesi@unap.edu.pe
+            - generic [ref=e1024]:
+              - img [ref=e1025]
+              - generic [ref=e1028]: "Miércoles y Viernes: 9:00 - 13:00"
+        - generic [ref=e1032]:
+          - generic [ref=e1036]: DE
+          - generic [ref=e1038]:
+            - heading "Dr. Edwin Raúl Catacora Llanque" [level=3] [ref=e1039]
+            - paragraph [ref=e1040]: Coordinador de Ética en Investigación
+            - paragraph [ref=e1041]: Comité de Ética - FINESI
+          - paragraph [ref=e1042]: Presidente del comité de ética en investigación. Vela por el cumplimiento de las normas éticas en todos los proyectos de investigación.
+          - generic [ref=e1043]:
+            - generic [ref=e1044]:
+              - img [ref=e1045]
+              - link "etica.finesi@unap.edu.pe" [ref=e1048] [cursor=pointer]:
+                - /url: mailto:etica.finesi@unap.edu.pe
+            - generic [ref=e1049]:
+              - img [ref=e1050]
+              - generic [ref=e1053]: "Martes: 14:00 - 17:00"
+    - generic [ref=e161]:
+      - generic [ref=e1054]:
+        - generic [ref=e1056]: Contacto
+        - heading "Oficinas" [level=2] [ref=e1058]
+        - paragraph [ref=e1060]: Información de contacto y ubicación
+      - generic [ref=e1061]:
+        - generic [ref=e1064]:
+          - generic [ref=e1066]:
+            - img [ref=e1068]
+            - generic [ref=e1072]:
+              - generic [ref=e1073]: Dirección de Investigación FINESI
+              - paragraph [ref=e1074]: Dr. Juan Carlos Mamani Quispe
+          - generic [ref=e1075]:
+            - paragraph [ref=e1076]: Oficina principal de la Dirección de Investigación de la Facultad de Ingeniería Estadística e Informática.
+            - generic [ref=e1077]:
+              - generic [ref=e1078]:
+                - img [ref=e1079]
+                - generic [ref=e1082]: 2do Piso, Ciudad Universitaria UNA Puno
+              - generic [ref=e1083]:
+                - img [ref=e1084]
+                - link "051-369012" [ref=e1086] [cursor=pointer]:
+                  - /url: tel:051369012
+              - generic [ref=e1087]:
+                - img [ref=e1088]
+                - link "investigacion.finesi@unap.edu.pe" [ref=e1091] [cursor=pointer]:
+                  - /url: mailto:investigacion.finesi@unap.edu.pe
+        - generic [ref=e1094]:
+          - generic [ref=e1096]:
+            - img [ref=e1098]
+            - generic [ref=e1101]:
+              - generic [ref=e1102]: Laboratorio de Investigación en Inteligencia Artificial
+              - paragraph [ref=e1103]: Dr. Carlos Alberto Choque Velásquez
+          - generic [ref=e1104]:
+            - paragraph [ref=e1105]: Laboratorio equipado con estaciones de trabajo GPU para investigación en IA, Machine Learning y Deep Learning.
+            - generic [ref=e1106]:
+              - generic [ref=e1107]:
+                - img [ref=e1108]
+                - generic [ref=e1111]: 3er Piso, Ciudad Universitaria UNA Puno
+              - generic [ref=e1112]:
+                - img [ref=e1113]
+                - link "051-369018" [ref=e1115] [cursor=pointer]:
+                  - /url: tel:051369018
+              - generic [ref=e1116]:
+                - img [ref=e1117]
+                - link "lab.ia.finesi@unap.edu.pe" [ref=e1120] [cursor=pointer]:
+                  - /url: mailto:lab.ia.finesi@unap.edu.pe
+        - generic [ref=e1123]:
+          - generic [ref=e1125]:
+            - img [ref=e1127]
+            - generic [ref=e1129]:
+              - generic [ref=e1130]: Laboratorio de Estadística Computacional
+              - paragraph [ref=e1131]: Dr. Pedro Luis Huanca Mamani
+          - generic [ref=e1132]:
+            - paragraph [ref=e1133]: Laboratorio con software especializado para análisis estadístico, modelamiento y simulación.
+            - generic [ref=e1134]:
+              - generic [ref=e1135]:
+                - img [ref=e1136]
+                - generic [ref=e1139]: 1er Piso, Ciudad Universitaria UNA Puno
+              - generic [ref=e1140]:
+                - img [ref=e1141]
+                - link "051-369019" [ref=e1143] [cursor=pointer]:
+                  - /url: tel:051369019
+              - generic [ref=e1144]:
+                - img [ref=e1145]
+                - link "lab.estadistica.finesi@unap.edu.pe" [ref=e1148] [cursor=pointer]:
+                  - /url: mailto:lab.estadistica.finesi@unap.edu.pe
+        - generic [ref=e1151]:
+          - generic [ref=e1155]:
+            - generic [ref=e1156]: Centro de Innovación Tecnológica
+            - paragraph [ref=e1157]: Dr. Miguel Ángel Quispe Ccama
+          - generic [ref=e1158]:
+            - paragraph [ref=e1159]: Espacio de coworking para investigadores y estudiantes, con acceso a impresoras 3D, kits IoT y herramientas de prototipado.
+            - generic [ref=e1160]:
+              - generic [ref=e1161]:
+                - img [ref=e1162]
+                - generic [ref=e1165]: 3er Piso, Ciudad Universitaria UNA Puno
+              - generic [ref=e1166]:
+                - img [ref=e1167]
+                - link "051-369020" [ref=e1169] [cursor=pointer]:
+                  - /url: tel:051369020
+              - generic [ref=e1170]:
+                - img [ref=e1171]
+                - link "innovacion.finesi@unap.edu.pe" [ref=e1174] [cursor=pointer]:
+                  - /url: mailto:innovacion.finesi@unap.edu.pe
+    - generic [ref=e172]:
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - link "FINESI" [ref=e175] [cursor=pointer]:
+            - /url: /
+            - img [ref=e176]
+            - generic [ref=e179]: FINESI
+          - paragraph [ref=e180]: Dirección de Investigación de la Facultad de Ingeniería Estadística e Informática - Universidad Nacional del Altiplano, Puno.
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - heading "Navegación" [level=4] [ref=e183]
+            - list [ref=e184]:
+              - listitem [ref=e185]:
+                - link "Inicio" [ref=e186] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e187]: Inicio
+              - listitem [ref=e188]:
+                - link "Anuncios" [ref=e189] [cursor=pointer]:
+                  - /url: "#announcements"
+                  - generic [ref=e190]: Anuncios
+              - listitem [ref=e191]:
+                - link "Investigación" [ref=e192] [cursor=pointer]:
+                  - /url: "#research"
+                  - generic [ref=e193]: Investigación
+              - listitem [ref=e194]:
+                - link "Documentos" [ref=e195] [cursor=pointer]:
+                  - /url: "#documents"
+                  - generic [ref=e196]: Documentos
+          - generic [ref=e197]:
+            - heading "Recursos" [level=4] [ref=e198]
+            - list [ref=e199]:
+              - listitem [ref=e200]:
+                - link "Calendario" [ref=e201] [cursor=pointer]:
+                  - /url: "#calendar"
+                  - generic [ref=e202]: Calendario
+              - listitem [ref=e203]:
+                - link "Galería" [ref=e204] [cursor=pointer]:
+                  - /url: "#gallery"
+                  - generic [ref=e205]: Galería
+              - listitem [ref=e206]:
+                - link "Autoridades" [ref=e207] [cursor=pointer]:
+                  - /url: "#authorities"
+                  - generic [ref=e208]: Autoridades
+              - listitem [ref=e209]:
+                - link "Oficinas" [ref=e210] [cursor=pointer]:
+                  - /url: "#offices"
+                  - generic [ref=e211]: Oficinas
+          - generic [ref=e212]:
+            - heading "Contacto" [level=4] [ref=e213]
+            - list [ref=e214]:
+              - listitem [ref=e215]:
+                - link "Email" [ref=e216] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e217]: Email
+              - listitem [ref=e218]:
+                - link "Teléfono" [ref=e219] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e220]: Teléfono
+          - generic [ref=e221]:
+            - heading "Universidad" [level=4] [ref=e222]
+            - list [ref=e223]:
+              - listitem [ref=e224]:
+                - link "UNA Puno" [ref=e225] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e226]: UNA Puno
+                  - img [ref=e227]
+              - listitem [ref=e231]:
+                - link "FINESI" [ref=e232] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e233]: FINESI
+                  - img [ref=e234]
+              - listitem [ref=e238]:
+                - link "VRIP" [ref=e239] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e240]: VRIP
+                  - img [ref=e241]
+      - generic [ref=e245]:
+        - paragraph [ref=e246]:
+          - text: © 2026 FINESI - Universidad Nacional del Altiplano. Todos los derechos reservados.
+          - generic [ref=e247]:
+            - text: Made with
+            - img [ref=e248]
+            - text: by
+            - generic [ref=e250]: ODINLAB
+        - generic [ref=e251]:
+          - link "Portal UNA" [ref=e252] [cursor=pointer]:
+            - /url: "#"
+            - text: Portal UNA
+            - img [ref=e253]
+          - link "VRIP" [ref=e257] [cursor=pointer]:
+            - /url: "#"
+            - text: VRIP
+            - img [ref=e258]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e267] [cursor=pointer]:
+    - img [ref=e268]
+  - alert [ref=e1175]

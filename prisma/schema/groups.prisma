@@ -1,0 +1,58 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// RESEARCH GROUPS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ResearchGroup {
+  id             String    @id @default(cuid())
+  name           String
+  description    String?   @db.Text
+  code           String?   @unique
+  websiteUrl     String?   @map("website_url") // URL externa (ej. página oficial del grupo)
+  leaderId       String?   @map("leader_id")
+  researchLineId String?   @map("research_line_id")
+  status         String    @default("activo")
+  published      Boolean   @default(true)
+  deletedAt      DateTime? @map("deleted_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  leader       Teacher?               @relation("GroupLeader", fields: [leaderId], references: [id], onDelete: SetNull)
+  researchLine ResearchLine?          @relation(fields: [researchLineId], references: [id], onDelete: SetNull)
+  members      ResearchGroupMember[]
+  students     ResearchGroupStudent[]
+
+  @@index([deletedAt])
+  @@index([status])
+  @@map("research_groups")
+}
+
+model ResearchGroupMember {
+  id        String   @id @default(cuid())
+  groupId   String   @map("group_id")
+  teacherId String   @map("teacher_id")
+  role      String   @default("miembro")
+  active    Boolean  @default(true)
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  group   ResearchGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  teacher Teacher       @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, teacherId])
+  @@map("research_group_members")
+}
+
+// Pivote estudiantes ↔ grupos (agregado en Fase 1)
+model ResearchGroupStudent {
+  groupId   String   @map("group_id")
+  studentId String   @map("student_id")
+  role      String   @default("miembro") // miembro | coordinador | tesista
+  active    Boolean  @default(true)
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  group   ResearchGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  student Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, studentId])
+  @@index([studentId])
+  @@map("research_group_students")
+}

@@ -118,7 +118,7 @@ export default function Offices({ config, className }: OfficesProps) {
   // Si está cargando, mostrar skeleton
   if (isLoading) {
     return (
-      <section id="offices" className={cn("relative py-24 md:py-32 overflow-hidden", className)}>
+      <section id="offices" className={cn("relative py-24 md:py-32 overflow-hidden scroll-mt-[68px]", className)}>
         <div className="absolute inset-0 bg-background/10" />
         <div className="container relative px-4 md:px-6">
           <div className="flex flex-col items-center text-center space-y-4 mb-16">
@@ -145,7 +145,7 @@ export default function Offices({ config, className }: OfficesProps) {
     <section
       id="offices"
       className={cn(
-        "relative py-24 md:py-32 overflow-hidden",
+        "relative py-24 md:py-32 overflow-hidden scroll-mt-[68px]",
         className
       )}
     >

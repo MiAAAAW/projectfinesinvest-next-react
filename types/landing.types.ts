@@ -58,6 +58,12 @@ export interface NavItem {
   href: string;
   external?: boolean;
   children?: NavItem[];
+  /**
+   * Si se define, el Navbar hace fetch a `/api/public/<dynamicSource>/nav` al
+   * montarse y usa la respuesta como children del item. Permite dropdowns
+   * data-driven sin hardcodear hijos en config.
+   */
+  dynamicSource?: string;
 }
 
 export interface NavigationConfig {

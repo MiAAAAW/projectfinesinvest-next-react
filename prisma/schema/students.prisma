@@ -1,0 +1,55 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// STUDENTS
+// Perfil académico-estudiante. Extiende User 1:1 (userId NOT NULL).
+// La identidad (nombre, DNI, email, avatar) vive en User.
+// Aquí solo datos ESPECÍFICOS del estudiante (carrera, semestre, estado).
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Student {
+  id     String @id @default(cuid())
+  userId String @unique @map("user_id")
+
+  // ─── Identidad académica ─────────────────────
+  universityCode String @unique @map("university_code") @db.VarChar(12)
+
+  // ─── Trayectoria académica ───────────────────
+  program            String?
+  admissionYear      Int?    @map("admission_year")
+  admissionSemester  String? @map("admission_semester") @db.VarChar(5)
+  admissionType      String? @map("admission_type")
+  currentSemester    Int?    @map("current_semester")
+  graduationYear     Int?    @map("graduation_year")
+  graduationSemester String? @map("graduation_semester") @db.VarChar(5)
+  status             String  @default("activo") // activo | egresado | bachiller | titulado | retirado | reserva
+
+  // ─── Perfil académico ────────────────────────
+  bio               String? @db.Text
+  orcid             String?
+  googleScholar     String? @map("google_scholar")
+  scopusId          String? @map("scopus_id")
+  linkedin          String?
+  researchInterests String? @map("research_interests") @db.Text
+
+  // ─── Meta ────────────────────────────────────
+  published Boolean @default(true)
+  featured  Boolean @default(false)
+  order     Int     @default(0)
+  notes     String? @db.Text
+
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user               User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  researchGroupLinks ResearchGroupStudent[]
+  semilleroLinks     SemilleroStudent[]
+  logs               StudentLog[]
+
+  @@index([deletedAt])
+  @@index([status])
+  @@index([program])
+  @@index([admissionYear])
+  @@index([featured])
+  @@map("students")
+}

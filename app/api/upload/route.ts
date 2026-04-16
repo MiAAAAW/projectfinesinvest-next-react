@@ -1,95 +1,84 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
-import { uploadFile, uploadFiles, type UploadCategory, type DocumentSubCategory } from "@/lib/upload";
+import { NextRequest } from "next/server";
+import { uploadToR2 } from "@/lib/r2";
+import { requireAuth, errorResponse, successResponse } from "@/lib/api-utils";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// UPLOAD API
-// POST /api/upload - Subir archivos a /public/uploads/
-// Nomenclatura profesional: {CAT}-{YYMMDD}-{XXXX}.{ext}
-// Límite: 50MB para documentos institucionales
-// App Router usa formData() nativo sin límite de bodyParser
-// ═══════════════════════════════════════════════════════════════════════════════
+// Permitir archivos grandes (PDFs de alta resolución, etc.)
+export const runtime = "nodejs";
+export const maxDuration = 300; // 5 minutos para uploads grandes
+
+// Max file size: 100MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
+const ALLOWED_TYPES: Record<string, string> = {
+  "application/pdf": "pdf",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+  "application/vnd.ms-excel": "xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+};
 
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
-    // Obtener form data
     const formData = await request.formData();
-    const files = formData.getAll("file") as File[];
-    const category = (formData.get("category") as UploadCategory) || "images";
-    const subCategory = formData.get("subCategory") as DocumentSubCategory | null;
+    const file = formData.get("file") as File | null;
 
-    // Validar categoría
-    const validCategories: UploadCategory[] = ["images", "documents", "gallery", "authorities"];
-    if (!validCategories.includes(category)) {
-      return NextResponse.json(
-        { error: "Categoría inválida" },
-        { status: 400 }
-      );
-    }
-
-    // Validar subcategoría para documentos
-    if (category === "documents" && subCategory) {
-      const validSubCategories: DocumentSubCategory[] = ["reglamentos", "formatos", "manuales", "investigacion"];
-      if (!validSubCategories.includes(subCategory)) {
-        return NextResponse.json(
-          { error: "Subcategoría de documento inválida" },
-          { status: 400 }
-        );
+    // Resolver folder — prioridad: `folder` explícito > `category+subCategory` (legacy) > "uploads" (fallback)
+    let folder = (formData.get("folder") as string) || "";
+    if (!folder) {
+      const category = formData.get("category") as string | null;
+      const subCategory = formData.get("subCategory") as string | null;
+      if (category) {
+        folder = subCategory ? `${category}/${subCategory}` : category;
+      } else {
+        folder = "uploads";
       }
     }
 
-    // Validar que hay archivos
-    if (!files || files.length === 0) {
-      return NextResponse.json(
-        { error: "No se proporcionaron archivos" },
-        { status: 400 }
-      );
+    if (!file) {
+      return errorResponse("No se envió ningún archivo", 400);
     }
 
-    // Subir archivos (ahora retorna filePath en vez de url)
-    if (files.length === 1) {
-      const result = await uploadFile(files[0], category, subCategory || undefined);
-      if (!result.success) {
-        return NextResponse.json({ error: result.error }, { status: 400 });
-      }
-      return NextResponse.json({
-        data: {
-          filePath: result.filePath, // Path interno: storage/documents/...
-          filename: result.filename,
-        },
-      });
+    if (file.size > MAX_FILE_SIZE) {
+      return errorResponse("El archivo excede el tamaño máximo de 100MB", 400);
     }
 
-    // Múltiples archivos
-    const results = await uploadFiles(files, category, subCategory || undefined);
-    const successful = results.filter((r) => r.success);
-    const failed = results.filter((r) => !r.success);
-
-    if (successful.length === 0) {
-      return NextResponse.json(
-        { error: "No se pudo subir ningún archivo", details: failed },
-        { status: 400 }
-      );
+    if (!ALLOWED_TYPES[file.type]) {
+      return errorResponse("Tipo de archivo no permitido", 400);
     }
 
-    return NextResponse.json({
-      data: successful.map((r) => ({
-        filePath: r.filePath, // Path interno
-        filename: r.filename,
-      })),
-      failed: failed.length > 0 ? failed : undefined,
+    const ext = ALLOWED_TYPES[file.type];
+    const timestamp = Date.now();
+    const safeName = file.name
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[^a-zA-Z0-9-_]/g, "_")
+      .substring(0, 50);
+    const key = `${folder}/${timestamp}-${safeName}.${ext}`;
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const url = await uploadToR2(buffer, key, file.type);
+
+    return successResponse({
+      url,
+      key,
+      fileName: file.name,
+      fileType: ext,
+      fileSize: formatFileSize(file.size),
+      contentType: file.type,
     });
   } catch (error) {
-    console.error("Upload API error:", error);
-    return NextResponse.json(
-      { error: "Error al procesar la solicitud" },
-      { status: 500 }
-    );
+    console.error("Upload error:", error);
+    return errorResponse("Error al subir archivo");
   }
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }

@@ -6,57 +6,26 @@
 // Conectado a API real con PostgreSQL
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Eye,
-  Filter,
-  Loader2,
-} from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import { ANNOUNCEMENT_TYPE_LABELS } from "@/lib/admin-constants";
+import { useEntityList } from "@/hooks/use-entity-list";
+import { FilterCard, DeleteConfirmDialog } from "@/components/admin";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIPOS
+// ═══════════════════════════════════════════════════════════════════════════════
 
 interface Announcement {
   id: string;
@@ -73,68 +42,55 @@ interface Announcement {
   updatedAt: string;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONFIGURACIÓN DE FILTROS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const FILTERS = [
+  {
+    key: "type",
+    placeholder: "Tipo",
+    options: [
+      { value: "all", label: "Todos los tipos" },
+      { value: "convocatoria", label: "Convocatoria" },
+      { value: "comunicado", label: "Comunicado" },
+      { value: "evento", label: "Evento" },
+      { value: "noticia", label: "Noticia" },
+    ],
+  },
+  {
+    key: "status",
+    placeholder: "Estado",
+    options: [
+      { value: "all", label: "Todos" },
+      { value: "published", label: "Publicados" },
+      { value: "draft", label: "Borradores" },
+    ],
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPONENTE
+// ═══════════════════════════════════════════════════════════════════════════════
+
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
-  // Fetch announcements from API
-  const fetchAnnouncements = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (searchQuery) params.set("search", searchQuery);
-      if (typeFilter !== "all") params.set("type", typeFilter);
-      if (statusFilter !== "all") params.set("status", statusFilter);
-
-      const res = await fetch(`/api/announcements?${params.toString()}`);
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.error || "Error al cargar anuncios");
-      }
-
-      setAnnouncements(json.data || []);
-    } catch (error) {
-      console.error("Error fetching announcements:", error);
-      toast.error("Error al cargar anuncios");
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, typeFilter, statusFilter]);
-
-  useEffect(() => {
-    fetchAnnouncements();
-  }, [fetchAnnouncements]);
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-
-    try {
-      setDeleting(true);
-      const res = await fetch(`/api/announcements/${deleteId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error || "Error al eliminar");
-      }
-
-      toast.success("Anuncio eliminado");
-      setDeleteId(null);
-      fetchAnnouncements();
-    } catch (error) {
-      console.error("Error deleting announcement:", error);
-      toast.error("Error al eliminar anuncio");
-    } finally {
-      setDeleting(false);
-    }
-  };
+  const {
+    items: announcements,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    filters,
+    setFilter,
+    deleteId,
+    setDeleteId,
+    deleting,
+    handleDelete,
+    pagination,
+    setPage,
+  } = useEntityList<Announcement>({
+    endpoint: "/api/announcements",
+    entityName: "anuncio",
+  });
 
   return (
     <div className="space-y-6">
@@ -155,54 +111,14 @@ export default function AnnouncementsPage() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar anuncios..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            {/* Type Filter */}
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
-                <SelectItem value="convocatoria">Convocatoria</SelectItem>
-                <SelectItem value="comunicado">Comunicado</SelectItem>
-                <SelectItem value="evento">Evento</SelectItem>
-                <SelectItem value="noticia">Noticia</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="published">Publicados</SelectItem>
-                <SelectItem value="draft">Borradores</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <FilterCard
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Buscar anuncios..."
+        filters={FILTERS}
+        filterValues={filters}
+        onFilterChange={setFilter}
+      />
 
       {/* Table */}
       <Card>
@@ -219,7 +135,6 @@ export default function AnnouncementsPage() {
             </TableHeader>
             <TableBody>
               {loading ? (
-                // Loading skeleton
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell>
@@ -274,9 +189,7 @@ export default function AnnouncementsPage() {
                       })}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={announcement.published ? "default" : "outline"}
-                      >
+                      <Badge variant={announcement.published ? "default" : "outline"}>
                         {announcement.published ? "Publicado" : "Borrador"}
                       </Badge>
                     </TableCell>
@@ -296,7 +209,7 @@ export default function AnnouncementsPage() {
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href="/#anuncios" target="_blank">
+                            <Link href="/anuncios" target="_blank">
                               <Eye className="mr-2 h-4 w-4" />
                               Ver en landing
                             </Link>
@@ -320,35 +233,47 @@ export default function AnnouncementsPage() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar anuncio?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. El anuncio será eliminado
-              permanentemente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      {/* Paginación */}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Mostrando {announcements.length} de {pagination.total} anuncios
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(pagination.page - 1)}
+              disabled={pagination.page <= 1}
             >
-              {deleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Eliminando...
-                </>
-              ) : (
-                "Eliminar"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <ChevronLeft className="h-4 w-4" />
+              Anterior
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Página {pagination.page} de {pagination.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages}
+            >
+              Siguiente
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        isDeleting={deleting}
+        title="¿Eliminar anuncio?"
+        description="Esta acción no se puede deshacer. El anuncio será eliminado permanentemente."
+      />
     </div>
   );
 }

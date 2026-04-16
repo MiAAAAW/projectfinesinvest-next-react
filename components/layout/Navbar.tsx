@@ -7,19 +7,197 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { DynamicIcon, Menu, X, Sun, Moon } from "@/lib/icons";
-import type { NavigationConfig } from "@/types/landing.types";
+import { DynamicIcon, Menu, X, Sun, Moon, ChevronDown } from "@/lib/icons";
+import type { NavigationConfig, NavItem } from "@/types/landing.types";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Altura del navbar para offset del scroll
 const NAVBAR_HEIGHT = 80; // h-16 (64px) + padding extra
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// DROPDOWN LINK · maneja los 3 casos:
+//   · "#foo" o "/#foo"       → onAnchorClick (smart scroll handler)
+//   · "/path#hash" misma ruta → <a> nativo (garantiza hashchange event)
+//   · "/path"                 → Next.js Link (SPA navigation)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function DropdownLink({
+  href,
+  onAnchorClick,
+  closeMenu,
+  className,
+  children,
+}: {
+  href: string;
+  onAnchorClick: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+  closeMenu: () => void;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const isLandingHash = href.startsWith("#") || href.startsWith("/#");
+  const hasHash = href.includes("#");
+
+  // Caso 1: landing hash (anuncios, research) → smart scroll handler
+  if (isLandingHash) {
+    return (
+      <a
+        href={href}
+        onClick={(e) => {
+          onAnchorClick(e, href);
+          closeMenu();
+        }}
+        className={className}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  // Caso 2: URL con hash (ej. "/acreditacion#std-22") → <a> nativo
+  // Next.js <Link> no siempre dispara hashchange en la misma ruta
+  if (hasHash) {
+    return (
+      <a href={href} onClick={closeMenu} className={className}>
+        {children}
+      </a>
+    );
+  }
+
+  // Caso 3: ruta normal → Next.js Link con navegación SPA
+  return (
+    <Link href={href} onClick={closeMenu} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 interface NavbarProps {
   config: NavigationConfig;
   className?: string;
+}
+
+function NavDropdown({
+  item,
+  onAnchorClick,
+}: {
+  item: NavItem;
+  onAnchorClick: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [dynamicChildren, setDynamicChildren] = useState<NavItem[] | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Fetch dinámico si item.dynamicSource está definido (data-driven)
+  useEffect(() => {
+    if (!item.dynamicSource) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/public/${item.dynamicSource}/nav`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json.data)) {
+          setDynamicChildren(json.data as NavItem[]);
+        }
+      } catch (err) {
+        console.warn(`Dynamic nav fetch failed for ${item.dynamicSource}:`, err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [item.dynamicSource]);
+
+  // Merge: static children (del config) + dynamic children (del fetch)
+  const children: NavItem[] = [
+    ...(item.children ?? []),
+    ...(dynamicChildren ?? []),
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <a
+        href={item.href}
+        onClick={(e) => {
+          onAnchorClick(e, item.href);
+          setOpen(false);
+        }}
+        className="relative px-2.5 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors group cursor-pointer flex items-center gap-1"
+      >
+        {item.label}
+        <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
+        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary rounded-full group-hover:w-1/2 transition-all duration-300" />
+      </a>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 mt-1 min-w-[200px] rounded-lg border border-border bg-popover p-1 shadow-md"
+          >
+            {children.length === 0 ? (
+              <p className="px-3 py-2 text-xs text-muted-foreground">Cargando...</p>
+            ) : (
+              children.map((child, idx) => {
+                const hasSubChildren = child.children && child.children.length > 0;
+                const isLast = idx === children.length - 1;
+                return (
+                  <div key={child.label}>
+                    <DropdownLink
+                      href={child.href}
+                      onAnchorClick={onAnchorClick}
+                      closeMenu={() => setOpen(false)}
+                      className="block rounded-md px-3 py-2 text-sm font-medium text-foreground/90 hover:text-foreground hover:bg-accent transition-colors"
+                    >
+                      {child.label}
+                    </DropdownLink>
+                    {hasSubChildren && (
+                      <div className="space-y-0.5 mb-1">
+                        {child.children!.map((sub) => (
+                          <DropdownLink
+                            key={sub.label}
+                            href={sub.href}
+                            onAnchorClick={onAnchorClick}
+                            closeMenu={() => setOpen(false)}
+                            className="block rounded-md pl-7 pr-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                          >
+                            {sub.label}
+                          </DropdownLink>
+                        ))}
+                      </div>
+                    )}
+                    {!isLast && hasSubChildren && (
+                      <div className="my-1 h-px bg-border/40" />
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export default function Navbar({ config, className }: NavbarProps) {
@@ -44,8 +222,11 @@ export default function Navbar({ config, className }: NavbarProps) {
 
   // Smooth scroll handler para anclas
   const handleAnchorClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // Solo manejar anclas locales (#)
-    if (!href.startsWith("#")) return;
+    // Manejar anclas: "#section" o "/#section"
+    const isAnchor = href.startsWith("#");
+    const isHomeAnchor = href.startsWith("/#");
+
+    if (!isAnchor && !isHomeAnchor) return;
 
     e.preventDefault();
 
@@ -55,10 +236,17 @@ export default function Navbar({ config, className }: NavbarProps) {
       return;
     }
 
-    // Buscar el elemento target
-    const targetId = href.slice(1);
-    const targetElement = document.getElementById(targetId);
+    const targetId = isHomeAnchor ? href.slice(2) : href.slice(1);
+    const isOnHomePage = window.location.pathname === "/";
 
+    if (!isOnHomePage && isHomeAnchor) {
+      // Navegar a la landing con el hash
+      window.location.href = href;
+      return;
+    }
+
+    // Buscar el elemento target
+    const targetElement = document.getElementById(targetId);
     if (targetElement) {
       const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT;
       window.scrollTo({ top: targetPosition, behavior: "smooth" });
@@ -152,7 +340,7 @@ export default function Navbar({ config, className }: NavbarProps) {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center">
             {items.map((item, i) => (
               <motion.div
                 key={item.label}
@@ -161,23 +349,34 @@ export default function Navbar({ config, className }: NavbarProps) {
                 animate="visible"
                 variants={navItemVariants}
               >
-                <a
-                  href={item.href}
-                  onClick={(e) => handleAnchorClick(e, item.href)}
-                  target={item.external ? "_blank" : undefined}
-                  rel={item.external ? "noopener noreferrer" : undefined}
-                  className="relative px-4 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors group cursor-pointer"
-                >
-                  {item.label}
-                  {/* Hover underline effect */}
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary rounded-full group-hover:w-1/2 transition-all duration-300" />
-                </a>
+                {item.children || item.dynamicSource ? (
+                  <NavDropdown item={item} onAnchorClick={handleAnchorClick} />
+                ) : item.href.startsWith("#") || item.href.startsWith("/#") ? (
+                  <a
+                    href={item.href}
+                    onClick={(e) => handleAnchorClick(e, item.href)}
+                    className="relative px-2.5 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors group cursor-pointer"
+                  >
+                    {item.label}
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary rounded-full group-hover:w-1/2 transition-all duration-300" />
+                  </a>
+                ) : (
+                  <Link
+                    href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
+                    className="relative px-2.5 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors group cursor-pointer"
+                  >
+                    {item.label}
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary rounded-full group-hover:w-1/2 transition-all duration-300" />
+                  </Link>
+                )}
               </motion.div>
             ))}
           </div>
 
           {/* Right side: Theme toggle + CTA */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-3">
             {/* Theme Toggle */}
             {mounted && (
               <motion.div
@@ -239,7 +438,7 @@ export default function Navbar({ config, className }: NavbarProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="md:hidden"
+            className="lg:hidden"
           >
             <Button
               variant="ghost"
@@ -283,7 +482,7 @@ export default function Navbar({ config, className }: NavbarProps) {
               initial="hidden"
               animate="visible"
               exit="hidden"
-              className="md:hidden overflow-hidden"
+              className="lg:hidden overflow-hidden"
             >
               <div className="py-4 border-t border-border/50">
                 <div className="flex flex-col space-y-1">
@@ -295,16 +494,56 @@ export default function Navbar({ config, className }: NavbarProps) {
                       animate="visible"
                       variants={mobileItemVariants}
                     >
-                      <a
-                        href={item.href}
-                        onClick={(e) => {
-                          handleAnchorClick(e, item.href);
-                          setIsOpen(false);
-                        }}
-                        className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
-                      >
-                        {item.label}
-                      </a>
+                      {item.href.startsWith("#") || item.href.startsWith("/#") ? (
+                        <a
+                          href={item.href}
+                          onClick={(e) => {
+                            handleAnchorClick(e, item.href);
+                            setIsOpen(false);
+                          }}
+                          className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
+                        >
+                          {item.label}
+                        </a>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          onClick={() => setIsOpen(false)}
+                          className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                      {item.children && (
+                        <div className="ml-4 border-l border-border/50 pl-2">
+                          {item.children.map((child) => {
+                            const isAnchor =
+                              child.href.startsWith("#") || child.href.startsWith("/#");
+                            return isAnchor ? (
+                              <a
+                                key={child.label}
+                                href={child.href}
+                                onClick={(e) => {
+                                  handleAnchorClick(e, child.href);
+                                  setIsOpen(false);
+                                }}
+                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
+                              >
+                                {child.label}
+                              </a>
+                            ) : (
+                              <Link
+                                key={child.label}
+                                href={child.href}
+                                onClick={() => setIsOpen(false)}
+                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
+                              >
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
                     </motion.div>
                   ))}
 

@@ -122,6 +122,46 @@ export async function requireAuth(): Promise<AuthUser> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// ROLE CHECKS — verifica que el usuario tenga un rol activo
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ADMIN_ROLE_CODES = ["super_admin", "admin"] as const;
+
+/**
+ * Devuelve true si el usuario autenticado tiene un rol ADMIN activo (super_admin o admin).
+ * No lanza. Úsalo en APIs que requieren admin.
+ */
+export async function isAdmin(): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) return false;
+
+  const { prisma } = await import("./prisma");
+  const hasAdminRole = await prisma.userRole.findFirst({
+    where: {
+      userId: user.id,
+      active: true,
+      OR: [{ validUntil: null }, { validUntil: { gt: new Date() } }],
+      role: { code: { in: [...ADMIN_ROLE_CODES] }, active: true },
+    },
+    select: { id: true },
+  });
+  return !!hasAdminRole;
+}
+
+/**
+ * Exige que el usuario sea admin. Devuelve el AuthUser o null si no cumple.
+ * Úsalo así en APIs:
+ *   const admin = await requireAdmin();
+ *   if (!admin) return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+ */
+export async function requireAdmin(): Promise<AuthUser | null> {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  const ok = await isAdmin();
+  return ok ? user : null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // LOGIN / LOGOUT
 // ═══════════════════════════════════════════════════════════════════════════════
 

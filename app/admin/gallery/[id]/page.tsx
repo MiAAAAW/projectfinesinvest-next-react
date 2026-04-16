@@ -78,8 +78,12 @@ export default function EditGalleryImagePage() {
           category: image.category || "eventos",
           published: image.published ?? true,
         });
-        // Usar API endpoint para mostrar imagen desde storage privado
-        setCurrentImage(`/api/gallery/image/${image.id}`);
+        // R2 URL directa (más rápida, evita redirect) | legacy → proxy
+        const directSrc =
+          image.src && /^https?:\/\//i.test(image.src)
+            ? image.src
+            : `/api/gallery/image/${image.id}`;
+        setCurrentImage(directSrc);
       } catch (error) {
         console.error("Error fetching image:", error);
         router.push("/admin/gallery");
@@ -98,13 +102,17 @@ export default function EditGalleryImagePage() {
     setIsLoading(true);
 
     try {
-      let newFilePath: string | undefined;
+      let newFileUrl: string | undefined;
 
-      // Si hay archivo nuevo, subirlo primero
+      // Si hay archivo nuevo, subirlo primero.
+      // Folder anidado por categoría → organiza R2 (gallery/{category}).
       if (file) {
         const uploadFormData = new FormData();
         uploadFormData.append("file", file);
-        uploadFormData.append("category", "gallery");
+        uploadFormData.append(
+          "folder",
+          formData.category ? `gallery/${formData.category}` : "gallery",
+        );
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
@@ -117,7 +125,11 @@ export default function EditGalleryImagePage() {
         }
 
         const uploadData = await uploadRes.json();
-        newFilePath = uploadData.data.filePath;
+        // /api/upload (R2) devuelve { url, key, ... }
+        newFileUrl = uploadData?.data?.url;
+        if (!newFileUrl) {
+          throw new Error("La subida no devolvió una URL válida");
+        }
       }
 
       // Actualizar registro en galería
@@ -129,8 +141,8 @@ export default function EditGalleryImagePage() {
         published: formData.published,
       };
 
-      if (newFilePath) {
-        updateData.src = newFilePath;
+      if (newFileUrl) {
+        updateData.src = newFileUrl;
       }
 
       const res = await fetch(`/api/gallery/${params.id}`, {

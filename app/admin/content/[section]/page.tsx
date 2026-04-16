@@ -3,20 +3,20 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // GENERIC SECTION EDITOR
 // Editor genérico para secciones del landing
+// Conectado a API real con PostgreSQL via /api/content
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical } from "lucide-react";
+import { ArrowLeft, Save, Eye, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DynamicIcon } from "@/lib/icons";
+import { toast } from "sonner";
 import {
   Building2,
   Users,
@@ -34,9 +34,8 @@ const sectionConfigs: Record<string, {
   fields: {
     name: string;
     label: string;
-    type: "text" | "textarea" | "list";
+    type: "text" | "textarea";
     placeholder?: string;
-    listFields?: { name: string; label: string; placeholder?: string }[];
   }[];
 }> = {
   research: {
@@ -96,38 +95,6 @@ const sectionConfigs: Record<string, {
   },
 };
 
-// Mock data genérico
-const getMockData = (section: string): Record<string, string> => {
-  const defaults: Record<string, Record<string, string>> = {
-    research: {
-      title: "Líneas de Investigación",
-      description: "Conoce nuestras principales áreas de investigación científica y tecnológica.",
-    },
-    offices: {
-      title: "Nuestras Sedes",
-      description: "Encuentra la sede FINESI más cercana a ti.",
-    },
-    authorities: {
-      title: "Autoridades",
-      description: "Conoce al equipo directivo de FINESI.",
-    },
-    calendar: {
-      title: "Calendario Académico",
-      description: "Fechas importantes y eventos programados.",
-    },
-    faq: {
-      title: "Preguntas Frecuentes",
-    },
-    footer: {
-      description: "Vicerrectorado de Investigación de la Universidad Nacional Federico Villarreal",
-      address: "Jr. Carlos Gonzales 285, San Miguel, Lima",
-      phone: "(01) 748-0888",
-      email: "investigacion@unfv.edu.pe",
-    },
-  };
-  return defaults[section] || {};
-};
-
 export default function SectionEditorPage() {
   const router = useRouter();
   const params = useParams();
@@ -146,27 +113,75 @@ export default function SectionEditorPage() {
     }
   }, [config, router]);
 
-  // Simular fetch de datos
+  // Fetch datos reales desde /api/content?section={section}
   useEffect(() => {
     if (!config) return;
-    // TODO: Fetch desde Supabase
-    setTimeout(() => {
-      setFormData(getMockData(section));
-      setIsFetching(false);
-    }, 500);
+
+    const fetchSectionContent = async () => {
+      try {
+        const res = await fetch(`/api/content?section=${section}`);
+        const json = await res.json();
+
+        if (res.ok && json.data?.[section]) {
+          const sectionData = json.data[section];
+          const loaded: Record<string, string> = {};
+
+          // Mapear cada field del config con los datos de la DB
+          for (const field of config.fields) {
+            loaded[field.name] = sectionData[field.name]?.value || "";
+          }
+          setFormData(loaded);
+        } else {
+          // Si no hay datos en DB, inicializar vacío
+          const empty: Record<string, string> = {};
+          for (const field of config.fields) {
+            empty[field.name] = "";
+          }
+          setFormData(empty);
+        }
+      } catch (error) {
+        console.error(`Error fetching ${section} content:`, error);
+        toast.error("Error al cargar contenido");
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchSectionContent();
   }, [section, config]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // TODO: Guardar en Supabase
-    console.log(`Guardar ${section}:`, formData);
+    try {
+      // Convertir formData a items para batch upsert
+      const items = Object.entries(formData).map(([key, value]) => ({
+        section,
+        key,
+        value,
+        type: "text",
+      }));
 
-    setTimeout(() => {
-      setIsLoading(false);
+      const res = await fetch("/api/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Error al guardar");
+      }
+
+      toast.success(`${config.title} actualizado exitosamente`);
       router.push("/admin/content");
-    }, 1000);
+    } catch (error) {
+      console.error(`Error saving ${section} content:`, error);
+      toast.error(error instanceof Error ? error.message : "Error al guardar");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateField = (field: string, value: string) => {
@@ -266,10 +281,7 @@ export default function SectionEditorPage() {
                 <div className="text-center text-muted-foreground">
                   <p className="text-sm">
                     El contenido dinámico (listas de items) se gestiona desde la
-                    base de datos.
-                  </p>
-                  <p className="text-xs mt-1">
-                    Próximamente: Editor visual de items
+                    sección correspondiente del admin.
                   </p>
                 </div>
               </CardContent>
@@ -285,7 +297,7 @@ export default function SectionEditorPage() {
                   <Button type="submit" disabled={isLoading}>
                     {isLoading ? (
                       <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         Guardando...
                       </span>
                     ) : (

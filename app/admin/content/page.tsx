@@ -16,6 +16,7 @@ import {
   FileText,
   ArrowRight,
   Settings,
+  Scale,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,14 @@ const sections = [
     icon: FileText,
     fields: ["Logo", "Descripción", "Enlaces", "Redes sociales", "Contacto"],
     lastUpdated: "Hace 1 mes",
+  },
+  {
+    id: "etica",
+    title: "Ética",
+    description: "Comité de ética y normativas (con opción de PDF)",
+    icon: Scale,
+    fields: ["Título", "Descripción", "Contenido", "PDF"],
+    lastUpdated: "—",
   },
 ];
 

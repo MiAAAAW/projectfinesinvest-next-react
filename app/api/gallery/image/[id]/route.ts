@@ -47,7 +47,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Leer archivo del storage
+    // Caso moderno · src es una URL pública (R2) → redirect 302.
+    // Caso legacy · src es un path local (storage/... o uploads/...) → readStorageFile.
+    if (/^https?:\/\//i.test(image.src)) {
+      return NextResponse.redirect(image.src, 302);
+    }
+
+    // Leer archivo del storage local (legacy)
     const fileBuffer = await readStorageFile(image.src);
 
     if (!fileBuffer) {

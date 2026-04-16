@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { normalizeUrl } from "@/lib/url-utils";
+import { requireAuth, validateBody, errorResponse, successResponse } from "@/lib/api-utils";
 
 // Schema de validación para crear evento
 const calendarEventSchema = z.object({
@@ -28,10 +28,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    // Construir filtros
-    const where: Record<string, unknown> = {
-      ...notDeleted,
-    };
+    const where: Record<string, unknown> = { ...notDeleted };
 
     if (search) {
       where.OR = [
@@ -41,17 +38,11 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (type) {
-      where.type = type;
-    }
+    if (type) where.type = type;
 
-    if (status === "published") {
-      where.published = true;
-    } else if (status === "draft") {
-      where.published = false;
-    }
+    if (status === "published") where.published = true;
+    else if (status === "draft") where.published = false;
 
-    // Obtener total y datos
     const [total, events] = await Promise.all([
       prisma.calendarEvent.count({ where }),
       prisma.calendarEvent.findMany({
@@ -64,45 +55,27 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: events,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
     console.error("Error fetching calendar events:", error);
-    return NextResponse.json(
-      { error: "Error al obtener eventos" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener eventos");
   }
 }
 
 // POST /api/calendar - Crear evento
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const body = await request.json();
 
-    // Validar datos
-    const result = calendarEventSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, calendarEventSchema);
+    if (validation.error) return validation.error;
 
-    const data = result.data;
+    const data = validation.data;
 
-    // Crear evento
     const event = await prisma.calendarEvent.create({
       data: {
         title: data.title,
@@ -118,12 +91,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ data: event }, { status: 201 });
+    return successResponse(event, 201);
   } catch (error) {
     console.error("Error creating calendar event:", error);
-    return NextResponse.json(
-      { error: "Error al crear evento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al crear evento");
   }
 }

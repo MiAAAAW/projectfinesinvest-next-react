@@ -1,0 +1,196 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// TEACHERS / INVESTIGATORS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Teacher {
+  id              String    @id @default(cuid())
+  name            String
+  code            String?   @db.VarChar(10)
+  email           String?   @unique
+  phone           String?
+  avatarUrl       String?   @map("avatar_url")
+  specialty       String?
+  degree          String?
+  academicTitle   String?   @map("academic_title")
+  category        String?   @db.VarChar(20)
+  employmentType  String?   @map("employment_type") @db.VarChar(5)
+  orcid           String?
+  googleScholar   String?   @map("google_scholar")
+  linkedin        String?
+  researchGate    String?   @map("research_gate")
+  personalWebsite String?   @map("personal_website")
+  ctiVitaeUrl     String?   @map("cti_vitae_url")
+  bio             String?   @db.Text
+  userId          String?   @unique @map("user_id")
+  published       Boolean   @default(true)
+  order           Int       @default(0)
+  deletedAt       DateTime? @map("deleted_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // RENACYT
+  renacytCode      String?   @map("renacyt_code")
+  renacytLevel     String?   @map("renacyt_level")
+  renacytValidFrom DateTime? @map("renacyt_valid_from")
+  renacytValidTo   DateTime? @map("renacyt_valid_to")
+  isRenacyt        Boolean   @default(false) @map("is_renacyt")
+  scopusId         String?   @map("scopus_id")
+  hindex           Int?
+
+  // Gauss (portal institucional FINESI) - source of truth externa
+  gaussId     String?   @unique @map("gauss_id")
+  gaussSlug   String?   @map("gauss_slug")
+  memberSince DateTime? @map("member_since")
+
+  // Relations
+  user                 User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  researchLines        TeacherResearchLine[]
+  researchGroupMembers ResearchGroupMember[]
+  semilleroAdvisor     Semillero[]                @relation("SemilleroAdvisor")
+  semilleroTeachers    SemilleroTeacher[]
+  publicationAuthors   PublicationAuthor[]
+  ledGroups            ResearchGroup[]            @relation("GroupLeader")
+  formations           TeacherFormation[]
+  workExperiences      TeacherWorkExperience[]
+  thesisSupervisions   TeacherThesisSupervision[]
+  distinctions         TeacherDistinction[]
+  languages            TeacherLanguageSkill[]
+
+  @@index([deletedAt])
+  @@index([order])
+  @@index([isRenacyt])
+  @@index([gaussSlug])
+  @@map("teachers")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PERFIL EXTENDIDO — sincronizado desde Gauss (investiga.finesi.edu.pe)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model TeacherFormation {
+  id             String   @id @default(cuid())
+  teacherId      String   @map("teacher_id")
+  degreeType     String?  @map("degree_type") // LICENCIADO / MAESTRO / DOCTOR
+  degreeName     String   @map("degree_name") // INGENIERO ESTADISTICO
+  institution    String?
+  country        String?
+  startYear      Int?     @map("start_year")
+  graduationYear Int?     @map("graduation_year")
+  thesisTitle    String?  @map("thesis_title")
+  thesisAdvisor  String?  @map("thesis_advisor")
+  distinction    String?
+  displayOrder   Int      @default(0) @map("display_order")
+  gaussId        String?  @unique @map("gauss_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@map("teacher_formations")
+}
+
+model TeacherWorkExperience {
+  id             String    @id @default(cuid())
+  teacherId      String    @map("teacher_id")
+  experienceType String?   @map("experience_type")
+  institution    String
+  position       String?
+  department     String?
+  startDate      DateTime? @map("start_date")
+  endDate        DateTime? @map("end_date")
+  isCurrent      Boolean   @default(false) @map("is_current")
+  isPrimary      Boolean   @default(false) @map("is_primary")
+  description    String?   @db.Text
+  country        String?
+  city           String?
+  displayOrder   Int       @default(0) @map("display_order")
+  gaussId        String?   @unique @map("gauss_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@map("teacher_work_experiences")
+}
+
+model TeacherThesisSupervision {
+  id             String    @id @default(cuid())
+  teacherId      String    @map("teacher_id")
+  thesisTitle    String    @map("thesis_title") @db.Text
+  studentName    String?   @map("student_name") @db.Text
+  thesisType     String?   @map("thesis_type")
+  role           String? // Asesor / Jurado / Co-asesor
+  university     String?
+  acceptanceDate DateTime? @map("acceptance_date")
+  repositoryUrl  String?   @map("repository_url")
+  displayOrder   Int       @default(0) @map("display_order")
+  gaussId        String?   @unique @map("gauss_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@map("teacher_thesis_supervisions")
+}
+
+model TeacherDistinction {
+  id                  String    @id @default(cuid())
+  teacherId           String    @map("teacher_id")
+  distinctionType     String?   @map("distinction_type")
+  name                String
+  grantingInstitution String?   @map("granting_institution")
+  description         String?   @db.Text
+  awardDate           DateTime? @map("award_date")
+  awardYear           Int?      @map("award_year")
+  country             String?
+  url                 String?
+  displayOrder        Int       @default(0) @map("display_order")
+  gaussId             String?   @unique @map("gauss_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@map("teacher_distinctions")
+}
+
+model TeacherLanguageSkill {
+  id                 String   @id @default(cuid())
+  teacherId          String   @map("teacher_id")
+  language           String
+  readingLevel       String?  @map("reading_level")
+  writingLevel       String?  @map("writing_level")
+  speakingLevel      String?  @map("speaking_level")
+  listeningLevel     String?  @map("listening_level")
+  isNative           Boolean  @default(false) @map("is_native")
+  certification      String?
+  certificationScore String?  @map("certification_score")
+  certificationYear  Int?     @map("certification_year")
+  displayOrder       Int      @default(0) @map("display_order")
+  gaussId            String?  @unique @map("gauss_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@map("teacher_language_skills")
+}
+
+model TeacherResearchLine {
+  teacherId      String   @map("teacher_id")
+  researchLineId String   @map("research_line_id")
+  role           String   @default("investigador")
+  active         Boolean  @default(true)
+  joinedAt       DateTime @default(now()) @map("joined_at")
+
+  teacher      Teacher      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  researchLine ResearchLine @relation(fields: [researchLineId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, researchLineId])
+  @@map("teacher_research_lines")
+}

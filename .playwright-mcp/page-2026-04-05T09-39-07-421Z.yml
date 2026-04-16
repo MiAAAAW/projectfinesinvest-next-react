@@ -1,0 +1,157 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "FINESI Investigación" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img [ref=e9]
+          - generic [ref=e12]: FINESI Investigación
+        - generic [ref=e13]:
+          - link "Inicio" [ref=e15] [cursor=pointer]:
+            - /url: "#"
+            - text: Inicio
+          - link "Anuncios" [ref=e17] [cursor=pointer]:
+            - /url: "#announcements"
+            - text: Anuncios
+          - link "Investigación" [ref=e20] [cursor=pointer]:
+            - /url: "#research"
+            - text: Investigación
+            - img [ref=e21]
+          - link "Documentos" [ref=e25] [cursor=pointer]:
+            - /url: "#documents"
+            - text: Documentos
+            - img [ref=e26]
+          - link "Calendario" [ref=e29] [cursor=pointer]:
+            - /url: "#calendar"
+            - text: Calendario
+          - link "Galería" [ref=e31] [cursor=pointer]:
+            - /url: "#gallery"
+            - text: Galería
+          - link "Posgrado" [ref=e33] [cursor=pointer]:
+            - /url: /posgrado
+            - text: Posgrado
+          - link "Acreditación" [ref=e35] [cursor=pointer]:
+            - /url: /acreditacion
+            - text: Acreditación
+          - link "Oficinas" [ref=e37] [cursor=pointer]:
+            - /url: "#offices"
+            - text: Oficinas
+        - link "Admin" [ref=e40] [cursor=pointer]:
+          - /url: /admin
+    - generic [ref=e41]:
+      - img "Facultad de Ingeniería Estadística e Informática - FINESI" [ref=e43]
+      - generic [ref=e47]:
+        - generic [ref=e49]: Dirección de Investigación
+        - heading "Portal de Investigación FINESI" [level=1] [ref=e53]:
+          - text: Portal de Investigación
+          - generic [ref=e54]: FINESI
+        - paragraph [ref=e56]: Sistema integral de seguimiento de proyectos de investigación científica y tecnológica de la Facultad de Ingeniería Estadística e Informática - UNA Puno.
+        - generic [ref=e57]:
+          - link "Ver Convocatorias" [ref=e60] [cursor=pointer]:
+            - /url: "#announcements"
+            - generic [ref=e61]:
+              - text: Ver Convocatorias
+              - img
+          - link "Líneas de Investigación" [ref=e65] [cursor=pointer]:
+            - /url: "#research"
+      - button "Desplazar hacia abajo" [ref=e67] [cursor=pointer]
+    - generic [ref=e100]:
+      - generic [ref=e102]: Calendario
+      - heading "Próximos Eventos" [level=2] [ref=e104]
+      - paragraph [ref=e106]: Fechas importantes del semestre académico
+    - generic [ref=e172]:
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - link "FINESI" [ref=e175] [cursor=pointer]:
+            - /url: /
+            - img [ref=e176]
+            - generic [ref=e179]: FINESI
+          - paragraph [ref=e180]: Dirección de Investigación de la Facultad de Ingeniería Estadística e Informática - Universidad Nacional del Altiplano, Puno.
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - heading "Navegación" [level=4] [ref=e183]
+            - list [ref=e184]:
+              - listitem [ref=e185]:
+                - link "Inicio" [ref=e186] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e187]: Inicio
+              - listitem [ref=e188]:
+                - link "Anuncios" [ref=e189] [cursor=pointer]:
+                  - /url: "#announcements"
+                  - generic [ref=e190]: Anuncios
+              - listitem [ref=e191]:
+                - link "Investigación" [ref=e192] [cursor=pointer]:
+                  - /url: "#research"
+                  - generic [ref=e193]: Investigación
+              - listitem [ref=e194]:
+                - link "Documentos" [ref=e195] [cursor=pointer]:
+                  - /url: "#documents"
+                  - generic [ref=e196]: Documentos
+          - generic [ref=e197]:
+            - heading "Recursos" [level=4] [ref=e198]
+            - list [ref=e199]:
+              - listitem [ref=e200]:
+                - link "Calendario" [ref=e201] [cursor=pointer]:
+                  - /url: "#calendar"
+                  - generic [ref=e202]: Calendario
+              - listitem [ref=e203]:
+                - link "Galería" [ref=e204] [cursor=pointer]:
+                  - /url: "#gallery"
+                  - generic [ref=e205]: Galería
+              - listitem [ref=e206]:
+                - link "Autoridades" [ref=e207] [cursor=pointer]:
+                  - /url: "#authorities"
+                  - generic [ref=e208]: Autoridades
+              - listitem [ref=e209]:
+                - link "Oficinas" [ref=e210] [cursor=pointer]:
+                  - /url: "#offices"
+                  - generic [ref=e211]: Oficinas
+          - generic [ref=e212]:
+            - heading "Contacto" [level=4] [ref=e213]
+            - list [ref=e214]:
+              - listitem [ref=e215]:
+                - link "Email" [ref=e216] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e217]: Email
+              - listitem [ref=e218]:
+                - link "Teléfono" [ref=e219] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e220]: Teléfono
+          - generic [ref=e221]:
+            - heading "Universidad" [level=4] [ref=e222]
+            - list [ref=e223]:
+              - listitem [ref=e224]:
+                - link "UNA Puno" [ref=e225] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e226]: UNA Puno
+                  - img [ref=e227]
+              - listitem [ref=e231]:
+                - link "FINESI" [ref=e232] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e233]: FINESI
+                  - img [ref=e234]
+              - listitem [ref=e238]:
+                - link "VRIP" [ref=e239] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e240]: VRIP
+                  - img [ref=e241]
+      - generic [ref=e245]:
+        - paragraph [ref=e246]:
+          - text: © 2026 FINESI - Universidad Nacional del Altiplano. Todos los derechos reservados.
+          - generic [ref=e247]:
+            - text: Made with
+            - img [ref=e248]
+            - text: by
+            - generic [ref=e250]: ODINLAB
+        - generic [ref=e251]:
+          - link "Portal UNA" [ref=e252] [cursor=pointer]:
+            - /url: "#"
+            - text: Portal UNA
+            - img [ref=e253]
+          - link "VRIP" [ref=e257] [cursor=pointer]:
+            - /url: "#"
+            - text: VRIP
+            - img [ref=e258]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e267] [cursor=pointer]:
+    - img [ref=e268]

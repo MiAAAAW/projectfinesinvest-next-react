@@ -16,10 +16,11 @@ const assignTeacherSchema = z.object({
   role: z.enum(TEACHER_ROLE_VALUES).default("investigador"),
 });
 
-// Schema para actualizar rol
+// Schema para actualizar rol o estado activo
 const updateRoleSchema = z.object({
   teacherId: z.string().min(1, "Docente requerido"),
-  role: z.enum(TEACHER_ROLE_VALUES),
+  role: z.enum(TEACHER_ROLE_VALUES).optional(),
+  active: z.boolean().optional(),
 });
 
 // Schema para remover docente
@@ -80,6 +81,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const data = teachers.map((t) => ({
       ...t.teacher,
       role: t.role,
+      active: t.active,
       joinedAt: t.joinedAt,
     }));
 
@@ -194,6 +196,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       data: {
         ...teacherResearchLine.teacher,
         role: teacherResearchLine.role,
+        active: teacherResearchLine.active,
         joinedAt: teacherResearchLine.joinedAt,
       },
     }, { status: 201 });
@@ -227,7 +230,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { teacherId, role } = result.data;
+    const { teacherId, role, active } = result.data;
 
     // Verificar que la relación existe
     const existing = await prisma.teacherResearchLine.findUnique({
@@ -269,7 +272,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Actualizar rol
+    // Construir datos a actualizar
+    const updateData: Record<string, unknown> = {};
+    if (role !== undefined) updateData.role = role;
+    if (active !== undefined) updateData.active = active;
+
+    // Actualizar
     const updated = await prisma.teacherResearchLine.update({
       where: {
         teacherId_researchLineId: {
@@ -277,7 +285,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           researchLineId: id,
         },
       },
-      data: { role },
+      data: updateData,
       include: {
         teacher: {
           select: {
@@ -294,6 +302,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       data: {
         ...updated.teacher,
         role: updated.role,
+        active: updated.active,
         joinedAt: updated.joinedAt,
       },
     });

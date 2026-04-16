@@ -1,0 +1,56 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// SEMILLEROS DE INVESTIGACIÓN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Semillero {
+  id                String    @id @default(cuid())
+  name              String
+  description       String?   @db.Text // "Objetivo" del semillero
+  researchLinesText String?   @map("research_lines_text") @db.Text // Líneas UNAP (texto libre, separadas por saltos de línea)
+  advisorId         String?   @map("advisor_id")
+  status            String    @default("activo")
+  published         Boolean   @default(true)
+  deletedAt         DateTime? @map("deleted_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  advisor  Teacher?           @relation("SemilleroAdvisor", fields: [advisorId], references: [id], onDelete: SetNull)
+  students SemilleroStudent[]
+  teachers SemilleroTeacher[]
+
+  @@index([deletedAt])
+  @@index([status])
+  @@map("semilleros")
+}
+
+// Pivote estudiantes ↔ semilleros
+model SemilleroStudent {
+  semilleroId String   @map("semillero_id")
+  studentId   String   @map("student_id")
+  role        String   @default("miembro") // miembro | coordinador | tesista
+  active      Boolean  @default(true)
+  joinedAt    DateTime @default(now()) @map("joined_at")
+
+  semillero Semillero @relation(fields: [semilleroId], references: [id], onDelete: Cascade)
+  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([semilleroId, studentId])
+  @@index([studentId])
+  @@map("semillero_students")
+}
+
+// Pivote docentes co-asesores ↔ semilleros (además del advisor principal)
+model SemilleroTeacher {
+  semilleroId String   @map("semillero_id")
+  teacherId   String   @map("teacher_id")
+  role        String   @default("co-asesor") // co-asesor | asesor-adjunto
+  active      Boolean  @default(true)
+  joinedAt    DateTime @default(now()) @map("joined_at")
+
+  semillero Semillero @relation(fields: [semilleroId], references: [id], onDelete: Cascade)
+  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@id([semilleroId, teacherId])
+  @@index([teacherId])
+  @@map("semillero_teachers")
+}

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { requireAuth, validateBody, errorResponse, successResponse } from "@/lib/api-utils";
 
-// Schema de validación para crear documento
 const documentSchema = z.object({
   title: z.string().min(1, "Título requerido"),
   description: z.string().optional().nullable(),
@@ -24,10 +23,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    // Construir filtros
-    const where: Record<string, unknown> = {
-      ...notDeleted,
-    };
+    const where: Record<string, unknown> = { ...notDeleted };
 
     if (search) {
       where.OR = [
@@ -36,17 +32,11 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (category) {
-      where.category = category;
-    }
+    if (category) where.category = category;
 
-    if (status === "published") {
-      where.published = true;
-    } else if (status === "draft") {
-      where.published = false;
-    }
+    if (status === "published") where.published = true;
+    else if (status === "draft") where.published = false;
 
-    // Obtener total y datos
     const [total, documents] = await Promise.all([
       prisma.document.count({ where }),
       prisma.document.findMany({
@@ -59,45 +49,27 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: documents,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
     console.error("Error fetching documents:", error);
-    return NextResponse.json(
-      { error: "Error al obtener documentos" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener documentos");
   }
 }
 
 // POST /api/documents - Crear documento
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const body = await request.json();
 
-    // Validar datos
-    const result = documentSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, documentSchema);
+    if (validation.error) return validation.error;
 
-    const data = result.data;
+    const data = validation.data;
 
-    // Crear documento
     const document = await prisma.document.create({
       data: {
         title: data.title,
@@ -110,12 +82,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ data: document }, { status: 201 });
+    return successResponse(document, 201);
   } catch (error) {
     console.error("Error creating document:", error);
-    return NextResponse.json(
-      { error: "Error al crear documento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al crear documento");
   }
 }

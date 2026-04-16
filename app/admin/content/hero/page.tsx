@@ -3,13 +3,13 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // HERO SECTION EDITOR
 // Editor visual para la sección Hero del landing
+// Conectado a API real con PostgreSQL via /api/content
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, Save, Eye, Sparkles } from "lucide-react";
+import { ArrowLeft, Save, Eye, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,36 +19,31 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileUpload } from "@/components/admin/FileUpload";
+import { toast } from "sonner";
 
-// Mock data - representa lo que vendría de la BD
-const mockHeroContent = {
-  badge: {
-    text: "Investigación de Excelencia",
-    href: "#research",
-  },
-  title: {
-    main: "Impulsamos la",
-    highlight: "Investigación",
-    suffix: "en la UNFV",
-  },
-  description:
-    "Somos el órgano rector de la investigación científica, tecnológica y humanística de la Universidad Nacional Federico Villarreal.",
-  cta: {
-    primary: {
-      text: "Explorar Proyectos",
-      href: "#research",
-    },
-    secondary: {
-      text: "Conoce más",
-      href: "#about",
-    },
-  },
-  image: {
-    light: "/images/hero-light.jpg",
-    dark: "/images/hero-dark.jpg",
-    alt: "Investigación FINESI",
-  },
-  enable3D: false,
+// Keys que se guardan en SiteContent con section="hero"
+const HERO_KEYS = [
+  "badgeText", "badgeHref",
+  "titleMain", "titleHighlight", "titleSuffix",
+  "description",
+  "ctaPrimaryText", "ctaPrimaryHref",
+  "ctaSecondaryText", "ctaSecondaryHref",
+  "enable3D",
+] as const;
+
+// Defaults si no hay datos en la DB
+const HERO_DEFAULTS: Record<string, string> = {
+  badgeText: "Investigación de Excelencia",
+  badgeHref: "/#research",
+  titleMain: "Impulsamos la",
+  titleHighlight: "Investigación",
+  titleSuffix: "en la UNFV",
+  description: "Somos el órgano rector de la investigación científica, tecnológica y humanística.",
+  ctaPrimaryText: "Explorar Proyectos",
+  ctaPrimaryHref: "/#research",
+  ctaSecondaryText: "Conoce más",
+  ctaSecondaryHref: "/#about",
+  enable3D: "false",
 };
 
 export default function HeroEditorPage() {
@@ -56,56 +51,72 @@ export default function HeroEditorPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [formData, setFormData] = useState({
-    badgeText: "",
-    badgeHref: "",
-    titleMain: "",
-    titleHighlight: "",
-    titleSuffix: "",
-    description: "",
-    ctaPrimaryText: "",
-    ctaPrimaryHref: "",
-    ctaSecondaryText: "",
-    ctaSecondaryHref: "",
-    enable3D: false,
-  });
+  const [formData, setFormData] = useState<Record<string, string>>(HERO_DEFAULTS);
 
-  // Simular fetch de datos
+  // Fetch datos reales desde /api/content?section=hero
   useEffect(() => {
-    // TODO: Fetch desde Supabase
-    setTimeout(() => {
-      setFormData({
-        badgeText: mockHeroContent.badge.text,
-        badgeHref: mockHeroContent.badge.href,
-        titleMain: mockHeroContent.title.main,
-        titleHighlight: mockHeroContent.title.highlight,
-        titleSuffix: mockHeroContent.title.suffix,
-        description: mockHeroContent.description,
-        ctaPrimaryText: mockHeroContent.cta.primary.text,
-        ctaPrimaryHref: mockHeroContent.cta.primary.href,
-        ctaSecondaryText: mockHeroContent.cta.secondary?.text || "",
-        ctaSecondaryHref: mockHeroContent.cta.secondary?.href || "",
-        enable3D: mockHeroContent.enable3D,
-      });
-      setIsFetching(false);
-    }, 500);
+    const fetchHeroContent = async () => {
+      try {
+        const res = await fetch("/api/content?section=hero");
+        const json = await res.json();
+
+        if (res.ok && json.data?.hero) {
+          const heroData = json.data.hero;
+          const loaded: Record<string, string> = { ...HERO_DEFAULTS };
+          for (const key of HERO_KEYS) {
+            if (heroData[key]?.value) {
+              loaded[key] = heroData[key].value;
+            }
+          }
+          setFormData(loaded);
+        }
+      } catch (error) {
+        console.error("Error fetching hero content:", error);
+        toast.error("Error al cargar contenido del hero");
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchHeroContent();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // TODO: Guardar en Supabase
-    console.log("Guardar Hero:", formData);
+    try {
+      // Convertir formData a items para batch upsert
+      const items = HERO_KEYS.map((key) => ({
+        section: "hero",
+        key,
+        value: formData[key] || "",
+        type: key === "enable3D" ? "boolean" : "text",
+      }));
 
-    setTimeout(() => {
-      setIsLoading(false);
+      const res = await fetch("/api/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || "Error al guardar");
+      }
+
+      toast.success("Hero actualizado exitosamente");
       router.push("/admin/content");
-    }, 1000);
+    } catch (error) {
+      console.error("Error saving hero content:", error);
+      toast.error(error instanceof Error ? error.message : "Error al guardar hero");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateField = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: String(value) }));
   };
 
   if (isFetching) {
@@ -275,7 +286,6 @@ export default function HeroEditorPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Primary CTA */}
                 <div className="space-y-4">
                   <h4 className="font-medium">Botón principal</h4>
                   <div className="grid gap-4 md:grid-cols-2">
@@ -302,7 +312,6 @@ export default function HeroEditorPage() {
 
                 <Separator />
 
-                {/* Secondary CTA */}
                 <div className="space-y-4">
                   <h4 className="font-medium">Botón secundario</h4>
                   <div className="grid gap-4 md:grid-cols-2">
@@ -365,7 +374,7 @@ export default function HeroEditorPage() {
                   </div>
                   <Switch
                     id="enable3D"
-                    checked={formData.enable3D}
+                    checked={formData.enable3D === "true"}
                     onCheckedChange={(checked) => updateField("enable3D", checked)}
                   />
                 </div>
@@ -379,7 +388,7 @@ export default function HeroEditorPage() {
                   <Button type="submit" disabled={isLoading}>
                     {isLoading ? (
                       <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         Guardando...
                       </span>
                     ) : (

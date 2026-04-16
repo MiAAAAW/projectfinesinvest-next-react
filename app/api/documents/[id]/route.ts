@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
+import { requireAuth, validateBody, errorResponse, successResponse, messageResponse, softDeleteWithR2 } from "@/lib/api-utils";
 
-// Schema de validación para actualizar documento
 const updateDocumentSchema = z.object({
   title: z.string().min(1, "Título requerido").optional(),
   description: z.string().optional().nullable(),
@@ -18,71 +17,43 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// GET /api/documents/[id] - Obtener documento por ID
+// GET /api/documents/[id]
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
     const document = await prisma.document.findFirst({
-      where: {
-        id,
-        ...notDeleted,
-      },
+      where: { id, ...notDeleted },
     });
 
-    if (!document) {
-      return NextResponse.json(
-        { error: "Documento no encontrado" },
-        { status: 404 }
-      );
-    }
+    if (!document) return errorResponse("Documento no encontrado", 404);
 
-    return NextResponse.json({ data: document });
+    return successResponse(document);
   } catch (error) {
     console.error("Error fetching document:", error);
-    return NextResponse.json(
-      { error: "Error al obtener documento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener documento");
   }
 }
 
-// PUT /api/documents/[id] - Actualizar documento
+// PUT /api/documents/[id]
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const { id } = await params;
     const body = await request.json();
 
-    // Validar datos
-    const result = updateDocumentSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, updateDocumentSchema);
+    if (validation.error) return validation.error;
 
-    // Verificar que existe
     const existing = await prisma.document.findFirst({
       where: { id, ...notDeleted },
     });
+    if (!existing) return errorResponse("Documento no encontrado", 404);
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: "Documento no encontrado" },
-        { status: 404 }
-      );
-    }
+    const data = validation.data;
 
-    const data = result.data;
-
-    // Actualizar documento
     const document = await prisma.document.update({
       where: { id },
       data: {
@@ -96,56 +67,39 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    return NextResponse.json({ data: document });
+    return successResponse(document);
   } catch (error) {
     console.error("Error updating document:", error);
-    return NextResponse.json(
-      { error: "Error al actualizar documento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al actualizar documento");
   }
 }
 
-// DELETE /api/documents/[id] - Eliminar documento (soft delete)
+// DELETE /api/documents/[id] · soft-delete BD + cleanup R2 (audit + sin huérfanos)
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const { id } = await params;
 
-    // Verificar que existe
     const existing = await prisma.document.findFirst({
       where: { id, ...notDeleted },
+      select: { fileUrl: true },
     });
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: "Documento no encontrado" },
-        { status: 404 }
-      );
-    }
-
-    // Soft delete
-    await prisma.document.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+    const result = await softDeleteWithR2(prisma.document, id, "Documento", {
+      fileUrls: [existing?.fileUrl],
     });
+    if (result.error) return result.error;
 
-    return NextResponse.json({ message: "Documento eliminado" });
+    return messageResponse("Documento eliminado");
   } catch (error) {
     console.error("Error deleting document:", error);
-    return NextResponse.json(
-      { error: "Error al eliminar documento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al eliminar documento");
   }
 }
 
-// PATCH /api/documents/[id]/download - Incrementar contador de descargas
+// PATCH /api/documents/[id] - Incrementar contador de descargas
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
@@ -154,25 +108,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       where: { id, ...notDeleted },
     });
 
-    if (!document) {
-      return NextResponse.json(
-        { error: "Documento no encontrado" },
-        { status: 404 }
-      );
-    }
+    if (!document) return errorResponse("Documento no encontrado", 404);
 
-    // Incrementar descargas
     const updated = await prisma.document.update({
       where: { id },
       data: { downloads: { increment: 1 } },
     });
 
-    return NextResponse.json({ data: updated });
+    return successResponse(updated);
   } catch (error) {
     console.error("Error updating download count:", error);
-    return NextResponse.json(
-      { error: "Error al actualizar contador" },
-      { status: 500 }
-    );
+    return errorResponse("Error al actualizar contador");
   }
 }

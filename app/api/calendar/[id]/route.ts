@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { normalizeUrl } from "@/lib/url-utils";
+import { requireAuth, validateBody, errorResponse, successResponse, messageResponse, softDelete } from "@/lib/api-utils";
 
 // Schema de validación para actualizar evento
 const updateCalendarEventSchema = z.object({
@@ -22,71 +22,43 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// GET /api/calendar/[id] - Obtener evento por ID
+// GET /api/calendar/[id]
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
     const event = await prisma.calendarEvent.findFirst({
-      where: {
-        id,
-        ...notDeleted,
-      },
+      where: { id, ...notDeleted },
     });
 
-    if (!event) {
-      return NextResponse.json(
-        { error: "Evento no encontrado" },
-        { status: 404 }
-      );
-    }
+    if (!event) return errorResponse("Evento no encontrado", 404);
 
-    return NextResponse.json({ data: event });
+    return successResponse(event);
   } catch (error) {
     console.error("Error fetching calendar event:", error);
-    return NextResponse.json(
-      { error: "Error al obtener evento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener evento");
   }
 }
 
-// PUT /api/calendar/[id] - Actualizar evento
+// PUT /api/calendar/[id]
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const { id } = await params;
     const body = await request.json();
 
-    // Validar datos
-    const result = updateCalendarEventSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, updateCalendarEventSchema);
+    if (validation.error) return validation.error;
 
-    // Verificar que existe
     const existing = await prisma.calendarEvent.findFirst({
       where: { id, ...notDeleted },
     });
+    if (!existing) return errorResponse("Evento no encontrado", 404);
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: "Evento no encontrado" },
-        { status: 404 }
-      );
-    }
+    const data = validation.data;
 
-    const data = result.data;
-
-    // Actualizar evento
     const event = await prisma.calendarEvent.update({
       where: { id },
       data: {
@@ -103,51 +75,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    return NextResponse.json({ data: event });
+    return successResponse(event);
   } catch (error) {
     console.error("Error updating calendar event:", error);
-    return NextResponse.json(
-      { error: "Error al actualizar evento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al actualizar evento");
   }
 }
 
-// DELETE /api/calendar/[id] - Eliminar evento (soft delete)
+// DELETE /api/calendar/[id]
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const { id } = await params;
 
-    // Verificar que existe
-    const existing = await prisma.calendarEvent.findFirst({
-      where: { id, ...notDeleted },
-    });
+    const result = await softDelete(prisma.calendarEvent, id, "Evento");
+    if (result.error) return result.error;
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: "Evento no encontrado" },
-        { status: 404 }
-      );
-    }
-
-    // Soft delete
-    await prisma.calendarEvent.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-
-    return NextResponse.json({ message: "Evento eliminado" });
+    return messageResponse("Evento eliminado");
   } catch (error) {
     console.error("Error deleting calendar event:", error);
-    return NextResponse.json(
-      { error: "Error al eliminar evento" },
-      { status: 500 }
-    );
+    return errorResponse("Error al eliminar evento");
   }
 }

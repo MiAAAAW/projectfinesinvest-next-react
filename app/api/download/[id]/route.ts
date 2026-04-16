@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { readStorageFile, getMimeFromExtension } from "@/lib/upload";
+import { getPresignedDownloadUrl, getR2KeyFromUrl } from "@/lib/r2";
 import { getCurrentUser } from "@/lib/auth";
 import path from "path";
 
@@ -53,7 +54,44 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Leer archivo del storage privado
+    // Obtener nombre de archivo y extensión
+    const filename = path.basename(document.fileUrl);
+    const ext = path.extname(filename);
+
+    // Crear nombre amigable para descarga (usar título del documento)
+    const safeTitle = document.title
+      .replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s-]/g, "")
+      .replace(/\s+/g, "_")
+      .substring(0, 50);
+    const downloadName = `${safeTitle}${ext}`;
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FLUJO 1: Archivo en Cloudflare R2 (formato nuevo) → Presigned URL
+    // ═══════════════════════════════════════════════════════════════════════════
+    const r2Key = getR2KeyFromUrl(document.fileUrl);
+    if (r2Key) {
+      // Incrementar contador de descargas solo para usuarios públicos
+      if (!isAdmin) {
+        prisma.document.update({
+          where: { id },
+          data: { downloads: { increment: 1 } },
+        }).catch(err => console.error("Error updating download count:", err));
+      }
+
+      // Generar URL firmada con Content-Disposition personalizado
+      const signedUrl = await getPresignedDownloadUrl(r2Key, {
+        downloadFilename: downloadName,
+        forceDownload,
+        expiresIn: 300, // 5 minutos
+      });
+
+      // Redirect al browser - descarga directo de R2, no pasa por este server
+      return NextResponse.redirect(signedUrl);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FLUJO 2: Archivo en storage local (legacy) → leer disco y servir buffer
+    // ═══════════════════════════════════════════════════════════════════════════
     const fileBuffer = await readStorageFile(document.fileUrl);
 
     if (!fileBuffer) {
@@ -64,7 +102,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Incrementar contador de descargas solo para usuarios públicos (no admin)
+    // Incrementar contador de descargas solo para usuarios públicos
     if (!isAdmin) {
       prisma.document.update({
         where: { id },
@@ -72,21 +110,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }).catch(err => console.error("Error updating download count:", err));
     }
 
-    // Obtener nombre de archivo y content-type
-    const filename = path.basename(document.fileUrl);
     const contentType = getMimeFromExtension(filename);
-
-    // Crear nombre amigable para descarga (usar título del documento)
-    const safeTitle = document.title
-      .replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ\s-]/g, "")
-      .replace(/\s+/g, "_")
-      .substring(0, 50);
-    const ext = path.extname(filename);
-    const downloadName = `${safeTitle}${ext}`;
-
-    // Servir archivo
-    // inline = mostrar en navegador (PDFs, imágenes)
-    // attachment = forzar descarga
     const disposition = forceDownload ? "attachment" : "inline";
 
     return new NextResponse(fileBuffer as any, {
@@ -95,7 +119,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         "Content-Type": contentType,
         "Content-Disposition": `${disposition}; filename="${downloadName}"`,
         "Content-Length": fileBuffer.length.toString(),
-        "Cache-Control": "no-store, no-cache, must-revalidate", // Sin cache para desarrollo
+        "Cache-Control": "no-store, no-cache, must-revalidate",
         "X-Content-Type-Options": "nosniff",
       },
     });

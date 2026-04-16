@@ -82,6 +82,12 @@ import {
   LayoutGrid,
   Camera,
   Image,
+  Wifi,
+  Languages,
+  Megaphone,
+  Lightbulb,
+  FileSignature,
+  Handshake,
   type LucideIcon,
 } from "lucide-react";
 
@@ -165,6 +171,12 @@ const iconMap: Record<string, LucideIcon> = {
   LayoutGrid,
   Camera,
   Image,
+  Wifi,
+  Languages,
+  Megaphone,
+  Lightbulb,
+  FileSignature,
+  Handshake,
 };
 
 interface DynamicIconProps {
@@ -181,8 +193,9 @@ export function DynamicIcon({ name, className, size = 24 }: DynamicIconProps) {
   const Icon = iconMap[name];
 
   if (!Icon) {
-    console.warn(`Icon "${name}" not found in iconMap`);
-    return null;
+    console.warn(`Icon "${name}" not found in iconMap, using fallback`);
+    const Fallback = iconMap["FlaskConical"];
+    return <Fallback className={className} size={size} />;
   }
 
   return <Icon className={className} size={size} />;
@@ -276,5 +289,9 @@ export {
   LayoutGrid,
   Camera,
   Image,
+  Wifi,
+  Languages,
+  Megaphone,
+  Lightbulb,
   type LucideIcon,
 };

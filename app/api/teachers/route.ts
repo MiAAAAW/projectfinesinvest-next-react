@@ -7,15 +7,23 @@ import { normalizeUrl } from "@/lib/url-utils";
 // Schema de validación para crear docente
 const teacherSchema = z.object({
   name: z.string().min(1, "Nombre requerido"),
+  code: z.string().optional().nullable(),
   email: z.string().email("Email inválido").optional().nullable(),
   phone: z.string().optional().nullable(),
   avatarUrl: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
   specialty: z.string().optional().nullable(),
   degree: z.string().optional().nullable(),
+  academicTitle: z.string().optional().nullable(),
+  category: z.string().optional().nullable(),
+  employmentType: z.string().optional().nullable(),
   orcid: z.string().optional().nullable().transform(v => normalizeUrl(v, 'orcid')),
   googleScholar: z.string().optional().nullable().transform(v => normalizeUrl(v, 'googleScholar')),
   linkedin: z.string().optional().nullable().transform(v => normalizeUrl(v, 'linkedin')),
+  researchGate: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
+  personalWebsite: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
+  ctiVitaeUrl: z.string().optional().nullable().transform(v => normalizeUrl(v, 'generic')),
   bio: z.string().optional().nullable(),
+  hindex: z.number().int().min(0).optional().nullable(),
   userId: z.string().optional().nullable(),
   published: z.boolean().default(true),
   order: z.number().default(0),
@@ -48,6 +56,12 @@ export async function GET(request: NextRequest) {
       where.published = true;
     } else if (status === "draft") {
       where.published = false;
+    }
+
+    // Filtro RENACYT
+    const isRenacyt = searchParams.get("isRenacyt");
+    if (isRenacyt === "true") {
+      where.isRenacyt = true;
     }
 
     // Obtener total y datos
@@ -146,15 +160,23 @@ export async function POST(request: NextRequest) {
     const teacher = await prisma.teacher.create({
       data: {
         name: data.name,
+        code: data.code,
         email: data.email,
         phone: data.phone,
         avatarUrl: data.avatarUrl,
         specialty: data.specialty,
         degree: data.degree,
+        academicTitle: data.academicTitle,
+        category: data.category,
+        employmentType: data.employmentType,
         orcid: data.orcid,
         googleScholar: data.googleScholar,
         linkedin: data.linkedin,
+        researchGate: data.researchGate,
+        personalWebsite: data.personalWebsite,
+        ctiVitaeUrl: data.ctiVitaeUrl,
         bio: data.bio,
+        hindex: data.hindex,
         userId: data.userId,
         published: data.published,
         order: data.order,

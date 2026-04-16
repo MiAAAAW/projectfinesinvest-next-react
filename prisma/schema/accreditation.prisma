@@ -1,0 +1,48 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// ACCREDITATION · Standards → SubEvidences → Documents (1:N)
+//
+// Los PDFs (AccreditationDocument antes) se fusionaron con la tabla `documents`
+// principal, para que aparezcan automáticamente en el Centro de Documentos del
+// landing (category="acreditacion"). La relación es 1:N:
+//   · 1 SubEvidence puede tener N Documents
+//   · Un Document puede (opcionalmente) pertenecer a 1 SubEvidence
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model AccreditationStandard {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  description String?   @db.Text
+  order       Int       @default(0)
+  published   Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  subEvidences AccreditationSubEvidence[]
+
+  @@index([deletedAt])
+  @@index([order])
+  @@map("accreditation_standards")
+}
+
+model AccreditationSubEvidence {
+  id         String    @id @default(cuid())
+  standardId String    @map("standard_id")
+  code       String
+  name       String
+  category   String
+  order      Int       @default(0)
+  published  Boolean   @default(true)
+  deletedAt  DateTime? @map("deleted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  standard  AccreditationStandard @relation(fields: [standardId], references: [id], onDelete: Cascade)
+  documents Document[]
+
+  @@index([standardId])
+  @@index([deletedAt])
+  @@index([category])
+  @@map("accreditation_sub_evidences")
+}

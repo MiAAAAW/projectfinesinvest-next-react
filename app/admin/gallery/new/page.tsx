@@ -56,10 +56,16 @@ export default function NewGalleryImagePage() {
     setIsLoading(true);
 
     try {
-      // Paso 1: Subir archivo a storage
+      // Paso 1: Subir archivo a storage.
+      // Folder anidado por categoría → en R2 quedan organizadas
+      // (gallery/eventos, gallery/talleres, etc.). Fallback a "gallery"
+      // si la categoría llegara vacía (no debería, el Select tiene default).
       const uploadFormData = new FormData();
       uploadFormData.append("file", file);
-      uploadFormData.append("category", "gallery");
+      uploadFormData.append(
+        "folder",
+        formData.category ? `gallery/${formData.category}` : "gallery",
+      );
 
       const uploadRes = await fetch("/api/upload", {
         method: "POST",
@@ -72,14 +78,18 @@ export default function NewGalleryImagePage() {
       }
 
       const uploadData = await uploadRes.json();
-      const filePath = uploadData.data.filePath;
+      // /api/upload (R2) devuelve { url, key, ... } — usamos la url pública
+      const fileUrl: string | undefined = uploadData?.data?.url;
+      if (!fileUrl) {
+        throw new Error("La subida no devolvió una URL válida");
+      }
 
-      // Paso 2: Crear registro en galería con el path del archivo
+      // Paso 2: Crear registro en galería con la URL del archivo
       const galleryRes = await fetch("/api/gallery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          src: filePath,
+          src: fileUrl,
           alt: formData.alt,
           caption: formData.caption || null,
           event: formData.event || null,

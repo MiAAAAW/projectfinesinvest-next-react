@@ -1,0 +1,22 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// EXTERNAL LINKS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ExternalLink {
+  id          String    @id @default(cuid())
+  title       String
+  url         String
+  description String?
+  category    String
+  icon        String    @default("ExternalLink")
+  order       Int       @default(0)
+  published   Boolean   @default(true)
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([deletedAt])
+  @@index([category])
+  @@index([order])
+  @@map("external_links")
+}

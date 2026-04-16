@@ -8,18 +8,15 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { FileUpload } from "@/components/admin/FileUpload";
+import {
+  CreatePageHeader, PublishSettingsCard, FormActionsCard, FileUpload,
+} from "@/components/admin";
 
 export default function NewAuthorityPage() {
   const router = useRouter();
@@ -57,7 +54,7 @@ export default function NewAuthorityPage() {
       if (file) {
         const uploadFormData = new FormData();
         uploadFormData.append("file", file);
-        uploadFormData.append("category", "authorities");
+        uploadFormData.append("folder", "authorities");
 
         const uploadRes = await fetch("/api/upload", {
           method: "POST",
@@ -115,20 +112,11 @@ export default function NewAuthorityPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/admin/authorities">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Nueva Autoridad</h1>
-          <p className="text-muted-foreground">
-            Agrega una nueva autoridad a la Dirección de Investigación
-          </p>
-        </div>
-      </div>
+      <CreatePageHeader
+        backHref="/admin/authorities"
+        title="Nueva Autoridad"
+        description="Agrega una nueva autoridad a la Dirección de Investigación"
+      />
 
       <form onSubmit={handleSubmit}>
         <div className="grid gap-6 lg:grid-cols-3">
@@ -326,70 +314,18 @@ export default function NewAuthorityPage() {
               </CardContent>
             </Card>
 
-            {/* Publish Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Publicación</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Published */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="published">Publicar</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Visible en el landing
-                    </p>
-                  </div>
-                  <Switch
-                    id="published"
-                    checked={formData.published}
-                    onCheckedChange={(checked) => updateField("published", checked)}
-                  />
-                </div>
+            <PublishSettingsCard
+              published={formData.published}
+              onPublishedChange={(checked) => updateField("published", checked)}
+              order={formData.order}
+              onOrderChange={(value) => updateField("order", value)}
+            />
 
-                <Separator />
-
-                {/* Order */}
-                <div className="space-y-2">
-                  <Label htmlFor="order">Orden de aparición</Label>
-                  <Input
-                    id="order"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    value={formData.order}
-                    onChange={(e) => updateField("order", e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Menor número = aparece primero
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Actions */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col gap-2">
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        Guardando...
-                      </span>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Guardar autoridad
-                      </>
-                    )}
-                  </Button>
-                  <Button type="button" variant="outline" asChild>
-                    <Link href="/admin/authorities">Cancelar</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <FormActionsCard
+              isLoading={isLoading}
+              cancelHref="/admin/authorities"
+              saveLabel="Guardar autoridad"
+            />
           </div>
         </div>
       </form>

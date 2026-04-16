@@ -87,19 +87,40 @@ export const landingConfig: LandingConfig = {
       href: "/",
     },
     items: [
-      { label: "Inicio", href: "#" },
-      { label: "Anuncios", href: "#announcements" },
-      { label: "Líneas de Investigación", href: "#research" },
-      { label: "Documentos", href: "#documents" },
-      { label: "Calendario", href: "#calendar" },
-      { label: "Galería", href: "#gallery" },
-      { label: "Autoridades", href: "#authorities" },
-      { label: "Oficinas", href: "#offices" },
-      // { label: "FAQ", href: "#faq" }, // COMENTADO: FAQ desactivado
+      { label: "Anuncios", href: "/#announcements" },
+      {
+        label: "Investigación",
+        href: "/#research",
+        children: [
+          { label: "Líneas de Investigación", href: "/#research" },
+          { label: "Grupos", href: "/investigacion/grupos" },
+          { label: "Semilleros", href: "/investigacion/semilleros" },
+          { label: "Publicaciones", href: "/investigacion/publicaciones" },
+          { label: "Docentes", href: "/investigacion/docentes" },
+          { label: "Ética", href: "/investigacion/etica" },
+        ],
+      },
+      {
+        label: "Documentos",
+        href: "/#documents",
+        children: [
+          { label: "Documentos y Formatos", href: "/#documents" },
+          { label: "Resoluciones Decanales", href: "/resoluciones/decanales" },
+          { label: "Resoluciones Rectorales", href: "/resoluciones/rectorales" },
+          { label: "Convenios", href: "/convenios" },
+        ],
+      },
+      { label: "Posgrado", href: "/posgrado" },
+      {
+        label: "Acreditación",
+        href: "/acreditacion",
+        dynamicSource: "accreditation", // children se cargan desde /api/public/accreditation/nav
+      },
+      { label: "Contacto", href: "/#offices" },
     ],
     cta: {
-      text: "Contactar",
-      href: "#offices",
+      text: "Admin",
+      href: "/admin",
     },
   },
 
@@ -121,11 +142,11 @@ export const landingConfig: LandingConfig = {
     cta: {
       primary: {
         text: "Ver Convocatorias",
-        href: "#announcements",
+        href: "/#announcements",
       },
       secondary: {
         text: "Líneas de Investigación",
-        href: "#research",
+        href: "/#research",
       },
     },
     enable3D: false,
@@ -185,7 +206,7 @@ export const landingConfig: LandingConfig = {
         content: "Se han actualizado los formatos para la presentación de proyectos de investigación. Descargar desde la sección de documentos.",
         excerpt: "Nuevos formatos disponibles para descargar",
         icon: "Download",
-        href: "#documents",
+        href: "/#documents",
       },
     ],
   },
@@ -268,68 +289,7 @@ export const landingConfig: LandingConfig = {
     subtitle: "Reglamentos, formatos y documentos institucionales",
     showSearch: true,
     categories: ["reglamentos", "formatos", "manuales", "investigacion"],
-    items: [
-      {
-        id: "1",
-        title: "Reglamento de Investigación FINESI 2026",
-        description: "Normativa vigente para proyectos de investigación",
-        fileUrl: "/docs/reglamento-investigacion-2026.pdf",
-        fileType: "pdf",
-        fileSize: "2.5 MB",
-        category: "reglamentos",
-        updatedAt: "2026-01-01",
-      },
-      {
-        id: "2",
-        title: "Formato de Proyecto de Investigación",
-        description: "Plantilla para presentar proyectos de investigación",
-        fileUrl: "/docs/formato-proyecto.docx",
-        fileType: "doc",
-        fileSize: "156 KB",
-        category: "formatos",
-        updatedAt: "2026-01-02",
-      },
-      {
-        id: "3",
-        title: "Formato de Informe Final",
-        description: "Plantilla para el informe final de investigación",
-        fileUrl: "/docs/formato-informe-final.docx",
-        fileType: "doc",
-        fileSize: "180 KB",
-        category: "formatos",
-        updatedAt: "2026-01-02",
-      },
-      {
-        id: "4",
-        title: "Formato de Presupuesto",
-        description: "Plantilla para el presupuesto de proyectos",
-        fileUrl: "/docs/formato-presupuesto.xlsx",
-        fileType: "xls",
-        fileSize: "45 KB",
-        category: "formatos",
-        updatedAt: "2026-01-02",
-      },
-      {
-        id: "5",
-        title: "Manual de Publicaciones Científicas",
-        description: "Guía para la publicación de artículos científicos",
-        fileUrl: "/docs/manual-publicaciones.pdf",
-        fileType: "pdf",
-        fileSize: "1.8 MB",
-        category: "manuales",
-        updatedAt: "2025-12-15",
-      },
-      {
-        id: "6",
-        title: "Líneas de Investigación Aprobadas",
-        description: "Documento oficial de líneas de investigación",
-        fileUrl: "/docs/lineas-investigacion.pdf",
-        fileType: "pdf",
-        fileSize: "890 KB",
-        category: "investigacion",
-        updatedAt: "2025-11-20",
-      },
-    ],
+    items: [],
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -474,7 +434,7 @@ export const landingConfig: LandingConfig = {
     subtitle: "Información sobre trámites y procedimientos",
     contactLink: {
       text: "¿Tienes más preguntas? Visítanos en la oficina",
-      href: "#offices",
+      href: "/#offices",
     },
     items: [
       {
@@ -524,19 +484,19 @@ export const landingConfig: LandingConfig = {
       {
         title: "Navegación",
         links: [
-          { text: "Inicio", href: "#" },
-          { text: "Anuncios", href: "#announcements" },
-          { text: "Investigación", href: "#research" },
-          { text: "Documentos", href: "#documents" },
+          { text: "Inicio", href: "/" },
+          { text: "Anuncios", href: "/#announcements" },
+          { text: "Investigación", href: "/#research" },
+          { text: "Documentos", href: "/#documents" },
         ],
       },
       {
         title: "Recursos",
         links: [
-          { text: "Calendario", href: "#calendar" },
-          { text: "Galería", href: "#gallery" },
-          { text: "Autoridades", href: "#authorities" },
-          { text: "Oficinas", href: "#offices" },
+          { text: "Calendario", href: "/#calendar" },
+          { text: "Galería", href: "/#gallery" },
+          { text: "Autoridades", href: "/#authorities" },
+          { text: "Oficinas", href: "/#offices" },
         ],
       },
       {

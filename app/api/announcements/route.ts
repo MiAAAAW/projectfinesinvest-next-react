@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { normalizeUrl } from "@/lib/url-utils";
+import { requireAuth, validateBody, errorResponse, successResponse } from "@/lib/api-utils";
 
-// Schema de validación para crear/actualizar anuncio
+// Schema de validación para crear anuncio
 const announcementSchema = z.object({
   title: z.string().min(1, "Título requerido"),
   content: z.string().min(1, "Contenido requerido"),
@@ -27,10 +27,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    // Construir filtros
-    const where: Record<string, unknown> = {
-      ...notDeleted,
-    };
+    const where: Record<string, unknown> = { ...notDeleted };
 
     if (search) {
       where.OR = [
@@ -39,17 +36,11 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (type) {
-      where.type = type;
-    }
+    if (type) where.type = type;
 
-    if (status === "published") {
-      where.published = true;
-    } else if (status === "draft") {
-      where.published = false;
-    }
+    if (status === "published") where.published = true;
+    else if (status === "draft") where.published = false;
 
-    // Obtener total y datos
     const [total, announcements] = await Promise.all([
       prisma.announcement.count({ where }),
       prisma.announcement.findMany({
@@ -62,45 +53,27 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: announcements,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
     console.error("Error fetching announcements:", error);
-    return NextResponse.json(
-      { error: "Error al obtener anuncios" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener anuncios");
   }
 }
 
 // POST /api/announcements - Crear anuncio
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const body = await request.json();
 
-    // Validar datos
-    const result = announcementSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, announcementSchema);
+    if (validation.error) return validation.error;
 
-    const data = result.data;
+    const data = validation.data;
 
-    // Crear anuncio
     const announcement = await prisma.announcement.create({
       data: {
         title: data.title,
@@ -115,12 +88,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ data: announcement }, { status: 201 });
+    return successResponse(announcement, 201);
   } catch (error) {
     console.error("Error creating announcement:", error);
-    return NextResponse.json(
-      { error: "Error al crear anuncio" },
-      { status: 500 }
-    );
+    return errorResponse("Error al crear anuncio");
   }
 }

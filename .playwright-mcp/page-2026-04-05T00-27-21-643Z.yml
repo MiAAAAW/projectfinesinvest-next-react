@@ -1,0 +1,31 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "Volver al inicio" [ref=e4] [cursor=pointer]:
+      - /url: /
+      - img [ref=e5]
+      - text: Volver al inicio
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - img [ref=e10]
+        - generic [ref=e13]: Panel Administrativo
+        - generic [ref=e14]: Ingresa tus credenciales para acceder al panel de administración de FINESI
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: Correo electrónico
+          - generic [ref=e19]:
+            - img [ref=e20]
+            - textbox "Correo electrónico" [ref=e23]:
+              - /placeholder: admin@finesi.edu.pe
+        - generic [ref=e24]:
+          - generic [ref=e25]: Contraseña
+          - generic [ref=e26]:
+            - img [ref=e27]
+            - textbox "Contraseña" [ref=e30]:
+              - /placeholder: ••••••••
+            - button [ref=e31]:
+              - img [ref=e32]
+        - button "Iniciar sesión" [ref=e35]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e41] [cursor=pointer]:
+    - img [ref=e42]
+  - alert [ref=e45]

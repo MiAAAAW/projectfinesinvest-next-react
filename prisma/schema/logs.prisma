@@ -1,0 +1,250 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// ALL LOG MODELS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model UserLog {
+  id        String     @id @default(cuid())
+  userId    String     @map("user_id")
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  fieldName String?    @map("field_name")
+  oldValue  String?    @map("old_value")
+  newValue  String?    @map("new_value")
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  user          User  @relation("UserChanges", fields: [userId], references: [id], onDelete: Cascade)
+  changedByUser User? @relation("UserChangedBy", fields: [changedBy], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("user_logs")
+}
+
+model UserRoleLog {
+  id         String     @id @default(cuid())
+  userRoleId String     @map("user_role_id")
+  userId     String     @map("user_id")
+  roleId     String     @map("role_id")
+  changedBy  String?    @map("changed_by")
+  action     RoleAction
+  oldContext String?    @map("old_context")
+  newContext String?    @map("new_context")
+  oldActive  Boolean?   @map("old_active")
+  newActive  Boolean?   @map("new_active")
+  reason     String?
+  ipAddress  String?    @map("ip_address")
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([roleId])
+  @@index([createdAt])
+  @@map("user_role_logs")
+}
+
+model RoleLog {
+  id        String     @id @default(cuid())
+  roleId    String     @map("role_id")
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  fieldName String?    @map("field_name")
+  oldValue  String?    @map("old_value")
+  newValue  String?    @map("new_value")
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([roleId])
+  @@index([createdAt])
+  @@map("role_logs")
+}
+
+model RolePermissionLog {
+  id           String           @id @default(cuid())
+  roleId       String           @map("role_id")
+  permissionId String           @map("permission_id")
+  changedBy    String?          @map("changed_by")
+  action       PermissionAction
+  reason       String?
+  ipAddress    String?          @map("ip_address")
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  @@index([roleId])
+  @@index([createdAt])
+  @@map("role_permission_logs")
+}
+
+model AnnouncementLog {
+  id             String     @id @default(cuid())
+  announcementId String     @map("announcement_id")
+  changedBy      String?    @map("changed_by")
+  action         DataAction
+  fieldName      String?    @map("field_name")
+  oldValue       String?    @map("old_value") @db.Text
+  newValue       String?    @map("new_value") @db.Text
+  reason         String?
+  ipAddress      String?    @map("ip_address")
+  createdAt      DateTime   @default(now()) @map("created_at")
+
+  @@index([announcementId])
+  @@index([createdAt])
+  @@map("announcement_logs")
+}
+
+model DocumentLog {
+  id         String     @id @default(cuid())
+  documentId String     @map("document_id")
+  changedBy  String?    @map("changed_by")
+  action     DataAction
+  fieldName  String?    @map("field_name")
+  oldValue   String?    @map("old_value") @db.Text
+  newValue   String?    @map("new_value") @db.Text
+  reason     String?
+  ipAddress  String?    @map("ip_address")
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@index([documentId])
+  @@index([createdAt])
+  @@map("document_logs")
+}
+
+model GalleryImageLog {
+  id        String     @id @default(cuid())
+  imageId   String     @map("image_id")
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  fieldName String?    @map("field_name")
+  oldValue  String?    @map("old_value")
+  newValue  String?    @map("new_value")
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([imageId])
+  @@index([createdAt])
+  @@map("gallery_image_logs")
+}
+
+model SiteContentLog {
+  id        String     @id @default(cuid())
+  contentId String     @map("content_id")
+  section   String
+  key       String
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  oldValue  String?    @map("old_value") @db.Text
+  newValue  String?    @map("new_value") @db.Text
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([contentId])
+  @@index([section])
+  @@index([createdAt])
+  @@map("site_content_logs")
+}
+
+model ResearchLineLog {
+  id             String     @id @default(cuid())
+  researchLineId String     @map("research_line_id")
+  changedBy      String?    @map("changed_by")
+  action         DataAction
+  fieldName      String?    @map("field_name")
+  oldValue       String?    @map("old_value") @db.Text
+  newValue       String?    @map("new_value") @db.Text
+  reason         String?
+  ipAddress      String?    @map("ip_address")
+  createdAt      DateTime   @default(now()) @map("created_at")
+
+  @@index([researchLineId])
+  @@index([createdAt])
+  @@map("research_line_logs")
+}
+
+model CalendarEventLog {
+  id        String     @id @default(cuid())
+  eventId   String     @map("event_id")
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  fieldName String?    @map("field_name")
+  oldValue  String?    @map("old_value") @db.Text
+  newValue  String?    @map("new_value") @db.Text
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([eventId])
+  @@index([createdAt])
+  @@map("calendar_event_logs")
+}
+
+model AuthorityLog {
+  id          String     @id @default(cuid())
+  authorityId String     @map("authority_id")
+  changedBy   String?    @map("changed_by")
+  action      DataAction
+  fieldName   String?    @map("field_name")
+  oldValue    String?    @map("old_value") @db.Text
+  newValue    String?    @map("new_value") @db.Text
+  reason      String?
+  ipAddress   String?    @map("ip_address")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([authorityId])
+  @@index([createdAt])
+  @@map("authority_logs")
+}
+
+model OfficeLog {
+  id        String     @id @default(cuid())
+  officeId  String     @map("office_id")
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  fieldName String?    @map("field_name")
+  oldValue  String?    @map("old_value") @db.Text
+  newValue  String?    @map("new_value") @db.Text
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([officeId])
+  @@index([createdAt])
+  @@map("office_logs")
+}
+
+model TeacherLog {
+  id        String     @id @default(cuid())
+  teacherId String     @map("teacher_id")
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  fieldName String?    @map("field_name")
+  oldValue  String?    @map("old_value") @db.Text
+  newValue  String?    @map("new_value") @db.Text
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([teacherId])
+  @@index([createdAt])
+  @@map("teacher_logs")
+}
+
+model StudentLog {
+  id        String     @id @default(cuid())
+  studentId String     @map("student_id")
+  changedBy String?    @map("changed_by")
+  action    DataAction
+  fieldName String?    @map("field_name")
+  oldValue  String?    @map("old_value") @db.Text
+  newValue  String?    @map("new_value") @db.Text
+  reason    String?
+  ipAddress String?    @map("ip_address")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([createdAt])
+  @@map("student_logs")
+}

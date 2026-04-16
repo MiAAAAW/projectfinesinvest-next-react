@@ -6,58 +6,22 @@
 // Conectado a API real con PostgreSQL
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Download,
-  ExternalLink,
-  Filter,
-  Loader2,
-} from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import { CATEGORY_LABELS, FILE_TYPE_ICONS } from "@/lib/admin-constants";
+import { useEntityList } from "@/hooks/use-entity-list";
+import { FilterCard, DeleteConfirmDialog } from "@/components/admin";
 
 interface Document {
   id: string;
@@ -73,72 +37,48 @@ interface Document {
   updatedAt: string;
 }
 
+const FILTERS = [
+  {
+    key: "category",
+    placeholder: "Categoría",
+    options: [
+      { value: "all", label: "Todas las categorías" },
+      { value: "reglamentos", label: "Reglamentos" },
+      { value: "formatos", label: "Formatos" },
+      { value: "manuales", label: "Manuales" },
+      { value: "investigacion", label: "Investigación" },
+    ],
+  },
+  {
+    key: "status",
+    placeholder: "Estado",
+    options: [
+      { value: "all", label: "Todos" },
+      { value: "published", label: "Publicados" },
+      { value: "draft", label: "Ocultos" },
+    ],
+  },
+];
+
 export default function DocumentsPage() {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
-  // Fetch documents from API
-  const fetchDocuments = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (searchQuery) params.set("search", searchQuery);
-      if (categoryFilter !== "all") params.set("category", categoryFilter);
-      if (statusFilter !== "all") params.set("status", statusFilter);
-
-      const res = await fetch(`/api/documents?${params.toString()}`);
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.error || "Error al cargar documentos");
-      }
-
-      setDocuments(json.data || []);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-      toast.error("Error al cargar documentos");
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, categoryFilter, statusFilter]);
-
-  useEffect(() => {
-    fetchDocuments();
-  }, [fetchDocuments]);
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-
-    try {
-      setDeleting(true);
-      const res = await fetch(`/api/documents/${deleteId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error || "Error al eliminar");
-      }
-
-      toast.success("Documento eliminado");
-      setDeleteId(null);
-      fetchDocuments();
-    } catch (error) {
-      console.error("Error deleting document:", error);
-      toast.error("Error al eliminar documento");
-    } finally {
-      setDeleting(false);
-    }
-  };
+  const {
+    items: documents,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    filters,
+    setFilter,
+    deleteId,
+    setDeleteId,
+    deleting,
+    handleDelete,
+  } = useEntityList<Document>({
+    endpoint: "/api/documents",
+    entityName: "documento",
+  });
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Documentos</h1>
@@ -154,57 +94,15 @@ export default function DocumentsPage() {
         </Button>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar documentos..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+      <FilterCard
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Buscar documentos..."
+        filters={FILTERS}
+        filterValues={filters}
+        onFilterChange={setFilter}
+      />
 
-            {/* Category Filter */}
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Categoría" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las categorías</SelectItem>
-                <SelectItem value="reglamentos">Reglamentos</SelectItem>
-                <SelectItem value="formatos">Formatos</SelectItem>
-                <SelectItem value="manuales">Manuales</SelectItem>
-                <SelectItem value="investigacion">Investigación</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="published">Publicados</SelectItem>
-                <SelectItem value="draft">Ocultos</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Table */}
       <Card>
         <CardContent className="p-0 overflow-x-auto">
           <Table>
@@ -220,7 +118,6 @@ export default function DocumentsPage() {
             </TableHeader>
             <TableBody>
               {loading ? (
-                // Loading skeleton
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell>
@@ -278,9 +175,7 @@ export default function DocumentsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={doc.published ? "default" : "outline"}
-                        >
+                        <Badge variant={doc.published ? "default" : "outline"}>
                           {doc.published ? "Publicado" : "Oculto"}
                         </Badge>
                       </TableCell>
@@ -325,35 +220,21 @@ export default function DocumentsPage() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar documento?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. El documento y su archivo serán
-              eliminados permanentemente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Eliminando...
-                </>
-              ) : (
-                "Eliminar"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        isDeleting={deleting}
+        title={(() => {
+          const d = documents.find((doc) => doc.id === deleteId);
+          return d ? `¿Eliminar "${d.title}"?` : "¿Eliminar documento?";
+        })()}
+        description="El archivo será removido del almacenamiento y desaparecerá del Centro de Documentos público. El registro queda en histórico para auditoría."
+        files={(() => {
+          const d = documents.find((doc) => doc.id === deleteId);
+          return d ? [{ name: d.title, sizeLabel: d.fileSize }] : [];
+        })()}
+      />
     </div>
   );
 }

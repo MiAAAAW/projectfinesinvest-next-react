@@ -1,0 +1,44 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// BASE - Generator, Datasource & Enums
+// ═══════════════════════════════════════════════════════════════════════════════
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../lib/generated/prisma"
+  previewFeatures = ["driverAdapters", "prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SessionAction {
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  PASSWORD_RESET
+  TOKEN_REFRESH
+}
+
+enum DataAction {
+  CREATE
+  UPDATE
+  DELETE
+  ACTIVATE
+  DEACTIVATE
+}
+
+enum RoleAction {
+  ASSIGNED
+  REMOVED
+  ACTIVATED
+  DEACTIVATED
+  CONTEXT_CHANGED
+  VALIDITY_CHANGED
+}
+
+enum PermissionAction {
+  GRANTED
+  REVOKED
+}

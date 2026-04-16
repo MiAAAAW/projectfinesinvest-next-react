@@ -79,11 +79,10 @@ export default function NewDocumentPage() {
     setIsLoading(true);
 
     try {
-      // 1. Subir archivo a /api/upload con nomenclatura profesional
+      // 1. Subir archivo a R2
       const uploadFormData = new FormData();
       uploadFormData.append("file", file);
-      uploadFormData.append("category", "documents");
-      uploadFormData.append("subCategory", formData.category); // REG, FRM, MAN, INV
+      uploadFormData.append("folder", `documents/${formData.category}`);
 
       const uploadRes = await fetch("/api/upload", {
         method: "POST",
@@ -96,7 +95,7 @@ export default function NewDocumentPage() {
         throw new Error(uploadJson.error || "Error al subir archivo");
       }
 
-      const fileUrl = uploadJson.data.filePath; // Path interno (storage/documents/...)
+      const fileUrl = uploadJson.data.url;
       const fileType = getFileType(file);
       const fileSize = formatFileSize(file.size);
 
@@ -167,7 +166,7 @@ export default function NewDocumentPage() {
               <CardContent>
                 <FileUpload
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                  maxSize={50}
+                  maxSize={100}
                   value={file}
                   onChange={(f) => setFile(f as File | null)}
                 />

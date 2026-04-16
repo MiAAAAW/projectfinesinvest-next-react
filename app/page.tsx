@@ -22,10 +22,14 @@ import Calendar from "@/components/sections/Calendar";
 
 // Animation Components
 import { ScrollProgressWrapper } from "@/components/ui/scroll-progress-wrapper";
+import { HashScrollOnLoad } from "@/components/layout/HashScrollOnLoad";
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen">
+      {/* Replica el scroll del Navbar handler cuando la página carga con #hash */}
+      <HashScrollOnLoad />
+
       {/* Scroll Progress Indicator */}
       <ScrollProgressWrapper />
 
@@ -50,14 +54,15 @@ export default function LandingPage() {
         <Documents config={landingConfig.documents} />
       )}
 
+      {/* Gallery Section - Galería de Fotos */}
+      {/* Respiro visual entre Documentos (text-heavy) y Calendario */}
+      {landingConfig.gallery && (
+        <Gallery config={landingConfig.gallery} />
+      )}
+
       {/* Calendar Section - Calendario de Eventos */}
       {landingConfig.calendar && (
         <Calendar config={landingConfig.calendar} />
-      )}
-
-      {/* Gallery Section - Galería de Fotos */}
-      {landingConfig.gallery && (
-        <Gallery config={landingConfig.gallery} />
       )}
 
       {/* Authorities Section - Autoridades */}

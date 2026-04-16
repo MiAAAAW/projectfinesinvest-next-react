@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma, notDeleted } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { z } from "zod";
 import { normalizeUrl } from "@/lib/url-utils";
+import { requireAuth, validateBody, errorResponse, successResponse } from "@/lib/api-utils";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// OFFICES API
-// GET /api/offices - Listar oficinas
-// POST /api/offices - Crear nueva oficina
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// Schema de validación para crear oficina
 const createOfficeSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   description: z.string().optional().nullable(),
@@ -19,7 +12,7 @@ const createOfficeSchema = z.object({
   floor: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
   email: z.string().email("Email inválido").optional().nullable().or(z.literal("")),
-  schedule: z.string().optional().nullable(), // JSON string
+  schedule: z.string().optional().nullable(),
   responsible: z.string().optional().nullable(),
   icon: z.string().default("Building2"),
   mapUrl: z.string().optional().nullable().or(z.literal("")).transform(v => normalizeUrl(v, 'googleMaps')),
@@ -27,25 +20,19 @@ const createOfficeSchema = z.object({
   order: z.number().int().default(0),
 });
 
-// GET - Listar oficinas
+// GET /api/offices - Listar oficinas
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status"); // published, draft, all
+    const status = searchParams.get("status");
     const search = searchParams.get("search");
     const limit = parseInt(searchParams.get("limit") || "50");
 
-    // Construir filtros
     const where: Record<string, unknown> = { ...notDeleted };
 
-    // Filtro por estado
-    if (status === "published") {
-      where.published = true;
-    } else if (status === "draft") {
-      where.published = false;
-    }
+    if (status === "published") where.published = true;
+    else if (status === "draft") where.published = false;
 
-    // Búsqueda
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
@@ -63,36 +50,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: offices });
   } catch (error) {
     console.error("Offices GET error:", error);
-    return NextResponse.json(
-      { error: "Error al obtener oficinas" },
-      { status: 500 }
-    );
+    return errorResponse("Error al obtener oficinas");
   }
 }
 
-// POST - Crear oficina
+// POST /api/offices - Crear oficina
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticación
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    const auth = await requireAuth();
+    if (auth.error) return auth.error;
 
     const body = await request.json();
 
-    // Validar datos
-    const validation = createOfficeSchema.safeParse(body);
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, createOfficeSchema);
+    if (validation.error) return validation.error;
 
     const data = validation.data;
 
-    // Crear oficina
     const office = await prisma.office.create({
       data: {
         name: data.name,
@@ -111,22 +85,19 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Log de creación
+    // Audit log
     await prisma.officeLog.create({
       data: {
         officeId: office.id,
-        changedBy: user.id,
+        changedBy: auth.user!.id,
         action: "CREATE",
         newValue: JSON.stringify(office),
       },
     });
 
-    return NextResponse.json({ data: office }, { status: 201 });
+    return successResponse(office, 201);
   } catch (error) {
     console.error("Offices POST error:", error);
-    return NextResponse.json(
-      { error: "Error al crear oficina" },
-      { status: 500 }
-    );
+    return errorResponse("Error al crear oficina");
   }
 }

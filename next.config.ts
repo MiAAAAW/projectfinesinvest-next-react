@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.supabase.co",
       },
+      // Cloudflare R2 public buckets — cubre cualquier bucket pub-*.r2.dev
+      // (incluye el actual del proyecto y futuros si se rotan credenciales).
+      {
+        protocol: "https",
+        hostname: "*.r2.dev",
+      },
     ],
   },
 

@@ -6,60 +6,22 @@
 // Conectado a API real con PostgreSQL
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-  Plus,
-  Search,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Eye,
-  Filter,
-  Loader2,
-  MapPin,
-  Phone,
-  Building2,
-} from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Eye, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import { DynamicIcon } from "@/lib/icons";
+import { useEntityList } from "@/hooks/use-entity-list";
+import { FilterCard, DeleteConfirmDialog } from "@/components/admin";
 
 interface Office {
   id: string;
@@ -80,66 +42,34 @@ interface Office {
   updatedAt: string;
 }
 
+const FILTERS = [
+  {
+    key: "status",
+    placeholder: "Estado",
+    options: [
+      { value: "all", label: "Todos" },
+      { value: "published", label: "Publicados" },
+      { value: "draft", label: "Ocultos" },
+    ],
+  },
+];
+
 export default function OfficesPage() {
-  const [offices, setOffices] = useState<Office[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
-  // Fetch offices from API
-  const fetchOffices = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (searchQuery) params.set("search", searchQuery);
-      if (statusFilter !== "all") params.set("status", statusFilter);
-
-      const res = await fetch(`/api/offices?${params.toString()}`);
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.error || "Error al cargar oficinas");
-      }
-
-      setOffices(json.data || []);
-    } catch (error) {
-      console.error("Error fetching offices:", error);
-      toast.error("Error al cargar oficinas");
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, statusFilter]);
-
-  useEffect(() => {
-    fetchOffices();
-  }, [fetchOffices]);
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-
-    try {
-      setDeleting(true);
-      const res = await fetch(`/api/offices/${deleteId}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error || "Error al eliminar");
-      }
-
-      toast.success("Oficina eliminada");
-      setDeleteId(null);
-      fetchOffices();
-    } catch (error) {
-      console.error("Error deleting office:", error);
-      toast.error("Error al eliminar oficina");
-    } finally {
-      setDeleting(false);
-    }
-  };
+  const {
+    items: offices,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    filters,
+    setFilter,
+    deleteId,
+    setDeleteId,
+    deleting,
+    handleDelete,
+  } = useEntityList<Office>({
+    endpoint: "/api/offices",
+    entityName: "oficina",
+  });
 
   return (
     <div className="space-y-6">
@@ -159,43 +89,15 @@ export default function OfficesPage() {
         </Button>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar oficinas..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+      <FilterCard
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Buscar oficinas..."
+        filters={FILTERS}
+        filterValues={filters}
+        onFilterChange={setFilter}
+      />
 
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="published">Publicados</SelectItem>
-                <SelectItem value="draft">Ocultos</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Table */}
       <Card>
         <CardContent className="p-0 overflow-x-auto">
           <Table>
@@ -212,7 +114,6 @@ export default function OfficesPage() {
             </TableHeader>
             <TableBody>
               {loading ? (
-                // Loading skeleton
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell>
@@ -271,9 +172,7 @@ export default function OfficesPage() {
                       {office.order}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={office.published ? "default" : "outline"}
-                      >
+                      <Badge variant={office.published ? "default" : "outline"}>
                         {office.published ? "Publicado" : "Oculto"}
                       </Badge>
                     </TableCell>
@@ -317,35 +216,14 @@ export default function OfficesPage() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar oficina?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. La oficina será
-              eliminada permanentemente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Eliminando...
-                </>
-              ) : (
-                "Eliminar"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        isDeleting={deleting}
+        title="¿Eliminar oficina?"
+        description="Esta acción no se puede deshacer. La oficina será eliminada permanentemente."
+      />
     </div>
   );
 }
