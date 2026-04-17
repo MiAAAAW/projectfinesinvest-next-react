@@ -63,6 +63,14 @@ export interface StandardDTO {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export function AccreditationExplorer({ standards }: { standards: StandardDTO[] }) {
+  // Pre-descarga el chunk del snippet (JS + WASM del engine PDFium) al montar
+  // la página. Cuando el usuario haga click en un doc, `await import()` dentro
+  // del viewer resuelve desde caché del navegador → init mucho más rápido.
+  // Fire-and-forget, sin efectos colaterales: sólo poblar el cache de módulos.
+  useEffect(() => {
+    void import("@embedpdf/snippet");
+  }, []);
+
   const [search, setSearch] = useState("");
   const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
@@ -191,7 +199,7 @@ export function AccreditationExplorer({ standards }: { standards: StandardDTO[] 
       </div>
 
       {/* Split layout */}
-      <div className="grid lg:grid-cols-[minmax(320px,_380px)_1fr] gap-4 h-[78vh] min-h-[560px]">
+      <div className="grid lg:grid-cols-[minmax(260px,_300px)_1fr] gap-3 h-[82vh] min-h-[600px]">
         {/* ─── TREE IZQUIERDA ─── */}
         <aside className="rounded-lg border bg-card/40 backdrop-blur-sm overflow-hidden flex flex-col min-h-0">
           <ScrollArea className="flex-1 min-h-0">
@@ -427,6 +435,19 @@ function EvidenceViewer({
   selectedDoc: DocumentDTO | null;
   onSelectDoc: (id: string) => void;
 }) {
+  // Orden numérico por código (E22.1.0 < E22.1.2 < E22.1.10 — no alfabético).
+  // Se calcula siempre para mantener el orden de hooks estable.
+  const sortedDocs = useMemo(
+    () =>
+      evidence
+        ? [...evidence.documents].sort((a, b) => {
+            const cmp = compareDocCodes(extractDocCode(a.title), extractDocCode(b.title));
+            return cmp !== 0 ? cmp : a.title.localeCompare(b.title);
+          })
+        : [],
+    [evidence]
+  );
+
   if (!evidence) {
     return (
       <div className="flex items-center justify-center flex-1 p-12 text-center">
@@ -448,9 +469,9 @@ function EvidenceViewer({
 
   return (
     <>
-      {/* Header de la evidencia */}
+      {/* Header compacto (el selector de doc está ahora en la sidebar) */}
       <header className="px-4 py-3 border-b bg-card/60">
-        <div className="flex items-start justify-between gap-3 mb-1">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 flex-wrap">
               <Badge variant="secondary" className="text-[10px]">
@@ -459,6 +480,12 @@ function EvidenceViewer({
               <span className="font-mono text-[10px] text-primary">
                 {evidence.code}
               </span>
+              {hasDocs && (
+                <span className="text-[10px] text-muted-foreground">
+                  · {evidence.documents.length}{" "}
+                  {evidence.documents.length === 1 ? "documento" : "documentos"}
+                </span>
+              )}
             </div>
             <h2 className="text-sm font-semibold mt-1 line-clamp-2">{evidence.name}</h2>
           </div>
@@ -477,54 +504,116 @@ function EvidenceViewer({
             </div>
           )}
         </div>
-
-        {/* Tabs de PDFs si hay >1 */}
-        {hasMultipleDocs && (
-          <Tabs
-            value={selectedDoc?.id ?? evidence.documents[0].id}
-            onValueChange={onSelectDoc}
-            className="mt-2"
-          >
-            <TabsList className="h-auto p-1 bg-muted/40 flex-wrap justify-start">
-              {evidence.documents.map((d) => (
-                <TabsTrigger
-                  key={d.id}
-                  value={d.id}
-                  className="text-[11px] h-7 px-2.5 gap-1"
-                >
-                  <FileText className="h-3 w-3" />
-                  <span className="max-w-[180px] truncate">{d.title}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        )}
       </header>
 
-      {/* Visor o empty */}
-      <div className="flex-1 min-h-0">
-        {hasDocs && selectedDoc ? (
-          <PdfSnippetViewer
-            key={selectedDoc.id}
-            src={selectedDoc.fileUrl}
-            className="w-full h-full"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full p-12 text-center">
-            <div className="max-w-sm">
-              <div className="mx-auto mb-4 rounded-full bg-muted/50 p-4 w-fit">
-                <FileText className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-base font-semibold">
-                Aún no hay documentos para esta evidencia
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Los PDFs se cargarán desde el panel administrativo.
-              </p>
+      {/* Body: sidebar de documentos + visor PDF */}
+      <div className="flex-1 min-h-0 flex">
+        {hasMultipleDocs && (
+          <aside className="w-52 shrink-0 border-r bg-muted/20 flex flex-col min-h-0">
+            <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-b bg-card/40 shrink-0">
+              Documentos · {sortedDocs.length}
             </div>
-          </div>
+            <ScrollArea className="flex-1 min-h-0">
+              <ul className="p-1.5 space-y-0.5">
+                {sortedDocs.map((doc) => {
+                  const isActive = doc.id === selectedDoc?.id;
+                  const codePrefix = extractDocCode(doc.title);
+                  const titleText = codePrefix
+                    ? doc.title.slice(codePrefix.length).replace(/^[.\s-]+/, "")
+                    : doc.title;
+                  return (
+                    <li key={doc.id}>
+                      <button
+                        type="button"
+                        onClick={() => onSelectDoc(doc.id)}
+                        title={doc.title}
+                        className={cn(
+                          "w-full flex items-start gap-1.5 px-2 py-1.5 rounded-md text-left transition-all duration-200 border-l-2",
+                          isActive
+                            ? [
+                                "bg-primary/10 text-primary border-l-primary",
+                                "shadow-[0_0_12px_-2px] shadow-primary/30",
+                              ]
+                            : "border-l-transparent hover:bg-muted/50 text-foreground/80 hover:text-foreground"
+                        )}
+                      >
+                        <FileText
+                          className={cn(
+                            "h-3 w-3 shrink-0 mt-0.5",
+                            isActive ? "text-primary" : "text-muted-foreground"
+                          )}
+                        />
+                        <div className="min-w-0 flex-1">
+                          {codePrefix && (
+                            <span className="font-mono text-[9px] text-muted-foreground/90 block leading-none mb-0.5">
+                              {codePrefix}
+                            </span>
+                          )}
+                          <span className="text-[11px] leading-tight line-clamp-2">
+                            {titleText}
+                          </span>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </ScrollArea>
+          </aside>
         )}
+
+        <div className="flex-1 min-h-0">
+          {hasDocs && selectedDoc ? (
+            <PdfSnippetViewer
+              src={selectedDoc.fileUrl}
+              preloadUrls={sortedDocs
+                .map((d) => d.fileUrl)
+                .filter((u) => u !== selectedDoc.fileUrl)}
+              className="w-full h-full"
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full p-12 text-center">
+              <div className="max-w-sm">
+                <div className="mx-auto mb-4 rounded-full bg-muted/50 p-4 w-fit">
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-base font-semibold">
+                  Aún no hay documentos para esta evidencia
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Los PDFs se cargarán desde el panel administrativo.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UTILS: código de documento (E22.1.0) extraído del título
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function extractDocCode(title: string): string | null {
+  const m = title.match(/^E\s*\d+(?:[._]\d+)+/i);
+  return m ? m[0].replace(/\s+/g, "").replace(/_/g, ".") : null;
+}
+
+function compareDocCodes(a: string | null, b: string | null): number {
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+  const parse = (c: string) =>
+    c.replace(/^E/i, "").split(".").map((n) => parseInt(n, 10)).filter((n) => !isNaN(n));
+  const na = parse(a);
+  const nb = parse(b);
+  const len = Math.max(na.length, nb.length);
+  for (let i = 0; i < len; i++) {
+    const da = na[i] ?? 0;
+    const db = nb[i] ?? 0;
+    if (da !== db) return da - db;
+  }
+  return 0;
 }

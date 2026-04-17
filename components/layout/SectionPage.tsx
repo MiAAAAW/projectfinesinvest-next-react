@@ -36,6 +36,8 @@ interface SectionPageProps {
   /** Contenido de la página */
   children: React.ReactNode;
   className?: string;
+  /** Override del max-width del main column. Default: "max-w-4xl". Ej: "max-w-none" para full width. */
+  contentMaxWidth?: string;
 }
 
 export function SectionPage({
@@ -46,6 +48,7 @@ export function SectionPage({
   breadcrumb,
   children,
   className,
+  contentMaxWidth = "max-w-4xl",
 }: SectionPageProps) {
   // ─────────────────────────────────────────────────────────────────────────────
   // Auto-breadcrumb: Inicio > Parent (si hay) > Title
@@ -80,7 +83,7 @@ export function SectionPage({
         )}
 
         {/* Main column */}
-        <div className={cn(variant === "sidebar" ? "flex-1 min-w-0 max-w-3xl" : "max-w-4xl mx-auto")}>
+        <div className={cn(variant === "sidebar" ? "flex-1 min-w-0 max-w-3xl" : cn(contentMaxWidth, "mx-auto"))}>
           <Breadcrumb trail={trail} className="mb-6" />
 
           {/* Tabs variant */}

@@ -80,6 +80,7 @@ export default async function AcreditacionPage() {
       }
       variant="clean"
       breadcrumb={breadcrumb}
+      contentMaxWidth="max-w-none"
     >
       <AccreditationExplorer standards={data} />
     </SectionPage>

@@ -14,7 +14,15 @@
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 import type { GalleryConfig } from "@/types/landing.types";
 import { motion, AnimatePresence } from "framer-motion";
 import { MotionWrapper } from "@/components/ui/motion-wrapper";
@@ -53,8 +61,9 @@ interface GalleryProps {
   className?: string;
 }
 
-const INITIAL_ITEMS_COUNT = 9;
 const ALL_FILTER = "all";
+// Threshold: a partir de este número de fotos, render como carrusel
+const CAROUSEL_THRESHOLD = 6;
 
 // ──────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -79,8 +88,12 @@ export default function Gallery({ config, className }: GalleryProps) {
   const [dbItems, setDbItems] = useState<DBGalleryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>(ALL_FILTER);
-  const [showAll, setShowAll] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Embla carousel API (solo se usa cuando filteredItems.length > CAROUSEL_THRESHOLD)
+  const [api, setApi] = useState<CarouselApi>();
+  const [carouselCurrent, setCarouselCurrent] = useState(0);
+  const [carouselCount, setCarouselCount] = useState(0);
 
   // Fetch inicial
   useEffect(() => {
@@ -143,24 +156,39 @@ export default function Gallery({ config, className }: GalleryProps) {
     return allItems.filter((i) => i.category === activeCategory);
   }, [allItems, activeCategory]);
 
-  const displayItems = useMemo(
-    () => (showAll ? filteredItems : filteredItems.slice(0, INITIAL_ITEMS_COUNT)),
-    [filteredItems, showAll],
-  );
+  // Render adaptativo según cantidad de fotos:
+  //   ≤ 3      → grid 1 fila × 3 col
+  //   = 4      → grid 2×2 (evita fila huérfana)
+  //   5 - 6    → grid 2 filas × 3 col
+  //   > 6      → carrusel (altura fija, no expande landing)
+  const useCarousel = filteredItems.length > CAROUSEL_THRESHOLD;
+  const desktopColsClass =
+    filteredItems.length === 4 ? "lg:grid-cols-2" : "lg:grid-cols-3";
 
-  const hasMoreItems = filteredItems.length > INITIAL_ITEMS_COUNT;
-
-  // Al cambiar filtro: resetear "ver más" y cerrar lightbox si el id activo
-  // dejó de estar en la lista filtrada (evita índice fantasma).
-  useEffect(() => {
-    setShowAll(false);
-  }, [activeCategory]);
-
+  // Si el filtro deja un id seleccionado fuera del listado, cierra lightbox
   useEffect(() => {
     if (selectedId && !filteredItems.find((i) => i.id === selectedId)) {
       setSelectedId(null);
     }
   }, [filteredItems, selectedId]);
+
+  // Sincroniza dots del carrusel con embla
+  const onCarouselSelect = useCallback(() => {
+    if (!api) return;
+    setCarouselCurrent(api.selectedScrollSnap());
+    setCarouselCount(api.scrollSnapList().length);
+  }, [api]);
+
+  useEffect(() => {
+    if (!api) return;
+    onCarouselSelect();
+    api.on("select", onCarouselSelect);
+    api.on("reInit", onCarouselSelect);
+    return () => {
+      api.off("select", onCarouselSelect);
+      api.off("reInit", onCarouselSelect);
+    };
+  }, [api, onCarouselSelect]);
 
   // Lightbox · tracking por id (inmune a reordenamientos/filtros)
   const selectedIndex = selectedId
@@ -219,8 +247,8 @@ export default function Gallery({ config, className }: GalleryProps) {
         </MotionWrapper>
       )}
 
-      {/* Masonry · columns naturales, sin cropping */}
-      {displayItems.length === 0 ? (
+      {/* Render adaptativo: grid (≤6) o carrusel (>6) */}
+      {filteredItems.length === 0 ? (
         <div className="py-16 text-center text-sm text-muted-foreground">
           Sin imágenes en esta categoría.
         </div>
@@ -233,39 +261,76 @@ export default function Gallery({ config, className }: GalleryProps) {
           transition={{ duration: 0.25 }}
           className="mx-auto max-w-6xl px-2 sm:px-0"
         >
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 md:gap-5 [column-fill:balance]">
-            {displayItems.map((item, index) => (
-              <MasonryCard
-                key={item.id}
-                item={item}
-                index={index}
-                onOpen={() => setSelectedId(item.id)}
-              />
-            ))}
-          </div>
-        </motion.div>
-      )}
+          {useCarousel ? (
+            // ── Carrusel embla (≥7 fotos) ──────────────────────────────────
+            <>
+              <Carousel
+                setApi={setApi}
+                opts={{ align: "start", loop: false, slidesToScroll: 1 }}
+                plugins={[
+                  Autoplay({
+                    delay: 5000,
+                    stopOnInteraction: true,
+                    stopOnMouseEnter: true,
+                  }),
+                ]}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-4">
+                  {filteredItems.map((item, index) => (
+                    <CarouselItem
+                      key={item.id}
+                      className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/3"
+                    >
+                      <MasonryCard
+                        item={item}
+                        index={index}
+                        onOpen={() => setSelectedId(item.id)}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-4 h-10 w-10 bg-background/90 backdrop-blur-sm border-border/50 shadow-md hover:border-primary/30" />
+                <CarouselNext className="hidden md:flex -right-4 h-10 w-10 bg-background/90 backdrop-blur-sm border-border/50 shadow-md hover:border-primary/30" />
+              </Carousel>
 
-      {/* Ver más */}
-      {hasMoreItems && !showAll && (
-        <MotionWrapper delay={0.3} className="mt-10 text-center">
-          <Button
-            variant="outline"
-            size="default"
-            onClick={() => setShowAll(true)}
-            className="group"
-          >
-            Ver más
-            <DynamicIcon
-              name="ChevronDown"
-              size={18}
-              className="ml-2 transition-transform group-hover:translate-y-0.5"
-            />
-            <Badge variant="secondary" className="ml-2 text-xs">
-              +{filteredItems.length - INITIAL_ITEMS_COUNT}
-            </Badge>
-          </Button>
-        </MotionWrapper>
+              {carouselCount > 1 && (
+                <div className="flex justify-center gap-1.5 mt-4">
+                  {Array.from({ length: carouselCount }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => api?.scrollTo(i)}
+                      className={cn(
+                        "h-1.5 rounded-full transition-all duration-300",
+                        i === carouselCurrent
+                          ? "w-5 bg-primary"
+                          : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50",
+                      )}
+                      aria-label={`Ir a slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            // ── Grid (≤6 fotos, cols adaptativos) ───────────────────────────
+            <div
+              className={cn(
+                "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-5",
+                desktopColsClass,
+              )}
+            >
+              {filteredItems.map((item, index) => (
+                <MasonryCard
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  onOpen={() => setSelectedId(item.id)}
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
       )}
 
       {/* Lightbox */}
@@ -435,26 +500,38 @@ function MasonryCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.38, delay: Math.min(index * 0.03, 0.24), ease: [0.22, 1, 0.36, 1] }}
-      className="mb-4 md:mb-5 break-inside-avoid"
+      className="flex flex-col"
     >
       <button
         type="button"
         onClick={onOpen}
         aria-label={`Ver imagen: ${item.caption || item.alt}`}
         className={cn(
-          "group relative block w-full overflow-hidden rounded-xl bg-muted",
+          "group relative block w-full aspect-[4/3] overflow-hidden rounded-xl bg-muted",
           "ring-1 ring-border/50 transition-all duration-300",
           "hover:ring-primary/40 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)]",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         )}
       >
+        {/* Capa fondo: misma imagen blureada (rellena el frame sin franjas) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={item.src}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50"
+        />
+
+        {/* Capa principal: imagen completa, sin recortar */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={item.src}
           alt={item.alt}
           loading="lazy"
           decoding="async"
-          className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.03]"
+          className="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
         />
 
         {/* Category tag · esquina discreta */}
@@ -471,7 +548,7 @@ function MasonryCard({
           </span>
         )}
 
-        {/* Overlay · gradient suave solo al hover (caption abajo del img, fuera del overlay) */}
+        {/* Overlay · gradient suave solo al hover */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* Zoom cue sutil */}
@@ -588,15 +665,27 @@ function Lightbox({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 flex flex-col items-center max-w-[92vw] max-h-[92vh]"
+        className="relative z-10 flex flex-col items-center w-[min(92vw,1200px)] max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={item.src}
-          alt={item.alt}
-          className="max-w-full max-h-[calc(92vh-120px)] w-auto h-auto object-contain rounded-lg shadow-2xl"
-        />
+        {/* Frame uniforme con blur-fill (mismo patrón que la grid) */}
+        <div className="relative w-full aspect-[4/3] max-h-[calc(92vh-160px)] overflow-hidden rounded-lg shadow-2xl bg-muted">
+          {/* Capa fondo blureada */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.src}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50"
+          />
+          {/* Capa principal completa */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.src}
+            alt={item.alt}
+            className="absolute inset-0 w-full h-full object-contain"
+          />
+        </div>
 
         <div className="mt-4 text-center px-4 max-w-2xl space-y-1.5">
           {categoryStyle && categoryLabel && (
@@ -637,8 +726,6 @@ function Lightbox({
 // ──────────────────────────────────────────────────────────────────────────
 
 function GallerySkeleton() {
-  // Alturas variadas para sugerir el masonry
-  const heights = [180, 240, 200, 260, 220, 190, 250, 210, 230];
   return (
     <div className="mx-auto max-w-6xl px-2 sm:px-0">
       <div className="flex justify-center gap-4 pb-10">
@@ -646,14 +733,12 @@ function GallerySkeleton() {
           <div key={i} className="h-5 w-20 bg-muted animate-pulse rounded" />
         ))}
       </div>
-      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 md:gap-5 [column-fill:balance]">
-        {heights.map((h, i) => (
-          <div key={i} className="mb-4 md:mb-5 break-inside-avoid">
-            <div
-              className="w-full bg-muted animate-pulse rounded-xl"
-              style={{ height: `${h}px` }}
-            />
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <div
+            key={i}
+            className="aspect-[4/3] w-full bg-muted animate-pulse rounded-xl"
+          />
         ))}
       </div>
     </div>

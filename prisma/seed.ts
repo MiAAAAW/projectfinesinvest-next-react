@@ -146,20 +146,20 @@ async function main() {
   // CREAR USUARIOS ADMIN INICIALES
   // ═══════════════════════════════════════════════════════════════════════════
 
-  const adminPassword = await bcrypt.hash("123123123", 12);
-
   const admins = [
-    { email: "admin@gmail.com", name: "Administrador" },
-    { email: "hts.ez.v@gmail.com", name: "HTS Admin" },
+    { email: "admin@gmail.com", name: "Administrador", password: "123123123" },
+    { email: "hts.ez.v@gmail.com", name: "HTS Admin", password: "123123123" },
+    { email: "bcanqui@unap.edu.pe", name: "B. Canqui", password: "K@ncharani74" },
   ];
 
   for (const admin of admins) {
+    const passwordHash = await bcrypt.hash(admin.password, 12);
     const adminUser = await prisma.user.upsert({
       where: { email: admin.email },
       update: {},
       create: {
         email: admin.email,
-        passwordHash: adminPassword,
+        passwordHash,
         name: admin.name,
         active: true,
         verified: true,
