@@ -96,6 +96,7 @@ export const landingConfig: LandingConfig = {
           { label: "Grupos", href: "/investigacion/grupos" },
           { label: "Semilleros", href: "/investigacion/semilleros" },
           { label: "Publicaciones", href: "/investigacion/publicaciones" },
+          { label: "Posters FINESI", href: "/investigacion/posters" },
           { label: "Docentes", href: "/investigacion/docentes" },
           { label: "Ética", href: "/investigacion/etica" },
         ],

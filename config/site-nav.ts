@@ -29,6 +29,7 @@ export const siteNav = {
         grupos: { label: "Grupos", path: "/investigacion/grupos" },
         semilleros: { label: "Semilleros", path: "/investigacion/semilleros" },
         publicaciones: { label: "Publicaciones", path: "/investigacion/publicaciones" },
+        posters: { label: "Posters FINESI", path: "/investigacion/posters" },
         docentes: { label: "Docentes", path: "/investigacion/docentes" },
         etica: { label: "Ética", path: "/investigacion/etica" },
       },

@@ -4,13 +4,6 @@ import { SectionPage } from "@/components/layout/SectionPage";
 import { siteNav } from "@/config/site-nav";
 import { TeacherProfile } from "./_components/TeacherProfile";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PERFIL DE DOCENTE — ruta pública
-// URL: /investigacion/docentes/[slug]
-// Resuelve por `gaussSlug` primero, luego fallback a `id` (cuid) por si algún
-// docente no tiene slug de Gauss aún.
-// ═══════════════════════════════════════════════════════════════════════════════
-
 export async function generateStaticParams() {
   const teachers = await prisma.teacher.findMany({
     where: { ...notDeleted, published: true },

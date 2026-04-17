@@ -18,6 +18,8 @@ import {
   Shield,
   Award,
   Type,
+  Presentation,
+  ScrollText,
 } from "lucide-react";
 
 // Dashboard - always first
@@ -94,6 +96,12 @@ export const RESEARCH_SECTIONS = [
     type: "crud" as const,
   },
   {
+    title: "Semilleros · Normativa",
+    url: "/admin/content/semilleros-normativa",
+    icon: ScrollText,
+    type: "content" as const,
+  },
+  {
     title: "Publicaciones",
     url: "/admin/publications",
     icon: BookOpen,
@@ -104,6 +112,12 @@ export const RESEARCH_SECTIONS = [
     url: "/admin/teachers-renacyt",
     icon: Award,
     type: "crud" as const,
+  },
+  {
+    title: "Posters FINESI",
+    url: "/admin/content/posters",
+    icon: Presentation,
+    type: "content" as const,
   },
   {
     title: "Ética",

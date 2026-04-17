@@ -7,12 +7,14 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { DynamicIcon, Menu, X, Sun, Moon, ChevronDown } from "@/lib/icons";
+import { DynamicIcon, Menu, Sun, Moon, ChevronDown } from "@/lib/icons";
 import type { NavigationConfig, NavItem } from "@/types/landing.types";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Altura del navbar para offset del scroll
 const NAVBAR_HEIGHT = 80; // h-16 (64px) + padding extra
@@ -200,6 +202,124 @@ function NavDropdown({
   );
 }
 
+function MobileNavItem({
+  item,
+  onAnchorClick,
+  closeMenu,
+}: {
+  item: NavItem;
+  onAnchorClick: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+  closeMenu: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [dynamicChildren, setDynamicChildren] = useState<NavItem[] | null>(null);
+
+  useEffect(() => {
+    if (!item.dynamicSource) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/public/${item.dynamicSource}/nav`);
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled && Array.isArray(json.data)) {
+          setDynamicChildren(json.data as NavItem[]);
+        }
+      } catch (err) {
+        console.warn(`Dynamic nav fetch failed for ${item.dynamicSource}:`, err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [item.dynamicSource]);
+
+  const children: NavItem[] = [
+    ...(item.children ?? []),
+    ...(dynamicChildren ?? []),
+  ];
+  const hasChildren = children.length > 0 || !!item.dynamicSource;
+
+  if (!hasChildren) {
+    return (
+      <DropdownLink
+        href={item.href}
+        onAnchorClick={onAnchorClick}
+        closeMenu={closeMenu}
+        className="block rounded-lg px-4 py-3 text-[15px] font-medium text-foreground/90 hover:bg-white/5 hover:text-foreground transition-colors"
+      >
+        {item.label}
+      </DropdownLink>
+    );
+  }
+
+  return (
+    <div className="rounded-lg overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between rounded-lg px-4 py-3 text-[15px] font-medium text-foreground/90 hover:bg-white/5 hover:text-foreground transition-colors"
+      >
+        <span>{item.label}</span>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 opacity-60 transition-transform",
+            expanded && "rotate-180"
+          )}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="ml-4 border-l border-white/10 pl-2 py-1 space-y-0.5">
+              {children.length === 0 ? (
+                <p className="px-3 py-2 text-xs text-muted-foreground">Cargando…</p>
+              ) : (
+                children.map((child) => {
+                  const sub = child.children ?? [];
+                  return (
+                    <div key={child.label}>
+                      <DropdownLink
+                        href={child.href}
+                        onAnchorClick={onAnchorClick}
+                        closeMenu={closeMenu}
+                        className="block rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-white/5 hover:text-foreground transition-colors"
+                      >
+                        {child.label}
+                      </DropdownLink>
+                      {sub.length > 0 && (
+                        <div className="space-y-0.5">
+                          {sub.map((s) => (
+                            <DropdownLink
+                              key={s.label}
+                              href={s.href}
+                              onAnchorClick={onAnchorClick}
+                              closeMenu={closeMenu}
+                              className="block rounded-md pl-6 pr-3 py-1.5 text-xs text-muted-foreground hover:bg-white/5 hover:text-foreground transition-colors"
+                            >
+                              {s.label}
+                            </DropdownLink>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function Navbar({ config, className }: NavbarProps) {
   const { logo, items, cta } = config;
   const [isOpen, setIsOpen] = useState(false);
@@ -261,37 +381,6 @@ export default function Navbar({ config, className }: NavbarProps) {
       y: 0,
       transition: {
         delay: i * 0.1,
-        duration: 0.3,
-      },
-    }),
-  };
-
-  const mobileMenuVariants = {
-    hidden: {
-      opacity: 0,
-      height: 0,
-      transition: {
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1] as const,
-      },
-    },
-    visible: {
-      opacity: 1,
-      height: "auto",
-      transition: {
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1] as const,
-      },
-    },
-  };
-
-  const mobileItemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: {
-        delay: i * 0.05,
         duration: 0.3,
       },
     }),
@@ -434,166 +523,83 @@ export default function Navbar({ config, className }: NavbarProps) {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="lg:hidden"
-          >
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(!isOpen)}
-              className="h-10 w-10 rounded-full"
-            >
-              <AnimatePresence mode="wait">
-                {isOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <X className="h-5 w-5" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu className="h-5 w-5" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </motion.div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <AnimatePresence>
-          {isOpen && (
+          {/* Mobile Menu (Sheet + glassmorphism) */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <motion.div
-              variants={mobileMenuVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              className="lg:hidden overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="lg:hidden"
             >
-              <div className="py-4 border-t border-border/50">
-                <div className="flex flex-col space-y-1">
-                  {items.map((item, i) => (
-                    <motion.div
-                      key={item.label}
-                      custom={i}
-                      initial="hidden"
-                      animate="visible"
-                      variants={mobileItemVariants}
-                    >
-                      {item.href.startsWith("#") || item.href.startsWith("/#") ? (
-                        <a
-                          href={item.href}
-                          onClick={(e) => {
-                            handleAnchorClick(e, item.href);
-                            setIsOpen(false);
-                          }}
-                          className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
-                        >
-                          {item.label}
-                        </a>
-                      ) : (
-                        <Link
-                          href={item.href}
-                          onClick={() => setIsOpen(false)}
-                          className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
-                        >
-                          {item.label}
-                        </Link>
-                      )}
-                      {item.children && (
-                        <div className="ml-4 border-l border-border/50 pl-2">
-                          {item.children.map((child) => {
-                            const isAnchor =
-                              child.href.startsWith("#") || child.href.startsWith("/#");
-                            return isAnchor ? (
-                              <a
-                                key={child.label}
-                                href={child.href}
-                                onClick={(e) => {
-                                  handleAnchorClick(e, child.href);
-                                  setIsOpen(false);
-                                }}
-                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
-                              >
-                                {child.label}
-                              </a>
-                            ) : (
-                              <Link
-                                key={child.label}
-                                href={child.href}
-                                onClick={() => setIsOpen(false)}
-                                className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all cursor-pointer"
-                              >
-                                {child.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-
-                  <motion.div
-                    custom={items.length}
-                    initial="hidden"
-                    animate="visible"
-                    variants={mobileItemVariants}
-                    className="flex items-center justify-between pt-4 mt-2 border-t border-border/50"
-                  >
-                    {/* Theme Toggle Mobile */}
-                    {mounted && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                        className="rounded-full"
-                      >
-                        {theme === "dark" ? (
-                          <>
-                            <Sun className="h-4 w-4 mr-2" /> Modo claro
-                          </>
-                        ) : (
-                          <>
-                            <Moon className="h-4 w-4 mr-2" /> Modo oscuro
-                          </>
-                        )}
-                      </Button>
-                    )}
-
-                    {/* CTA Mobile */}
-                    {cta && (
-                      <Button asChild size="sm" className="rounded-full">
-                        <a
-                          href={cta.href}
-                          onClick={(e) => {
-                            handleAnchorClick(e, cta.href);
-                            setIsOpen(false);
-                          }}
-                        >
-                          {cta.text}
-                        </a>
-                      </Button>
-                    )}
-                  </motion.div>
-                </div>
-              </div>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Abrir menú</span>
+                </Button>
+              </SheetTrigger>
             </motion.div>
-          )}
-        </AnimatePresence>
+
+            <SheetContent
+              side="right"
+              className="w-[88vw] max-w-[360px] border-l border-white/10 bg-background/70 backdrop-blur-2xl p-0 flex flex-col sm:max-w-[360px]"
+            >
+              <SheetHeader className="border-b border-white/10 pb-4 pt-5 px-5">
+                <SheetTitle className="flex items-center gap-2 text-base">
+                  {logo.icon && (
+                    <DynamicIcon name={logo.icon} className="h-5 w-5 text-primary" />
+                  )}
+                  <span>{logo.text}</span>
+                </SheetTitle>
+              </SheetHeader>
+
+              <ScrollArea className="flex-1 px-3">
+                <nav className="flex flex-col gap-0.5 py-3">
+                  {items.map((item) => (
+                    <MobileNavItem
+                      key={item.label}
+                      item={item}
+                      onAnchorClick={handleAnchorClick}
+                      closeMenu={() => setIsOpen(false)}
+                    />
+                  ))}
+                </nav>
+              </ScrollArea>
+
+              <div className="border-t border-white/10 p-4 flex items-center justify-between gap-3">
+                {mounted && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    className="rounded-full"
+                  >
+                    {theme === "dark" ? (
+                      <>
+                        <Sun className="h-4 w-4 mr-2" /> Claro
+                      </>
+                    ) : (
+                      <>
+                        <Moon className="h-4 w-4 mr-2" /> Oscuro
+                      </>
+                    )}
+                  </Button>
+                )}
+                {cta && (
+                  <Button asChild size="sm" className="rounded-full">
+                    <a
+                      href={cta.href}
+                      onClick={(e) => {
+                        handleAnchorClick(e, cta.href);
+                        setIsOpen(false);
+                      }}
+                    >
+                      {cta.text}
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </nav>
     </motion.header>
   );

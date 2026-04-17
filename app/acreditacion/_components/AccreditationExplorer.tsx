@@ -279,6 +279,7 @@ function StandardTreeItem({
   const currentCat = activeCategory ?? categories[0] ?? "";
 
   const totalEvidences = std.subEvidences.length;
+  const totalDocs = std.subEvidences.reduce((n, se) => n + se.documents.length, 0);
 
   return (
     <AccordionItem value={std.id} className="border-b">
@@ -290,6 +291,12 @@ function StandardTreeItem({
           </p>
           <p className="text-[10px] text-muted-foreground mt-0.5">
             {totalEvidences} {totalEvidences === 1 ? "evidencia" : "evidencias"}
+            {totalDocs > 0 && (
+              <>
+                {" · "}
+                {totalDocs} {totalDocs === 1 ? "documento" : "documentos"}
+              </>
+            )}
           </p>
         </div>
       </AccordionTrigger>
