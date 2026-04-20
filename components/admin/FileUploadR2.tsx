@@ -24,7 +24,7 @@ interface FileUploadR2Props {
 export function FileUploadR2({
   folder,
   accept = ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png,.webp",
-  maxSizeMB = 20,
+  maxSizeMB = 100,
   onUploaded,
   label = "Subir archivo",
 }: FileUploadR2Props) {

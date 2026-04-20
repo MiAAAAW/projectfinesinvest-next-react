@@ -340,7 +340,7 @@ export function ProgramEditor({ section, label, defaultPdfTitle, onMetaChange }:
               <FileUploadR2
                 folder="posgrado"
                 accept=".pdf"
-                maxSizeMB={50}
+                maxSizeMB={100}
                 label="Subir PDF del plan de estudios"
                 onUploaded={handlePdfUploaded}
               />

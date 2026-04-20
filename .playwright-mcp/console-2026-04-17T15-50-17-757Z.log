@@ -1,0 +1,15 @@
+[    1452ms] [ERROR] ErrorUtils caught an error:
+
+Failed building URI for base path: /stories/{?bucket_id}/{?card_id}/ message: Required template parameter is an empty string: bucket_id
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: 17870, clientTime: 1776441019, extra: Object, guardList: Array(1), hash: g4kqe1} @ https://static.xx.fbcdn.net/rsrc.php/v4/yn/r/1Rk4BX8YPYQ.js:78
+[    1654ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://www.facebook.com/Ingenieria.Estadistica.e.Informatica.UNA.Puno/:0
+[    1654ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://www.facebook.com/Ingenieria.Estadistica.e.Informatica.UNA.Puno/:0
+[    1820ms] [LOG] 
+%cStop! font-family:helvetica; font-size:20px; font-size:50px; font-weight:bold; color:red; -webkit-text-stroke:1px black; @ https://static.xx.fbcdn.net/rsrc.php/v4/yn/r/1Rk4BX8YPYQ.js:242
+[    1820ms] [LOG] 
+%cThis is a browser feature intended for developers. If someone told you to copy-paste something here to enable a Facebook feature or "hack" someone's account, it's a scam and will give them access to your Facebook account. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4/yn/r/1Rk4BX8YPYQ.js:242
+[    1820ms] [LOG] 
+%cSee https://www.facebook.com/selfxss for more information. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4/yn/r/1Rk4BX8YPYQ.js:242
+[    1820ms] [LOG] 
+%c  @ https://static.xx.fbcdn.net/rsrc.php/v4/yn/r/1Rk4BX8YPYQ.js:242

@@ -1,0 +1,424 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "EmbedPDF" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e13]: EmbedPDF
+      - navigation [ref=e14]:
+        - link "Documentation" [ref=e15] [cursor=pointer]:
+          - /url: /docs
+          - text: Documentation
+        - link "Tools" [ref=e16] [cursor=pointer]:
+          - /url: /tools
+          - text: Tools
+        - button "Sponsorship" [ref=e18]:
+          - generic [ref=e19]: Sponsorship
+          - img [ref=e20]
+        - generic [ref=e22]:
+          - button "Open search" [ref=e24]:
+            - img [ref=e25]
+          - button "Toggle theme" [ref=e513]:
+            - img [ref=e514]
+            - img
+          - link "GitHub" [ref=e29] [cursor=pointer]:
+            - /url: https://github.com/embedpdf/embed-pdf-viewer
+            - img [ref=e30]
+            - generic [ref=e33]: GitHub
+  - generic [ref=e34]:
+    - generic [ref=e38]:
+      - generic [ref=e39]: Open Source & Framework Agnostic
+      - heading "Embed PDF files without the pain" [level=1] [ref=e40]:
+        - generic [ref=e41]:
+          - text: Embed PDF files
+          - img [ref=e43]
+        - text: without the pain
+      - paragraph [ref=e48]:
+        - text: The ultimate
+        - strong [ref=e49]: Open Source PDF viewer
+        - text: for JavaScript. Choose our drop-in component for instant results, or use our
+        - strong [ref=e50]: headless library
+        - text: to build a completely custom UI.
+      - generic [ref=e51]:
+        - link "Get Started" [ref=e52] [cursor=pointer]:
+          - /url: /docs
+          - generic [ref=e54]:
+            - text: Get Started
+            - img [ref=e55]
+        - link "Live Demo" [ref=e57] [cursor=pointer]:
+          - /url: https://app.embedpdf.com
+          - img [ref=e58]
+          - text: Live Demo
+        - link "Star on GitHub" [ref=e60] [cursor=pointer]:
+          - /url: https://github.com/embedpdf/embed-pdf-viewer
+          - img [ref=e61]
+          - generic [ref=e64]: Star on GitHub
+      - generic [ref=e65]:
+        - paragraph [ref=e66]: Works seamlessly with
+        - generic [ref=e67]:
+          - generic "JavaScript" [ref=e69]:
+            - img [ref=e70]
+            - generic [ref=e76]: JavaScript
+          - generic "TypeScript" [ref=e78]:
+            - img [ref=e79]
+            - generic [ref=e86]: TypeScript
+          - link "React" [ref=e88] [cursor=pointer]:
+            - /url: /react-pdf-viewer
+            - generic "React" [ref=e89]:
+              - img [ref=e90]
+              - generic [ref=e99]: React
+          - link "Vue" [ref=e100] [cursor=pointer]:
+            - /url: /vue-pdf-viewer
+            - generic "Vue" [ref=e101]:
+              - img [ref=e102]
+              - generic [ref=e106]: Vue
+          - link "Svelte" [ref=e107] [cursor=pointer]:
+            - /url: /svelte-pdf-viewer
+            - generic "Svelte" [ref=e108]:
+              - img [ref=e109]
+              - generic [ref=e111]: Svelte
+    - generic [ref=e113]:
+      - generic [ref=e114]:
+        - heading "Two ways to integrate" [level=2] [ref=e115]
+        - paragraph [ref=e116]: Choose the level of control that fits your project
+      - generic [ref=e117]:
+        - generic [ref=e118]:
+          - img [ref=e120]
+          - heading "Ready-made Viewer" [level=3] [ref=e122]
+          - generic [ref=e123]: Batteries Included
+          - paragraph [ref=e124]: A polished, production-ready PDF viewer that drops into your app in seconds. Perfect for standard use cases.
+          - list [ref=e125]:
+            - listitem [ref=e126]:
+              - img [ref=e127]
+              - text: Beautiful default UI
+            - listitem [ref=e129]:
+              - img [ref=e130]
+              - text: 2 lines of code
+            - listitem [ref=e132]:
+              - img [ref=e133]
+              - text: Fully responsive & accessible
+          - generic [ref=e135]: npm install @embedpdf/snippet
+          - generic [ref=e136]:
+            - generic [ref=e137]: Get Started
+            - generic [ref=e138]:
+              - link "Vanilla" [ref=e139] [cursor=pointer]:
+                - /url: /docs/snippet/getting-started
+                - img [ref=e141]
+                - generic [ref=e147]: Vanilla
+                - img [ref=e148]
+              - link "React" [ref=e150] [cursor=pointer]:
+                - /url: /docs/react/viewer/introduction
+                - img [ref=e151]
+                - generic [ref=e160]: React
+                - img [ref=e161]
+              - link "Vue" [ref=e163] [cursor=pointer]:
+                - /url: /docs/vue/viewer/introduction
+                - img [ref=e164]
+                - generic [ref=e168]: Vue
+                - img [ref=e169]
+              - link "Svelte" [ref=e171] [cursor=pointer]:
+                - /url: /docs/svelte/viewer/introduction
+                - img [ref=e172]
+                - generic [ref=e174]: Svelte
+                - img [ref=e175]
+        - generic [ref=e177]:
+          - img [ref=e179]
+          - heading "Headless Components" [level=3] [ref=e182]
+          - generic [ref=e183]: Full Control
+          - paragraph [ref=e184]: Build your own custom viewer UI from scratch. We provide the engine, you control the pixels.
+          - list [ref=e185]:
+            - listitem [ref=e186]:
+              - img [ref=e187]
+              - text: 100% UI Control
+            - listitem [ref=e189]:
+              - img [ref=e190]
+              - text: Tiny bundle size
+            - listitem [ref=e192]:
+              - img [ref=e193]
+              - text: React, Vue, Svelte hooks
+          - generic [ref=e195]: npm install @embedpdf/core
+          - generic [ref=e196]:
+            - generic [ref=e197]: Read Documentation
+            - generic [ref=e198]:
+              - link "React" [ref=e199] [cursor=pointer]:
+                - /url: /docs/react/headless/introduction
+                - img [ref=e200]
+                - generic [ref=e209]: React
+                - img [ref=e210]
+              - link "Vue" [ref=e212] [cursor=pointer]:
+                - /url: /docs/vue/headless/introduction
+                - img [ref=e213]
+                - generic [ref=e217]: Vue
+                - img [ref=e218]
+              - link "Svelte" [ref=e220] [cursor=pointer]:
+                - /url: /docs/svelte/headless/introduction
+                - img [ref=e221]
+                - generic [ref=e223]: Svelte
+                - img [ref=e224]
+    - generic [ref=e228]:
+      - generic [ref=e229]:
+        - img [ref=e231]
+        - heading "Truly Open Source" [level=3] [ref=e233]
+        - paragraph [ref=e234]: MIT licensed core. Whether you use the snippet or headless, you own the code. No black boxes.
+      - generic [ref=e235]:
+        - img [ref=e237]
+        - heading "Flexible Architecture" [level=3] [ref=e240]
+        - paragraph [ref=e241]: Configurable theming for the Viewer, or 100% pixel-perfect control with our Headless libraries.
+      - generic [ref=e242]:
+        - img [ref=e244]
+        - heading "Universal Compatibility" [level=3] [ref=e248]
+        - paragraph [ref=e249]: Works with any framework. Drop the snippet in a legacy app, or build a modern React/Vue/Svelte SPA.
+    - generic [ref=e251]:
+      - generic [ref=e252]:
+        - generic [ref=e253]:
+          - img [ref=e254]
+          - text: Ready-made Viewer
+        - heading "Drop-in Integration" [level=2] [ref=e256]
+        - paragraph [ref=e257]: See how easy it is to add the pre-built viewer to your app.
+      - generic [ref=e260]:
+        - generic [ref=e261]:
+          - generic [ref=e262]:
+            - generic [ref=e267]: index.html
+            - button "Copy" [ref=e268]
+          - generic [ref=e269]:
+            - button "Snippet" [ref=e270]:
+              - img [ref=e273]
+              - generic [ref=e276]: Snippet
+            - button "React" [ref=e277]:
+              - img [ref=e279]
+              - generic [ref=e288]: React
+            - button "Vue" [ref=e289]:
+              - img [ref=e291]
+              - generic [ref=e295]: Vue
+            - button "Svelte" [ref=e296]:
+              - img [ref=e298]
+              - generic [ref=e300]: Svelte
+        - code [ref=e303]:
+          - text: "<!-- Add the PDF container --> <div id=\"pdf-viewer\" style=\"height: 500px\"></div> <!-- Initialize EmbedPDF --> <script async type=\"module\"> import EmbedPDF from"
+          - generic [ref=e304]: "'https://cdn.jsdelivr.net/npm/@embedpdf/snippet@2/dist/embedpdf.js'"
+          - text: "; const viewer = EmbedPDF.init({ type: 'container', target: document.getElementById('pdf-viewer'), src:"
+          - generic [ref=e305]: "'https://snippet.embedpdf.com/ebook.pdf'"
+          - text: "}) </script>"
+      - link "Read Snippet Documentation" [ref=e307] [cursor=pointer]:
+        - /url: /docs/snippet/introduction
+        - text: Read Snippet Documentation
+        - img [ref=e308]
+    - generic [ref=e311]:
+      - generic [ref=e312]:
+        - heading "Try the Ready-made Viewer" [level=2] [ref=e314]
+        - paragraph [ref=e315]:
+          - text: This is the default UI you get with our snippet.
+          - text: Don't like how it looks? Use Headless to build something completely different.
+      - generic [ref=e316]:
+        - generic [ref=e522]:
+          - generic [ref=e524]:
+            - tab "ebook.pdf Close ebook.pdf" [selected] [ref=e525] [cursor=pointer]:
+              - generic [ref=e526]: ebook.pdf
+              - button "Close ebook.pdf" [ref=e527]:
+                - img [ref=e528]
+            - button "Open File" [ref=e532] [cursor=pointer]:
+              - img [ref=e533]
+          - generic [ref=e534]:
+            - generic [ref=e535]:
+              - button "Document Menu" [ref=e537] [cursor=pointer]:
+                - img [ref=e538]
+              - button "Sidebar" [ref=e543] [cursor=pointer]:
+                - img [ref=e544]
+              - button "Page Settings" [ref=e549] [cursor=pointer]:
+                - img [ref=e550]
+            - generic [ref=e561]:
+              - generic [ref=e564]:
+                - generic [ref=e565]:
+                  - textbox "Set zoom" [ref=e566]: "74"
+                  - text: "%"
+                - button "Zoom Menu" [ref=e567] [cursor=pointer]:
+                  - img [ref=e568]
+                - button "Zoom Out" [ref=e571] [cursor=pointer]:
+                  - img [ref=e572]
+                - button "Zoom In" [ref=e575] [cursor=pointer]:
+                  - img [ref=e576]
+              - button "Toggle Pan Mode" [ref=e582] [cursor=pointer]:
+                - img [ref=e583]
+              - button "Toggle Pointer Mode" [ref=e590] [cursor=pointer]:
+                - img [ref=e591]
+            - tablist [ref=e594]:
+              - button "View" [ref=e596] [cursor=pointer]
+              - button "Annotate" [ref=e598] [cursor=pointer]
+              - button "Shapes" [ref=e600] [cursor=pointer]
+              - button [ref=e602] [cursor=pointer]:
+                - img [ref=e603]
+            - generic [ref=e608]:
+              - button "Search" [ref=e610] [cursor=pointer]:
+                - img [ref=e611]
+              - button "Comment" [ref=e616] [cursor=pointer]:
+                - img [ref=e617]
+          - generic [ref=e622]:
+            - generic [ref=e627]:
+              - generic [ref=e631]:
+                - img
+                - generic:
+                  - img
+              - generic [ref=e635]:
+                - img
+                - generic:
+                  - img
+              - generic [ref=e639]:
+                - img
+              - generic [ref=e643]:
+                - img
+            - generic [ref=e646]:
+              - button "Previous Page" [ref=e647]:
+                - img [ref=e648]
+              - generic [ref=e651]:
+                - textbox [ref=e652]: "1"
+                - generic [ref=e653]: "4"
+              - button "Next Page" [ref=e654] [cursor=pointer]:
+                - img [ref=e655]
+        - link "Get Started with Snippet" [ref=e321] [cursor=pointer]:
+          - /url: /docs/snippet/getting-started
+          - text: Get Started with Snippet
+          - img [ref=e322]
+    - generic [ref=e325]:
+      - generic [ref=e326]:
+        - generic [ref=e327]:
+          - img [ref=e328]
+          - text: Headless Components
+        - heading "Why go Headless?" [level=2] [ref=e331]
+        - paragraph [ref=e332]: When the standard UI holds you back, our headless libraries set you free.
+      - generic [ref=e333]:
+        - generic [ref=e334]:
+          - img [ref=e336]
+          - heading "Native Look & Feel" [level=3] [ref=e342]
+          - paragraph [ref=e343]: Seamlessly blend the viewer into your app. Render PDF pages directly inside your own components.
+        - generic [ref=e344]:
+          - img [ref=e346]
+          - heading "Deep Integration" [level=3] [ref=e350]
+          - paragraph [ref=e351]: Overlay custom data, build annotation tools that sync with your backend, or create AI-powered analysis views.
+        - generic [ref=e352]:
+          - img [ref=e354]
+          - heading "Performance First" [level=3] [ref=e356]
+          - paragraph [ref=e357]: Load only what you need. No bloated UI bundles. Perfect for mobile apps and high-performance dashboards.
+      - generic [ref=e358]:
+        - link "React Docs" [ref=e359] [cursor=pointer]:
+          - /url: /docs/react
+          - img [ref=e360]
+          - generic [ref=e369]: React Docs
+        - link "Vue Docs" [ref=e370] [cursor=pointer]:
+          - /url: /docs/vue
+          - img [ref=e371]
+          - generic [ref=e375]: Vue Docs
+        - link "Svelte Docs" [ref=e376] [cursor=pointer]:
+          - /url: /docs/svelte
+          - img [ref=e377]
+          - generic [ref=e379]: Svelte Docs
+    - generic [ref=e381]:
+      - generic [ref=e382]:
+        - heading "Loved by developers" [level=2] [ref=e383]
+        - paragraph [ref=e384]: See what teams are building with EmbedPDF
+      - generic [ref=e385]:
+        - generic [ref=e388]:
+          - generic [ref=e389]: "\""
+          - generic [ref=e390]:
+            - generic [ref=e391]:
+              - img "Stirling PDF" [ref=e392]
+              - generic [ref=e393]: Stirling-PDF
+            - generic [ref=e394]: PDF Tools
+          - blockquote [ref=e395]: I love the modular plugin architecture, the flexibility to integrate and customize however we need has been invaluable. A great open-source product with an amazing license and community of developers ready to help.
+          - generic [ref=e396]:
+            - img "Anthony Stirling" [ref=e399]
+            - generic [ref=e400]:
+              - generic [ref=e401]: Anthony Stirling
+              - generic [ref=e402]: CTO & Founder
+              - generic [ref=e403]: Stirling PDF
+        - generic [ref=e406]:
+          - generic [ref=e407]: "\""
+          - generic [ref=e408]:
+            - img "Grella" [ref=e410]
+            - generic [ref=e411]: AI Citations
+          - blockquote [ref=e412]: After fighting with PDF.js in the browser, we found EmbedPDF with its first-class Svelte support. Within minutes we had something working, its extensible nature gave us the control we needed to build citation highlighting on top. Not a single regret.
+          - generic [ref=e413]:
+            - img "Hamza Aitali" [ref=e416]
+            - generic [ref=e417]:
+              - generic [ref=e418]: Hamza Aitali
+              - generic [ref=e419]: Founder
+              - generic [ref=e420]: Grella
+    - generic [ref=e427]:
+      - heading "Ready to transform your PDF experience?" [level=2] [ref=e428]
+      - paragraph [ref=e429]: Join thousands of developers who have chosen the open-source path. No vendor lock-in, no black boxes, just code.
+      - generic [ref=e430]:
+        - link "Start Building Now" [ref=e431] [cursor=pointer]:
+          - /url: /docs
+          - text: Start Building Now
+          - img [ref=e432]
+        - link "Support Development" [ref=e434] [cursor=pointer]:
+          - /url: /sponsorship
+          - img [ref=e435]
+          - text: Support Development
+  - contentinfo [ref=e437]:
+    - generic [ref=e439]:
+      - generic [ref=e440]:
+        - generic [ref=e441]:
+          - link "EmbedPDF" [ref=e442] [cursor=pointer]:
+            - /url: /
+            - img [ref=e444]
+            - generic [ref=e450]: EmbedPDF
+          - paragraph [ref=e451]: The open-source PDF viewer for modern web applications. Fast, customizable, and framework-agnostic.
+          - generic [ref=e452]:
+            - link "GitHub" [ref=e453] [cursor=pointer]:
+              - /url: https://github.com/embedpdf/embed-pdf-viewer
+              - img [ref=e454]
+            - link "Discord" [ref=e457] [cursor=pointer]:
+              - /url: https://discord.gg/mHHABmmuVU
+              - img [ref=e458]
+        - generic [ref=e460]:
+          - heading "Frameworks" [level=3] [ref=e461]
+          - list [ref=e462]:
+            - listitem [ref=e463]:
+              - link "React PDF Viewer" [ref=e464] [cursor=pointer]:
+                - /url: /react-pdf-viewer
+                - generic [ref=e466]: React PDF Viewer
+            - listitem [ref=e467]:
+              - link "Vue PDF Viewer" [ref=e468] [cursor=pointer]:
+                - /url: /vue-pdf-viewer
+                - generic [ref=e470]: Vue PDF Viewer
+            - listitem [ref=e471]:
+              - link "Svelte PDF Viewer" [ref=e472] [cursor=pointer]:
+                - /url: /svelte-pdf-viewer
+                - generic [ref=e474]: Svelte PDF Viewer
+        - generic [ref=e475]:
+          - heading "Resources" [level=3] [ref=e476]
+          - list [ref=e477]:
+            - listitem [ref=e478]:
+              - link "Documentation" [ref=e479] [cursor=pointer]:
+                - /url: /docs
+                - generic [ref=e481]: Documentation
+            - listitem [ref=e482]:
+              - link "Tools" [ref=e483] [cursor=pointer]:
+                - /url: /tools
+                - generic [ref=e485]: Tools
+            - listitem [ref=e486]:
+              - link "GitHub Repository" [ref=e487] [cursor=pointer]:
+                - /url: https://github.com/embedpdf/embed-pdf-viewer
+                - generic [ref=e489]: GitHub Repository
+        - generic [ref=e490]:
+          - heading "Community" [level=3] [ref=e491]
+          - list [ref=e492]:
+            - listitem [ref=e493]:
+              - link "Sponsorship" [ref=e494] [cursor=pointer]:
+                - /url: /sponsorship
+                - generic [ref=e496]: Sponsorship
+            - listitem [ref=e497]:
+              - link "Report Issues" [ref=e498] [cursor=pointer]:
+                - /url: https://github.com/embedpdf/embed-pdf-viewer/issues
+                - generic [ref=e500]: Report Issues
+            - listitem [ref=e501]:
+              - link "Discussions" [ref=e502] [cursor=pointer]:
+                - /url: https://github.com/embedpdf/embed-pdf-viewer/discussions
+                - generic [ref=e504]: Discussions
+      - generic [ref=e506]:
+        - paragraph [ref=e507]: © 2026 EmbedPDF. Released under the MIT License.
+        - generic [ref=e508]:
+          - generic [ref=e509]: Made with
+          - img [ref=e510]
+          - generic [ref=e512]: by the open-source community
+  - alert [ref=e658]

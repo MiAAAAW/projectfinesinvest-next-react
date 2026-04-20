@@ -136,13 +136,22 @@ export function PdfSnippetViewer({
   }, [src]);
 
   // ── 3) Precarga en background de los vecinos (autoActivate: false) ────────
+  // Estrategia anti-contención de ancho de banda:
+  //   a) Esperar 1.5s tras montaje → da prioridad total al doc activo.
+  //   b) Pool de concurrencia 2 (no N paralelos) → evita saturar la red del
+  //      usuario que típicamente tiene 5-10 Mbps y no tolera 10 fetches
+  //      de ~2MB simultáneos (cada uno cae a 1-2 Mbps → 2-8s).
+  //   c) `requestIdleCallback` si está disponible → arranca cuando el browser
+  //      está genuinamente idle, no mientras el user interactúa.
   useEffect(() => {
     const promise = containerPromiseRef.current;
     if (!promise) return;
     if (!preloadUrls || preloadUrls.length === 0) return;
     let cancelled = false;
+    let idleHandle: number | undefined;
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
-    (async () => {
+    const startPreload = async () => {
       try {
         const container = await promise;
         if (cancelled || !container) return;
@@ -158,35 +167,55 @@ export function PdfSnippetViewer({
         if (!plugin) return;
         const cap = plugin.provides();
 
-        // Filtrar: no re-precargar el doc activo ni los ya abiertos.
         const toPreload = preloadUrls.filter(
           (u) => u !== src && !cap.isDocumentOpen(u)
         );
         if (toPreload.length === 0) return;
 
-        // Paralelo: todos arrancan a la vez. `autoActivate: false` = no cambia doc.
-        await Promise.allSettled(
-          toPreload.map((url) => {
-            if (cancelled) return Promise.resolve();
-            return cap.openDocumentUrl({
-              url,
-              documentId: url,
-              mode: "range-request",
-              autoActivate: false,
-            });
-          })
-        );
+        // Pool de concurrencia: N workers consumen la queue en serie.
+        const CONCURRENCY = 2;
+        const queue = [...toPreload];
+        const workers = Array.from({ length: CONCURRENCY }, async () => {
+          while (!cancelled) {
+            const url = queue.shift();
+            if (!url) return;
+            try {
+              await cap.openDocumentUrl({
+                url,
+                documentId: url,
+                mode: "range-request",
+                autoActivate: false,
+              });
+            } catch (err) {
+              console.warn("PDF preload error:", err);
+            }
+          }
+        });
+        await Promise.all(workers);
       } catch (err) {
-        // Silencioso: fallos de precarga no afectan al doc activo.
-        console.warn("PDF preload error:", err);
+        console.warn("PDF preload setup error:", err);
       }
-    })();
+    };
+
+    // Defer: esperar que el doc activo no pelee por ancho de banda.
+    type IdleWindow = Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout?: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const w = window as IdleWindow;
+    if (typeof w.requestIdleCallback === "function") {
+      idleHandle = w.requestIdleCallback(() => startPreload(), { timeout: 3000 });
+    } else {
+      timeoutHandle = setTimeout(startPreload, 1500);
+    }
 
     return () => {
       cancelled = true;
+      if (idleHandle !== undefined && typeof w.cancelIdleCallback === "function") {
+        w.cancelIdleCallback(idleHandle);
+      }
+      if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
     };
-    // preloadUrls como string[] causaría re-runs si la ref cambia; el consumidor
-    // debería memoizar. Usamos join para estabilizar comparación por contenido.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preloadUrls?.join("|"), src]);
 

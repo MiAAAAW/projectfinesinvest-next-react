@@ -72,12 +72,26 @@ export function AccreditationExplorer({ standards }: { standards: StandardDTO[] 
   }, []);
 
   const [search, setSearch] = useState("");
-  const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
-  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
-  // Accordion single — un estándar abierto a la vez (UX más limpia, sin scroll largo)
-  const [openStandard, setOpenStandard] = useState<string>(() =>
-    standards.length > 0 ? standards[0].id : ""
+  // Auto-select primera sub-evidencia con documentos → el viewer se monta
+  // en hidratación, "Loading document..." ocurre mientras el usuario lee
+  // el árbol en lugar de bloquear el primer click.
+  const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(
+    () => {
+      for (const std of standards) {
+        const withDocs = std.subEvidences.find((se) => se.documents.length > 0);
+        if (withDocs) return withDocs.id;
+      }
+      return null;
+    }
   );
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  // Accordion single — abre el estándar cuya sub-evidencia quedó auto-seleccionada.
+  const [openStandard, setOpenStandard] = useState<string>(() => {
+    for (const std of standards) {
+      if (std.subEvidences.some((se) => se.documents.length > 0)) return std.id;
+    }
+    return standards[0]?.id ?? "";
+  });
   // Categoría activa por estándar (data-driven, no hardcoded)
   const [activeCategoryByStd, setActiveCategoryByStd] = useState<Record<string, string>>({});
 

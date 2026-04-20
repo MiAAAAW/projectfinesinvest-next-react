@@ -1,0 +1,300 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "FINESI Investigación" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img [ref=e9]
+          - generic [ref=e12]: FINESI Investigación
+        - generic [ref=e13]:
+          - link "Anuncios" [ref=e15] [cursor=pointer]:
+            - /url: /#announcements
+            - text: Anuncios
+          - link "Investigación" [ref=e18] [cursor=pointer]:
+            - /url: /#research
+            - text: Investigación
+            - img [ref=e19]
+          - link "Documentos" [ref=e23] [cursor=pointer]:
+            - /url: /#documents
+            - text: Documentos
+            - img [ref=e24]
+          - link "Posgrado" [ref=e27] [cursor=pointer]:
+            - /url: /posgrado
+            - text: Posgrado
+          - link "Acreditación" [ref=e30] [cursor=pointer]:
+            - /url: /acreditacion
+            - text: Acreditación
+            - img [ref=e31]
+          - link "Contacto" [ref=e34] [cursor=pointer]:
+            - /url: /#offices
+            - text: Contacto
+        - link "Admin" [ref=e37] [cursor=pointer]:
+          - /url: /admin
+    - generic [ref=e41]:
+      - navigation "Breadcrumb" [ref=e42]:
+        - list [ref=e43]:
+          - listitem [ref=e44]:
+            - link "Inicio" [ref=e45] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e46]:
+            - img [ref=e47]
+            - generic [ref=e49]: Acreditación
+      - generic [ref=e50]:
+        - heading "Acreditación" [level=1] [ref=e51]
+        - paragraph [ref=e52]: Estándares, sub-evidencias y documentos del proceso de autoevaluación.
+      - main [ref=e53]:
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - img
+            - searchbox "Buscar estándar o evidencia..." [ref=e56]
+          - generic [ref=e57]:
+            - complementary [ref=e58]:
+              - generic [ref=e62]:
+                - generic [ref=e63]:
+                  - heading "E22Gestión y calidad I+D+i docentes 11 evidencias · 35 documentos" [level=3] [ref=e64]:
+                    - button "E22Gestión y calidad I+D+i docentes 11 evidencias · 35 documentos" [expanded] [ref=e65]:
+                      - generic [ref=e66]:
+                        - paragraph [ref=e67]:
+                          - generic [ref=e68]: E22
+                          - text: Gestión y calidad I+D+i docentes
+                        - paragraph [ref=e69]: 11 evidencias · 35 documentos
+                      - img
+                  - region "E22Gestión y calidad I+D+i docentes 11 evidencias · 35 documentos" [ref=e70]:
+                    - generic [ref=e72]:
+                      - tablist [ref=e73]:
+                        - tab "Planificación 4" [selected] [ref=e74]:
+                          - text: Planificación
+                          - generic [ref=e75]: "4"
+                        - tab "Resultados 3" [ref=e76]:
+                          - text: Resultados
+                          - generic [ref=e77]: "3"
+                        - tab "Mejoras 4" [ref=e78]:
+                          - text: Mejoras
+                          - generic [ref=e79]: "4"
+                      - tabpanel "Planificación 4" [ref=e80]:
+                        - list [ref=e81]:
+                          - listitem [ref=e82]:
+                            - button "E22.1Marco normativo 13" [ref=e83]:
+                              - img [ref=e84]
+                              - generic [ref=e87]: E22.1Marco normativo
+                              - generic [ref=e88]: "13"
+                          - listitem [ref=e89]:
+                            - button "E22.2RD coordinación investigación 2" [ref=e90]:
+                              - img [ref=e91]
+                              - generic [ref=e94]: E22.2RD coordinación investigación
+                              - generic [ref=e95]: "2"
+                          - listitem [ref=e96]:
+                            - button "E22.3Plan trabajo coordinación investigación 4" [ref=e97]:
+                              - img [ref=e98]
+                              - generic [ref=e101]: E22.3Plan trabajo coordinación investigación
+                              - generic [ref=e102]: "4"
+                          - listitem [ref=e103]:
+                            - button "E22.4Líneas investigación UNA-Puno 4" [ref=e104]:
+                              - img [ref=e105]
+                              - generic [ref=e108]: E22.4Líneas investigación UNA-Puno
+                              - generic [ref=e109]: "4"
+                - heading "E23I+D+i obtención grado y título 9 evidencias · 27 documentos" [level=3] [ref=e111]:
+                  - button "E23I+D+i obtención grado y título 9 evidencias · 27 documentos" [ref=e112]:
+                    - generic [ref=e113]:
+                      - paragraph [ref=e114]:
+                        - generic [ref=e115]: E23
+                        - text: I+D+i obtención grado y título
+                      - paragraph [ref=e116]: 9 evidencias · 27 documentos
+                    - img
+                - heading "E24Publicaciones resultados I+D+i 10 evidencias · 28 documentos" [level=3] [ref=e118]:
+                  - button "E24Publicaciones resultados I+D+i 10 evidencias · 28 documentos" [ref=e119]:
+                    - generic [ref=e120]:
+                      - paragraph [ref=e121]:
+                        - generic [ref=e122]: E24
+                        - text: Publicaciones resultados I+D+i
+                      - paragraph [ref=e123]: 10 evidencias · 28 documentos
+                    - img
+            - generic [ref=e124]:
+              - generic [ref=e127]:
+                - generic [ref=e128]:
+                  - generic [ref=e129]: Planificación
+                  - generic [ref=e130]: E22.1
+                  - generic [ref=e131]: · 13 documentos
+                - heading "Marco normativo" [level=2] [ref=e132]
+              - generic [ref=e133]:
+                - complementary [ref=e134]:
+                  - generic [ref=e135]: Documentos · 13
+                  - list [ref=e139]:
+                    - listitem [ref=e140]:
+                      - button "E22.1.0 Resolucion Consejo Directivo-000017-2022-CDAH Modelo Calidad Acreditacio Institucional Universidades" [ref=e141]:
+                        - img [ref=e142]
+                        - generic [ref=e145]:
+                          - generic [ref=e146]: E22.1.0
+                          - generic [ref=e147]: Resolucion Consejo Directivo-000017-2022-CDAH Modelo Calidad Acreditacio Institucional Universidades
+                    - listitem [ref=e148]:
+                      - button "E22.1.0 Resolucion Presidencia-000071-2022-P Lineamientos Evaluacion Estadndares Modelo Acreditacion 2016" [ref=e149]:
+                        - img [ref=e150]
+                        - generic [ref=e153]:
+                          - generic [ref=e154]: E22.1.0
+                          - generic [ref=e155]: Resolucion Presidencia-000071-2022-P Lineamientos Evaluacion Estadndares Modelo Acreditacion 2016
+                    - listitem [ref=e156]:
+                      - button "E22.1.1 Ley Universitaria 30220 El Peruano 9_julio_2014" [ref=e157]:
+                        - img [ref=e158]
+                        - generic [ref=e161]:
+                          - generic [ref=e162]: E22.1.1
+                          - generic [ref=e163]: Ley Universitaria 30220 El Peruano 9_julio_2014
+                    - listitem [ref=e164]:
+                      - button "E22.1.2 Estatuto UNA Puno 2023 RAU-8-2023 25-mayo-2023" [ref=e165]:
+                        - img [ref=e166]
+                        - generic [ref=e169]:
+                          - generic [ref=e170]: E22.1.2
+                          - generic [ref=e171]: Estatuto UNA Puno 2023 RAU-8-2023 25-mayo-2023
+                    - listitem [ref=e172]:
+                      - button "E22.1.3 RR 697-2023-R-UNA mapa proceso sistema gestión calidad" [ref=e173]:
+                        - img [ref=e174]
+                        - generic [ref=e177]:
+                          - generic [ref=e178]: E22.1.3
+                          - generic [ref=e179]: RR 697-2023-R-UNA mapa proceso sistema gestión calidad
+                    - listitem [ref=e180]:
+                      - button "E22.1.4 RR 2463-R-UNA politca gestion gestion calidad" [ref=e181]:
+                        - img [ref=e182]
+                        - generic [ref=e185]:
+                          - generic [ref=e186]: E22.1.4
+                          - generic [ref=e187]: RR 2463-R-UNA politca gestion gestion calidad
+                    - listitem [ref=e188]:
+                      - button "E22.1.5 RR 2462-2022-R-UNA objetivos sistema gestion calidad" [ref=e189]:
+                        - img [ref=e190]
+                        - generic [ref=e193]:
+                          - generic [ref=e194]: E22.1.5
+                          - generic [ref=e195]: RR 2462-2022-R-UNA objetivos sistema gestion calidad
+                    - listitem [ref=e196]:
+                      - button "E22.1.6 RR-1783-2024-R-UNA reglamento Comite Integridad Científica UNA" [ref=e197]:
+                        - img [ref=e198]
+                        - generic [ref=e201]:
+                          - generic [ref=e202]: E22.1.6
+                          - generic [ref=e203]: RR-1783-2024-R-UNA reglamento Comite Integridad Científica UNA
+                    - listitem [ref=e204]:
+                      - button "E22.1.7 RR-1899-2023-R-UNA Sistema de Informacion gestion investigacion" [ref=e205]:
+                        - img [ref=e206]
+                        - generic [ref=e209]:
+                          - generic [ref=e210]: E22.1.7
+                          - generic [ref=e211]: RR-1899-2023-R-UNA Sistema de Informacion gestion investigacion
+                    - listitem [ref=e212]:
+                      - button "E22.1.8 REGLAMENTO DE USO DEL SOFTWARE DE CONTROL DE SIMILITUD Y DETECCION DE PLAGIO EN TRABAJOS ACADEMICOS Y DE INVESTIGACION" [ref=e213]:
+                        - img [ref=e214]
+                        - generic [ref=e217]:
+                          - generic [ref=e218]: E22.1.8
+                          - generic [ref=e219]: REGLAMENTO DE USO DEL SOFTWARE DE CONTROL DE SIMILITUD Y DETECCION DE PLAGIO EN TRABAJOS ACADEMICOS Y DE INVESTIGACION
+                    - listitem [ref=e220]:
+                      - button "E22.1.9 Manual procedimiento investigacion humanos UNA 2022" [ref=e221]:
+                        - img [ref=e222]
+                        - generic [ref=e225]:
+                          - generic [ref=e226]: E22.1.9
+                          - generic [ref=e227]: Manual procedimiento investigacion humanos UNA 2022
+                    - listitem [ref=e228]:
+                      - button "E22.1.10 Pautas éticas internacionales salud seres humanos" [ref=e229]:
+                        - img [ref=e230]
+                        - generic [ref=e233]:
+                          - generic [ref=e234]: E22.1.10
+                          - generic [ref=e235]: Pautas éticas internacionales salud seres humanos
+                    - listitem [ref=e236]:
+                      - button "E22.1.11 RR 0052-2025-R-UNA directiva Académica 2025" [ref=e237]:
+                        - img [ref=e238]
+                        - generic [ref=e241]:
+                          - generic [ref=e242]: E22.1.11
+                          - generic [ref=e243]: RR 0052-2025-R-UNA directiva Académica 2025
+                - generic [ref=e246]:
+                  - img [ref=e248]
+                  - heading "Aún no hay documentos para esta evidencia" [level=3] [ref=e251]
+                  - paragraph [ref=e252]: Los PDFs se cargarán desde el panel administrativo.
+    - generic [ref=e254]:
+      - generic [ref=e255]:
+        - generic [ref=e256]:
+          - link "FINESI" [ref=e257] [cursor=pointer]:
+            - /url: /
+            - img [ref=e258]
+            - generic [ref=e261]: FINESI
+          - paragraph [ref=e262]: Dirección de Investigación de la Facultad de Ingeniería Estadística e Informática - Universidad Nacional del Altiplano, Puno.
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - heading "Navegación" [level=4] [ref=e265]
+            - list [ref=e266]:
+              - listitem [ref=e267]:
+                - link "Inicio" [ref=e268] [cursor=pointer]:
+                  - /url: /
+                  - generic [ref=e269]: Inicio
+              - listitem [ref=e270]:
+                - link "Anuncios" [ref=e271] [cursor=pointer]:
+                  - /url: /#announcements
+                  - generic [ref=e272]: Anuncios
+              - listitem [ref=e273]:
+                - link "Investigación" [ref=e274] [cursor=pointer]:
+                  - /url: /#research
+                  - generic [ref=e275]: Investigación
+              - listitem [ref=e276]:
+                - link "Documentos" [ref=e277] [cursor=pointer]:
+                  - /url: /#documents
+                  - generic [ref=e278]: Documentos
+          - generic [ref=e279]:
+            - heading "Recursos" [level=4] [ref=e280]
+            - list [ref=e281]:
+              - listitem [ref=e282]:
+                - link "Calendario" [ref=e283] [cursor=pointer]:
+                  - /url: /#calendar
+                  - generic [ref=e284]: Calendario
+              - listitem [ref=e285]:
+                - link "Galería" [ref=e286] [cursor=pointer]:
+                  - /url: /#gallery
+                  - generic [ref=e287]: Galería
+              - listitem [ref=e288]:
+                - link "Autoridades" [ref=e289] [cursor=pointer]:
+                  - /url: /#authorities
+                  - generic [ref=e290]: Autoridades
+              - listitem [ref=e291]:
+                - link "Oficinas" [ref=e292] [cursor=pointer]:
+                  - /url: /#offices
+                  - generic [ref=e293]: Oficinas
+          - generic [ref=e294]:
+            - heading "Contacto" [level=4] [ref=e295]
+            - list [ref=e296]:
+              - listitem [ref=e297]:
+                - link "Email" [ref=e298] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e299]: Email
+              - listitem [ref=e300]:
+                - link "Teléfono" [ref=e301] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e302]: Teléfono
+          - generic [ref=e303]:
+            - heading "Universidad" [level=4] [ref=e304]
+            - list [ref=e305]:
+              - listitem [ref=e306]:
+                - link "UNA Puno" [ref=e307] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e308]: UNA Puno
+                  - img [ref=e309]
+              - listitem [ref=e313]:
+                - link "FINESI" [ref=e314] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e315]: FINESI
+                  - img [ref=e316]
+              - listitem [ref=e320]:
+                - link "VRIP" [ref=e321] [cursor=pointer]:
+                  - /url: "#"
+                  - generic [ref=e322]: VRIP
+                  - img [ref=e323]
+      - generic [ref=e327]:
+        - paragraph [ref=e328]:
+          - text: © 2026 FINESI - Universidad Nacional del Altiplano. Todos los derechos reservados.
+          - generic [ref=e329]:
+            - text: Made with
+            - img [ref=e330]
+            - text: by
+            - generic [ref=e332]: ODINLAB
+        - generic [ref=e333]:
+          - link "Portal UNA" [ref=e334] [cursor=pointer]:
+            - /url: "#"
+            - text: Portal UNA
+            - img [ref=e335]
+          - link "VRIP" [ref=e339] [cursor=pointer]:
+            - /url: "#"
+            - text: VRIP
+            - img [ref=e340]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e349] [cursor=pointer]:
+    - img [ref=e350]

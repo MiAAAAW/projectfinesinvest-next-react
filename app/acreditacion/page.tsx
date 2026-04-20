@@ -1,3 +1,4 @@
+import { preload } from "react-dom";
 import { prisma, notDeleted } from "@/lib/prisma";
 import { SectionPage } from "@/components/layout/SectionPage";
 import { AccreditationExplorer, type StandardDTO } from "./_components/AccreditationExplorer";
@@ -65,6 +66,21 @@ export default async function AcreditacionPage() {
       })),
     })),
   }));
+
+  // ─── Preload del primer PDF (inyectado en <head> como <link rel="preload">) ──
+  // Usa la misma data que `AccreditationExplorer` usará para auto-seleccionar.
+  // Así los bytes ya están en caché del browser cuando el viewer los pida.
+  // Cero hardcode: URL derivada de la BD.
+  for (const std of data) {
+    const seWithDocs = std.subEvidences.find((se) => se.documents.length > 0);
+    if (seWithDocs) {
+      const firstDoc = seWithDocs.documents[0];
+      if (firstDoc?.fileUrl) {
+        preload(firstDoc.fileUrl, { as: "fetch", crossOrigin: "anonymous" });
+      }
+      break;
+    }
+  }
 
   const breadcrumb = [
     { label: siteNav.home.label, href: siteNav.home.path },
