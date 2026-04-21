@@ -6,8 +6,8 @@ import { requireAuth, errorResponse, successResponse } from "@/lib/api-utils";
 export const runtime = "nodejs";
 export const maxDuration = 300; // 5 minutos para uploads grandes
 
-// Max file size: 100MB
-const MAX_FILE_SIZE = 100 * 1024 * 1024;
+// Max file size: 150MB
+const MAX_FILE_SIZE = 150 * 1024 * 1024;
 
 const ALLOWED_TYPES: Record<string, string> = {
   "application/pdf": "pdf",
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return errorResponse("El archivo excede el tamaño máximo de 100MB", 400);
+      return errorResponse("El archivo excede el tamaño máximo de 150MB", 400);
     }
 
     if (!ALLOWED_TYPES[file.type]) {

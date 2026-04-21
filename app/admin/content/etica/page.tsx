@@ -428,7 +428,7 @@ export default function EticaEditorPage() {
                     <FileUploadR2
                       folder="etica"
                       accept=".pdf"
-                      maxSizeMB={100}
+                      maxSizeMB={150}
                       label="Subir PDF"
                       onUploaded={handlePdfUploaded}
                     />
